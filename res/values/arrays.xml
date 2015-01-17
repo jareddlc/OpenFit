@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="preference_list_paired_entries">
+        <item >No paired devices</item>
+    </string-array>
+    <string-array name="preference_list_paired_values">
+        <item >none</item>
+    </string-array>
+</resources>

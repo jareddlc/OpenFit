@@ -12,13 +12,13 @@
             android:summary="@string/preference_scan_summary"/>
         <ListPreference
             android:dependency="preference_switch_bluetooth"
-            android:key="preference_list_paired"
-            android:title="@string/preference_list_paired_title"
-            android:dialogTitle="@string/preference_list_paired_dialog"
-            android:summary="@string/preference_list_paired_summary"
-            android:entries="@array/preference_list_paired_entries"
-            android:entryValues="@array/preference_list_paired_values"
-            android:defaultValue="@string/preference_list_paired_default" />
+            android:key="preference_list_devices"
+            android:title="@string/preference_list_devices_title"
+            android:dialogTitle="@string/preference_list_devices_dialog"
+            android:summary="@string/preference_list_devices_summary"
+            android:entries="@array/preference_list_devices_entries"
+            android:entryValues="@array/preference_list_devices_values"
+            android:defaultValue="@string/preference_list_devices_default" />
         <CheckBoxPreference
             android:dependency="preference_switch_bluetooth"
             android:key="preference_checkbox_connect"

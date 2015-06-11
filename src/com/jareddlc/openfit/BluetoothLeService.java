@@ -1,10 +1,15 @@
 package com.jareddlc.openfit;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
@@ -16,6 +21,8 @@ import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.bluetooth.BluetoothAdapter.LeScanCallback;
+import android.bluetooth.BluetoothServerSocket;
+import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
@@ -31,23 +38,32 @@ public class BluetoothLeService extends Service {
     private static Handler mHandler;
     private static String setDeviceMac;
     private String mBluetoothDeviceAddress;
+    public static InputStream mInStream;
+    public static OutputStream mOutStream;
     public static CharSequence[] pairedEntries;
     public static CharSequence[] pairedEntryValues;
     public static CharSequence[] scannedEntries;
     public static CharSequence[] scannedEntryValues;
     private static EnableBluetoothThread eBluetooth;
     private static BluetoothGatt mBluetoothGatt;
+    private static BluetoothSocket mBluetoothSocket;
     private static BluetoothDevice mBluetoothDevice;
     private static BluetoothAdapter mBluetoothAdapter;
     private static BluetoothManager mBluetoothManager;
     private static Set<BluetoothDevice> pairedDevices;
     private static Set<BluetoothDevice> scannedDevices;
+    private static BluetoothServerSocket mBluetoothServerSocket;
     public static BluetoothGattCharacteristic mWriteCharacteristic;
 
     public int mConnectionState = 0;
     public static boolean isEnabled = false;
     public static boolean isConnected = false;
     public static boolean isScanning = false;
+    public static boolean isPrompt = false;
+
+    private static onConnectThread onconnect;
+    private static ConnectThread connect;
+    private static ServerThread server;
 
     private static final int STATE_FORCE = 3;
     private static final long SCAN_PERIOD = 5000;
@@ -59,12 +75,15 @@ public class BluetoothLeService extends Service {
     public final static String ACTION_GATT_CONNECTED = "ACTION_GATT_CONNECTED";
     public final static String ACTION_GATT_DISCONNECTED = "ACTION_GATT_DISCONNECTED";
     public final static String ACTION_GATT_SERVICES_DISCOVERED = "ACTION_GATT_SERVICES_DISCOVERED";
+    private static final UUID MY_UUID_SECURE = UUID.fromString("9c86c750-870d-11e3-baa7-0800200c9a66");
+    private static final UUID MY_UUID_INSECURE = UUID.fromString("9c86c750-870d-11e3-baa7-0800200c9a66");
 
     public static String[] gattStatus = {"Success", "Failure"};
     public static String[] gattState = {"Disconnected", "Connecting", "Connected", "Disconnecting"};
     public static String[] gattServiceType = {"Primary", "Secondary"};
     //00001801-0000-1000-8000-00805f9b34fb
-
+    
+    
     // bluetoothle callback
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
         @Override
@@ -84,6 +103,7 @@ public class BluetoothLeService extends Service {
                     mHandler.sendMessage(msg);
                 }
                 // attempts to discover services after successful connection.
+                Log.d(LOG_TAG, "Starting discoverServices");
                 mBluetoothGatt.discoverServices();
             }
             else if(newState == BluetoothProfile.STATE_DISCONNECTED) {
@@ -92,6 +112,7 @@ public class BluetoothLeService extends Service {
                 mConnectionState = STATE_DISCONNECTED;
                 broadcastUpdate(ACTION_GATT_DISCONNECTED);
                 if(mHandler != null) {
+                    isPrompt = true;
                     Message msg = mHandler.obtainMessage();
                     Bundle b = new Bundle();
                     b.putString("bluetooth", "isDisconnected");
@@ -321,6 +342,16 @@ public class BluetoothLeService extends Service {
         Log.d(LOG_TAG, "Setting handler");
         mHandler = mHndlr;
     }
+    
+    public void getPasskey() {
+        Log.d(LOG_TAG, "attempting to get passkey");
+        if(mBluetoothDevice != null) {
+            server = new ServerThread();
+            server.start();
+            connect = new ConnectThread();
+            connect.start();
+        }
+    }
 
     public void enableBluetooth() {
         if(!mBluetoothAdapter.isEnabled()) {
@@ -516,6 +547,157 @@ public class BluetoothLeService extends Service {
                 Log.d(LOG_TAG, "Enabling Bluetooth timed out");
             }
             
+        }
+    }
+
+    private class ConnectThread extends Thread {
+        public ConnectThread() {
+            Log.d(LOG_TAG, "Initializing ConnectThread");
+
+            // get a BluetoothSocket to connect with the given BluetoothDevice
+            try {
+                Log.d(LOG_TAG, "try ConnectThread: "+mBluetoothDevice.getName()+" with UUID: "+MY_UUID_SECURE.toString());
+                mBluetoothSocket = mBluetoothDevice.createRfcommSocketToServiceRecord(MY_UUID_SECURE);
+            }
+            catch(Exception e) {
+                Log.e(LOG_TAG, "Error: mBluetoothDevice.createRfcommSocketToServiceRecord", e);
+            }
+        }
+
+        public void run() {
+            Log.d(LOG_TAG, "Running ConnectThread");
+            // Cancel discovery because it will slow down the connection
+            mBluetoothAdapter.cancelDiscovery();
+
+            try {
+                // connect the device through the socket. This will block until it succeeds or throws an exception
+                mBluetoothSocket.connect();
+                /*isConnected = true;
+                Message msg = mHandler.obtainMessage();
+                Bundle b = new Bundle();
+                b.putString("bluetooth", "isConnected");
+                msg.setData(b);
+                mHandler.sendMessage(msg);*/
+            }
+            catch(IOException connectException) {
+                Log.e(LOG_TAG, "Error: mBluetoothSocket.connect()", connectException);
+                try {
+                    mBluetoothSocket.close();
+                    /*Message msg = mHandler.obtainMessage();
+                    Bundle b = new Bundle();
+                    b.putString("bluetooth", "isConnectedFailed");
+                    msg.setData(b);
+                    mHandler.sendMessage(msg);*/
+                }
+                catch (IOException closeException) {
+                    Log.e(LOG_TAG, "Error: mBluetoothSocket.close()", closeException);
+                }
+                return;
+            }
+            Log.d(LOG_TAG, "ConnectThread connected");
+            // Do work to manage the connection
+            onconnect = new onConnectThread();
+            onconnect.start();
+        }
+
+        public void close() {
+            try {
+                mBluetoothSocket.close();
+            }
+            catch (IOException e) {
+                Log.e(LOG_TAG, "Error: mmSocket.close()", e);
+            }
+        }
+    }
+
+    private class onConnectThread extends Thread {
+        public onConnectThread() {
+            Log.d(LOG_TAG, "Initializing onConnectThread");
+
+            // get the input and output streams
+            try {
+                mInStream = mBluetoothSocket.getInputStream();
+                mOutStream = mBluetoothSocket.getOutputStream();
+            }
+            catch(IOException e) {
+                Log.e(LOG_TAG, "Error: mBluetoothSocket.getInputStream()/socket.getOutputStream()", e);
+            }
+        }
+
+        public void run() {
+            Log.d(LOG_TAG, "Running onConnectThread");
+            ByteArrayOutputStream byteArray = new ByteArrayOutputStream();
+            int bufferSize = 1024;
+            byte[] buffer = new byte[bufferSize];
+
+            // listen to the InputStream
+            try {
+                while(mInStream.available() > 0) {
+                    int bytes = mInStream.read(buffer);
+                    byteArray.write(buffer, 0, bytes);
+                    Log.d(LOG_TAG, "Received: "+byteArray);
+                    byteArray.reset();
+                }
+            } catch (IOException e) {
+                Log.e(LOG_TAG, "Error: mInStream.read()", e);
+            }
+        }
+
+        public void write(byte[] bytes) {
+            try {
+                mOutStream.write(bytes);
+                mOutStream.flush();
+            }
+            catch(IOException e) {
+                Log.e(LOG_TAG, "Error: mOutStream.write()", e);
+            }
+        }
+
+        public void close() {
+            try {
+                mInStream.close();
+                mOutStream.close();
+                mBluetoothSocket.close();
+                isConnected = false;
+            }
+            catch(IOException e) {
+                Log.e(LOG_TAG, "Error: mSocket.close()", e);
+            }
+        }
+    }
+
+    private class ServerThread extends Thread {
+        public ServerThread() {
+            Log.d(LOG_TAG, "Initializing ServerThread");
+
+            try {
+                Log.d(LOG_TAG, "try ServerThread with UUID: "+MY_UUID_SECURE);
+                mBluetoothServerSocket = mBluetoothAdapter.listenUsingRfcommWithServiceRecord("SessionManagerSecure", MY_UUID_SECURE);
+            } catch (IOException e1) {
+                Log.e(LOG_TAG, "Error listenUsingRfcommWithServiceRecord");
+                e1.printStackTrace();
+            }
+        }
+
+        public void run() {
+            Log.d(LOG_TAG, "Running ServerThread");
+
+            try {
+                mBluetoothServerSocket.accept();
+                Log.d(LOG_TAG, "mBluetoothServerSocket.accept() success");
+            } catch (IOException e1) {
+                Log.e(LOG_TAG, "Error mBluetoothServerSocket.accept()");
+                e1.printStackTrace();
+            }
+        }
+
+        public void close() {
+            try {
+                mBluetoothServerSocket.close();
+            }
+            catch (IOException e) {
+                Log.e(LOG_TAG, "Error: mmSocket.close()", e);
+            }
         }
     }
 }

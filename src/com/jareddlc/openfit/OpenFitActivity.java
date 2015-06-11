@@ -83,6 +83,7 @@ public class OpenFitActivity extends Activity {
                             Log.d(LOG_TAG, "Bluetooth Disconnected");
                             Toast.makeText(getActivity(), "Bluetooth Disconnected", Toast.LENGTH_SHORT).show();
                             preference_checkbox_connect.setChecked(false);
+                            bluetoothLeService.getPasskey();
                         }
                         if(bluetoothMessage.equals("isConnectedFailed")) {
                             Log.d(LOG_TAG, "Bluetooth Connected Failed");
@@ -205,6 +206,7 @@ public class OpenFitActivity extends Activity {
                 public boolean onPreferenceClick(Preference preference) {
                     Toast.makeText(getActivity(), "Testing...", Toast.LENGTH_SHORT).show();
                     Log.d(LOG_TAG, "test");
+                    bluetoothLeService.getPasskey();
                     return true;
                 }
             });

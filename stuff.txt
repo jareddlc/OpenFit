@@ -13,3 +13,9 @@ ConnectionController > ConnectionManager
 
 private static final UUID MY_UUID_SECURE = UUID.fromString("9c86c750-870d-11e3-baa7-0800200c9a66");
 SessionManager
+
+
+write() //E:\newSource\com\samsung\android\wms\util\SysInfo.java
+//E:\newSource\com\samsung\android\wms\gallery3d\exif\ExifOutputStream.java
+E:\newSource\com\samsung\android\wms\service\communication\SessionManager.java
+E:\newSource\com\samsung\android\wms\service\deviceregistration\osp\util\AuthUtil.java

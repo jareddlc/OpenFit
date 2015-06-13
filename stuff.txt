@@ -19,3 +19,76 @@ write() //E:\newSource\com\samsung\android\wms\util\SysInfo.java
 //E:\newSource\com\samsung\android\wms\gallery3d\exif\ExifOutputStream.java
 E:\newSource\com\samsung\android\wms\service\communication\SessionManager.java
 E:\newSource\com\samsung\android\wms\service\deviceregistration\osp\util\AuthUtil.java
+
+/***** GManager
+// Gear Fit (Req 1)
+616	9.636717	SamsungE_fa:78:89 (Gear Fit (7889))	SamsungE_b6:a3:fb (Samsung Galaxy S IV)	RFCOMM	23	Rcvd UIH Channel=1 UID
+0000   02 0c 20 12 00 0e 00 43 00 09 ff 13 21 00 04 00  .. ....C....!...
+0010   00 00 03 00 00 00 5c                             ......\
+020c2012000e00430009ff13210004000000030000005c
+data:
+00:04:00:00:00:03:00:00:00
+000400000003000000
+
+
+App NEWEST
+00:04:00:00:00:03:00:00:00
+
+
+618	9.972586	SamsungE_fa:78:89 (Gear Fit (7889))	SamsungE_b6:a3:fb (Samsung Galaxy S IV)	RFCOMM	56	Rcvd UIH Channel=1
+0000   02 0c 20 33 00 2f 00 43 00 09 ef 57 4e 26 00 00  .. 3./.C...WN&..
+0010   00 00 0c 52 33 35 30 58 58 55 30 42 4e 45 35 07  ...R350XXU0BNE5.
+0020   53 4d 2d 52 33 35 30 03 58 41 52 0b 52 46 41 46  SM-R350.XAR.RFAF
+0030   41 30 31 54 4e 58 41 40                          A01TNXA@
+020c2033002f00430009ef574e26000000000c5233353058585530424e453507534d2d52333530035841520b52464146413031544e584140
+data:
+4e:26:00:00:00:00:0c:52:33:35:30:58:58:55:30:42:4e:45:35:07:53:4d:2d:52:33:35:30:03:58:41:52:0b:52:46:41:46:41:30:31:54:4e:58:41
+4e26000000000c5233353058585530424e453507534d2d52333530035841520b52464146413031544e5841
+
+// Phone (Res 1)
+619	10.352830	SamsungE_b6:a3:fb (Samsung Galaxy S IV)	SamsungE_fa:78:89 (Gear Fit (7889))	RFCOMM	23	Sent UIH Channel=1 UID
+0000   02 0c 20 12 00 0e 00 46 00 0b ff 13 05 4d 04 00  .. ....F.....M..
+0010   00 00 4f 44 49 4e 86                             ..ODIN.
+020c2012000e0046000bff13054d040000004f44494e86
+data:
+4d:04:00:00:00:4f:44:49:4e
+4d040000004f44494e
+
+//OPEN
+0000   02 0b 20 12 00 0e 00 44 00 0b ff 13 04 4d 04 00  .. ....D.....M..
+0010   00 00 4f 44 49 4e 86                             ..ODIN.
+4d040000004f44494e
+
+App NEWEST
+4d:04:00:00:00:4f:44:49:4e
+
+620	10.403764	SamsungE_b6:a3:fb (Samsung Galaxy S IV)	SamsungE_fa:78:89 (Gear Fit (7889))	RFCOMM	20	Sent UIH Channel=1
+0000   02 0c 20 0f 00 0b 00 46 00 0b ef 0f 4e 02 00 00  .. ....F....N...
+0010   00 01 01 9a                                      ....
+020c200f000b0046000bef0f4e0200000001019a
+data:
+4e:02:00:00:00:01:01
+4e020000000101
+64:08:00:00:00:04:02:01:01:04:02:05:01
+
+/***** OpenFit
+Gear Fit (Req 1)
+209	23.151062	SamsungE_fa:78:89 (Gear Fit (7889))	localhost ()	RFCOMM	23	Rcvd UIH Channel=1 UID
+0000   02 0b 20 12 00 0e 00 48 00 09 ff 13 21 00 04 00  .. ....H....!...
+0010   00 00 03 00 00 00 5c                             ......\
+020b2012000e00480009ff13210004000000030000005c
+data:
+00:04:00:00:00:03:00:00:00
+
+Gear Fit (Req 2)
+210	23.458770	SamsungE_fa:78:89 (Gear Fit (7889))	localhost ()	RFCOMM	56	Rcvd UIH Channel=1
+0000   02 0b 20 33 00 2f 00 48 00 09 ef 57 4e 26 00 00  .. 3./.H...WN&..
+0010   00 00 0c 52 33 35 30 58 58 55 30 42 4f 41 32 07  ...R350XXU0BOA2.
+0020   53 4d 2d 52 33 35 30 03 58 41 52 0b 52 46 41 46  SM-R350.XAR.RFAF
+0030   41 30 31 54 4e 58 41 40                          A01TNXA@
+020b2033002f00480009ef574e26000000000c5233353058585530424f413207534d2d52333530035841520b52464146413031544e584140
+data:
+4e:26:00:00:00:00:0c:52:33:35:30:58:58:55:30:42:4f:41:32:07:53:4d:2d:52:33:35:30:03:58:41:52:0b:52:46:41:46:41:30:31:54:4e:58:41
+
+
+64080000000402010104020501

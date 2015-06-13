@@ -78,6 +78,13 @@ public class BluetoothLeService extends Service {
     private static final UUID MY_UUID_SECURE = UUID.fromString("9c86c750-870d-11e3-baa7-0800200c9a66");
     private static final UUID MY_UUID_INSECURE = UUID.fromString("9c86c750-870d-11e3-baa7-0800200c9a66");
 
+    private static final String REQUEST_1 = "000400000003000000";
+    public static final byte[] REQ_1 = hexStringToByteArray(REQUEST_1);
+    private static final String RESPONSE_1 = "4d040000004f44494e";
+    public static final byte[] RES_1 = hexStringToByteArray(RESPONSE_1);
+    private static final String RESPONSE_2 = "64080000000402010104020501";
+    public static final byte[] RES_s = hexStringToByteArray(RESPONSE_2);
+
     public static String[] gattStatus = {"Success", "Failure"};
     public static String[] gattState = {"Disconnected", "Connecting", "Connected", "Disconnecting"};
     public static String[] gattServiceType = {"Primary", "Secondary"};
@@ -496,6 +503,26 @@ public class BluetoothLeService extends Service {
         }
     }
 
+    public static byte[] hexStringToByteArray(String s) {
+        int len = s.length();
+        byte[] data = new byte[len / 2];
+        for(int i = 0; i < len; i += 2) {
+            data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4) + Character.digit(s.charAt(i+1), 16));
+        }
+        return data;
+    }
+
+    final protected static char[] hexArray = "0123456789ABCDEF".toCharArray();
+    public static String byteArrayToHexString(byte[] bytes) {
+        char[] hexChars = new char[bytes.length * 2];
+        for ( int j = 0; j < bytes.length; j++ ) {
+            int v = bytes[j] & 0xFF;
+            hexChars[j * 2] = hexArray[v >>> 4];
+            hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+        }
+        return new String(hexChars);
+    }
+
     private LeScanCallback mScanCallback = new LeScanCallback() {
         @Override
         public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
@@ -643,7 +670,12 @@ public class BluetoothLeService extends Service {
                     while(mInStream.available() > 0) {
                         int bytes = mInStream.read(buffer);
                         byteArray.write(buffer, 0, bytes);
-                        Log.d(LOG_TAG, "Received: "+byteArray);
+                        String hex = byteArrayToHexString(byteArray.toByteArray());
+                        Log.d(LOG_TAG, "Received: "+byteArray+ " \nHex: "+hex);
+                        if(hex.equals(REQUEST_1)) {
+                            Log.d(LOG_TAG, "Recieved setup message: "+byteArray);
+                            onconnect.write(RES_1);
+                        }
                         byteArray.reset();
                     }
                 } catch (IOException e) {
@@ -655,6 +687,8 @@ public class BluetoothLeService extends Service {
 
         public void write(byte[] bytes) {
             try {
+                String hex = byteArrayToHexString(bytes);
+                Log.d(LOG_TAG, "Sending: "+bytes+" \nHex: "+hex);
                 mOutStream.write(bytes);
                 mOutStream.flush();
             }

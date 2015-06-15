@@ -92,3 +92,52 @@ data:
 
 
 64080000000402010104020501
+
+
+
+
+
+// Difference
+
+Official App
+619	10.352830	SamsungE_b6:a3:fb (Samsung Galaxy S IV)	SamsungE_fa:78:89 (Gear Fit (7889))	RFCOMM	23	Sent UIH Channel=1 UID
+0000   02 0c 20 12 00 0e 00 46 00 0b ff 13 04 4d 04 00  .. ....F.....M..
+0010   00 00 4f 44 49 4e 86                             ..ODIN.
+Data: 4d:04:00:00:00:4f:44:49:4e
+
+My App
+132	8.060455	localhost ()	SamsungE_fa:78:89 (Gear Fit (7889))	RFCOMM	23	Sent UIH Channel=1 UID
+0000   02 0b 20 12 00 0e 00 44 00 0b ff 13 04 4d 04 00  .. ....D.....M..
+0010   00 00 4f 44 49 4e 86                             ..ODIN.
+Data: 4d:04:00:00:00:4f:44:49:4e
+
+(Bluetooth HCI H4)
+HCI Packet Type: ACL Data (0x02)
+02
+
+(Bluetooth HCI ACL Packet)
+Connection Handle: 0x000c ***
+0c 20
+Data Total Length: 18
+12 00
+
+(Bluetooth L2CAP Protocol)
+Length: 14
+0e 00
+CID: Dynamically Allocated Channel (0x0046) ***
+46 00
+
+(Bluetooth RFCOMM Protocol)
+Address: E/A flag: 1, C/R flag: 1, Direction: 0, Channel: 1
+0b
+Control: Frame type: Unnumbered Information with Header check (UIH) (0xef), P/F flag: 1
+ff
+Payload length: 9
+13
+Credits: 4 ***
+04
+Frame Check Sequence: 0x86
+86
+
+(Data (9 bytes))
+4d:04:00:00:00:4f:44:49:4e

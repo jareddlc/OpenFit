@@ -80,17 +80,12 @@ public class BluetoothLeService extends Service {
 
     private static final String REQUEST_1 = "000400000003000000";
     public static final byte[] REQ_1 = hexStringToByteArray(REQUEST_1);
-    private static final String RESPONSE_1 = "4d040000004f44494e";
-    public static final byte[] RES_1 = hexStringToByteArray(RESPONSE_1);
-    private static final String RESPONSE_2 = "64080000000402010104020501";
-    public static final byte[] RES_s = hexStringToByteArray(RESPONSE_2);
 
     public static String[] gattStatus = {"Success", "Failure"};
     public static String[] gattState = {"Disconnected", "Connecting", "Connected", "Disconnecting"};
     public static String[] gattServiceType = {"Primary", "Secondary"};
     //00001801-0000-1000-8000-00805f9b34fb
-    
-    
+
     // bluetoothle callback
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
         @Override
@@ -644,7 +639,7 @@ public class BluetoothLeService extends Service {
         }
     }
 
-    private class onConnectThread extends Thread {
+    public class onConnectThread extends Thread {
         public onConnectThread() {
             Log.d(LOG_TAG, "Initializing onConnectThread");
 
@@ -674,7 +669,7 @@ public class BluetoothLeService extends Service {
                         Log.d(LOG_TAG, "Received: "+byteArray+ " \nHex: "+hex);
                         if(hex.equals(REQUEST_1)) {
                             Log.d(LOG_TAG, "Recieved setup message: "+byteArray);
-                            onconnect.write(RES_1);
+                            onconnect.write(OpenFitApi.getFotaCommand());
                         }
                         byteArray.reset();
                     }

@@ -344,6 +344,13 @@ public class BluetoothLeService extends Service {
         mHandler = mHndlr;
     }
 
+    public void foo() {
+        Log.d(LOG_TAG, "foo");
+        if(onconnect != null) {
+            onconnect.write(OpenFitApi.getCurrentTimeInfo());
+        }
+    }
+
     public void connectRfcomm() {
         Log.d(LOG_TAG, "attempting to get connectRmcomm");
         if(mBluetoothDevice != null) {

@@ -33,5 +33,9 @@
             android:key="preference_test"
             android:title="@string/preference_test_title"
             android:summary="@string/preference_test_summary"/>
+        <Preference 
+            android:key="preference_foo"
+            android:title="@string/preference_foo_title"
+            android:summary="@string/preference_foo_summary"/>
     </PreferenceCategory>
 </PreferenceScreen>

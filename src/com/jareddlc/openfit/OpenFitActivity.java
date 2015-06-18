@@ -45,6 +45,7 @@ public class OpenFitActivity extends Activity {
         private static ListPreference preference_list_devices;
         private static Preference preference_scan;
         private static Preference preference_test;
+        private static Preference preference_foo;
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
@@ -214,6 +215,17 @@ public class OpenFitActivity extends Activity {
                     Toast.makeText(getActivity(), "Testing...", Toast.LENGTH_SHORT).show();
                     Log.d(LOG_TAG, "test");
                     bluetoothLeService.connectRfcomm();
+                    return true;
+                }
+            });
+
+            preference_foo = (Preference) getPreferenceManager().findPreference("preference_foo");
+            preference_foo.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    Toast.makeText(getActivity(), "Testing...", Toast.LENGTH_SHORT).show();
+                    Log.d(LOG_TAG, "test");
+                    bluetoothLeService.foo();
                     return true;
                 }
             });

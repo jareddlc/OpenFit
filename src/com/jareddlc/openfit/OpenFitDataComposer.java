@@ -7,6 +7,7 @@ import java.nio.charset.Charset;
 import android.graphics.Bitmap;
 
 public class OpenFitDataComposer {
+    private static final String LOG_TAG = "OpenFit:OpenFitDataComposer";
     public static final int TIME_INFO_LENGTH = 4;
     private final ByteBuffer mByteBuffer;
     private final int mPayloadSize;
@@ -20,13 +21,13 @@ public class OpenFitDataComposer {
     public static final int SIZE_OF_INT = 4;
     public static final int SIZE_OF_LONG = 8;
     public static final int SIZE_OF_SHORT = 2;
-    
+
     public OpenFitDataComposer(int paramInt) {
       this.mByteBuffer = ByteBuffer.allocate(paramInt);
       this.mByteBuffer.order(BYTE_ORDER);
       this.mPayloadSize = paramInt;
     }
-    
+
     public int getCapcity() {
       return this.mByteBuffer.capacity();
     }
@@ -61,10 +62,11 @@ public class OpenFitDataComposer {
     }
     
     public void writeBoolean(boolean paramBoolean) {
-      ByteBuffer localByteBuffer = this.mByteBuffer;
-      if(paramBoolean) {}
-      for(int i = 1;; i = 0) {
-        localByteBuffer.put((byte)i);
+      if(paramBoolean == true) {
+          this.mByteBuffer.put((byte)1);
+      }
+      else {
+          this.mByteBuffer.put((byte)0);
       }
     }
     

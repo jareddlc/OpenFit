@@ -15,5 +15,7 @@
     <string name="preference_list_devices_default">None</string>
     <string name="preference_test_title">Test</string>
     <string name="preference_test_summary">Test Button</string>
+    <string name="preference_foo_title">Foo</string>
+    <string name="preference_foo_summary">Test Function</string>
     <string name="preference_category_device_title">Device</string>
 </resources>

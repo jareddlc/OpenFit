@@ -132,11 +132,16 @@ public class OpenFitVariableDataComposer {
       }
 
       public void writeTo(ByteBuffer paramByteBuffer) {
-        if(this.mValue) {}
-        for(int i = 1;; i = 0) {
+        if(this.mValue) {
+            paramByteBuffer.put((byte)1);
+        }
+        else {
+            paramByteBuffer.put((byte)0);
+        }
+        /*for(int i = 1;; i = 0) {
           paramByteBuffer.put((byte)i);
           return;
-        }
+        }*/
       }
     }
 

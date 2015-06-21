@@ -12,9 +12,9 @@ public class OpenFitTimeZoneUtil {
             return null;
         }
         try {
-            Field localField = pTimeZone.getClass().getDeclaredField("mTransitions");
-            localField.setAccessible(true);
-            int[] paramTimeZone = (int[])localField.get(pTimeZone);
+            Field oField = pTimeZone.getClass().getDeclaredField("mTransitions");
+            oField.setAccessible(true);
+            int[] paramTimeZone = (int[])oField.get(pTimeZone);
             return paramTimeZone;
         }
         catch(NoSuchFieldException eTimeZone) {
@@ -37,20 +37,18 @@ public class OpenFitTimeZoneUtil {
 
     public static long nextTransition(TimeZone pTimeZone, long pLong) {
         int[] oTimeZone = getTransitions(pTimeZone);
-        if(oTimeZone == null) {
-          return pLong;
-        }
-        for(;;) {
-            int j = (int)(pLong / 1000L);
-            int k = oTimeZone.length;
-            int i = 0;
-            while(i < k) {
-                if(j < oTimeZone[i]) {
-                    return oTimeZone[i] * 1000L;
-                    }
-                i += 1;
+        if(oTimeZone != null) {
+            int i = (int)(pLong / 1000L);
+            int j = oTimeZone.length;
+            int k = 0;
+            while(k < j) {
+                if(i < oTimeZone[k]) {
+                    return 1000L * (long)oTimeZone[k];
+                }
+                k++;
             }
         }
+        return pLong;
     }
 
     public static long prevTransition(String pString, long pLong) {
@@ -59,22 +57,22 @@ public class OpenFitTimeZoneUtil {
 
     public static long prevTransition(TimeZone pTimeZone, long pLong) {
         int[] oTimeZone = getTransitions(pTimeZone);
-        if(oTimeZone == null) {
-            return pLong;
-        }
-        for(;;) {
-            int j = (int)(pLong / 1000L);
-            int k = oTimeZone.length;
-            int i = 0;
-            while(i < k) {
-                if(j < oTimeZone[i])  {
-                    if(i == 0) {
+        if(oTimeZone != null) {
+            int i = (int)(pLong / 1000L);
+            int j = oTimeZone.length;
+            int k = 0;
+            while(k < j) {
+                if(i < oTimeZone[k]) {
+                    if(k == 0) {
                         return 0L;
                     }
-                    return oTimeZone[(i - 1)] * 1000L;
+                    else {
+                        return 1000L * (long)oTimeZone[k - 1];
+                    }
                 }
-                i += 1;
+                k++;
             }
         }
+        return pLong;
     }
 }

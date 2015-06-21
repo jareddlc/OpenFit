@@ -2,9 +2,9 @@ package com.jareddlc.openfit.util;
 
 public class OpenFitDataTypeAndString {
     String mData;
-    OpenFitDataType mDataType;
+    OpenFitDataTypeOld mDataType;
 
-    public OpenFitDataTypeAndString(OpenFitDataType pDataType, String pString) {
+    public OpenFitDataTypeAndString(OpenFitDataTypeOld pDataType, String pString) {
         this.mDataType = pDataType;
         this.mData = pString;
         if(pString == null) {
@@ -23,7 +23,7 @@ public class OpenFitDataTypeAndString {
       return this.mData;
     }
 
-    public OpenFitDataType getDataType()  {
+    public OpenFitDataTypeOld getDataType()  {
       return this.mDataType;
     }
 

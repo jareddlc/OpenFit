@@ -1,10 +1,9 @@
 package com.jareddlc.openfit.protocol;
 
 import android.util.Log;
-import com.jareddlc.openfit.util.OpenFitDataType;
+import com.jareddlc.openfit.util.OpenFitDataTypeOld;
 import com.jareddlc.openfit.util.OpenFitDataTypeAndString;
 import com.jareddlc.openfit.util.OpenFitVariableDataComposer;
-import com.jareddlc.openfit.util.OpenFitDataComposer;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -21,18 +20,18 @@ public class OpenFitNotificationGeneralProtocol {
         this.mIndex = msgID;
         this.mDataList = new ArrayList();
         Log.d(LOG_TAG, "about to add data: " + msgID);
-        this.mDataList.add(new OpenFitDataTypeAndString(OpenFitDataType.BYTE, appName));
-        this.mDataList.add(new OpenFitDataTypeAndString(OpenFitDataType.BYTE, AppLabel));
-        this.mDataList.add(new OpenFitDataTypeAndString(OpenFitDataType.BYTE, uStr1));
-        this.mDataList.add(new OpenFitDataTypeAndString(OpenFitDataType.BYTE, eString1));
-        this.mDataList.add(new OpenFitDataTypeAndString(OpenFitDataType.BYTE, eString2));
-        this.mDataList.add(new OpenFitDataTypeAndString(OpenFitDataType.SHORT, pString6));
+        this.mDataList.add(new OpenFitDataTypeAndString(OpenFitDataTypeOld.BYTE, appName));
+        this.mDataList.add(new OpenFitDataTypeAndString(OpenFitDataTypeOld.BYTE, AppLabel));
+        this.mDataList.add(new OpenFitDataTypeAndString(OpenFitDataTypeOld.BYTE, uStr1));
+        this.mDataList.add(new OpenFitDataTypeAndString(OpenFitDataTypeOld.BYTE, eString1));
+        this.mDataList.add(new OpenFitDataTypeAndString(OpenFitDataTypeOld.BYTE, eString2));
+        this.mDataList.add(new OpenFitDataTypeAndString(OpenFitDataTypeOld.SHORT, pString6));
         this.bShowDeviceOnDevice = pShowDeviceOnDevice;
         this.mTime = msgTime;
     }
 
     public void createGeneralProtocol() {
-        int i = OpenFitDataType.DATA_TYPE_GENERAL.i;
+        int i = OpenFitDataTypeOld.DATA_TYPE_GENERAL.i;
         Log.d(LOG_TAG, "OpenFitDataType.DATA_TYPE_GENERAL.i: " + i);
         OpenFitVariableDataComposer oDataComposer = new OpenFitVariableDataComposer();
         oDataComposer.writeByte((byte)i);
@@ -42,13 +41,13 @@ public class OpenFitNotificationGeneralProtocol {
         if(localIterator.hasNext()) {
             OpenFitDataTypeAndString oDataTypeAndString = (OpenFitDataTypeAndString)localIterator.next();
             byte[] arrayOfByte = OpenFitVariableDataComposer.convertToByteArray(oDataTypeAndString.getData());
-            if(oDataTypeAndString.getDataType() == OpenFitDataType.BYTE) {
+            if(oDataTypeAndString.getDataType() == OpenFitDataTypeOld.BYTE) {
                 oDataComposer.writeByte((byte)arrayOfByte.length);
             }
             for(;;) {
                 localStringBuilder.append(arrayOfByte.length).append(" ");
                 oDataComposer.writeBytes(arrayOfByte);
-                if(oDataTypeAndString.getDataType() == OpenFitDataType.SHORT) {
+                if(oDataTypeAndString.getDataType() == OpenFitDataTypeOld.SHORT) {
                     oDataComposer.writeShort((short)arrayOfByte.length);
                     break;
                 } 
@@ -64,6 +63,6 @@ public class OpenFitNotificationGeneralProtocol {
         if(this.dataByteArray != null) {
             return this.dataByteArray;
         }
-        return new byte[] {(byte)OpenFitDataType.DATA_TYPE_RESERVED.i};
+        return new byte[] {(byte)OpenFitDataTypeOld.DATA_TYPE_RESERVED.i};
     }
 }

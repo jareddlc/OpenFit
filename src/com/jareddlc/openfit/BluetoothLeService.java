@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -652,12 +653,13 @@ public class BluetoothLeService extends Service {
                         String hex = OpenFitApi.byteArrayToHexString(byteArray.toByteArray());
                         String ascii = OpenFitApi.hexStringToString(hex);
                         Log.d(LOG_TAG, "Received: "+byteArray+ " \n Received Hex: "+hex+" \n Received Ascii: "+ascii);
-                        if(hex.equals(OpenFitApi.REQUEST_1)) {
-                            Log.d(LOG_TAG, "Recieved setup message "+byteArray);
-                            onconnect.write(OpenFitApi.getOdin());
-                            onconnect.write(OpenFitApi.afterOdin());
-                            onconnect.write(OpenFitApi.preTime());
-                            onconnect.write(OpenFitApi.getTime());
+                        Log.d(LOG_TAG, byteArray+" === "+OpenFitApi.getReady());
+                        if(Arrays.equals(byteArray.toByteArray(), OpenFitApi.getReady())) {
+                            Log.d(LOG_TAG, "Recieved ready message");
+                            onconnect.write(OpenFitApi.getUpdate());
+                            onconnect.write(OpenFitApi.getUpdateFollowUp());
+                            onconnect.write(OpenFitApi.getFotaCommand());
+                            onconnect.write(OpenFitApi.getCurrentTimeInfo());
                         }
                         byteArray.reset();
                     }

@@ -14,6 +14,18 @@ ConnectionController > ConnectionManager
 private static final UUID MY_UUID_SECURE = UUID.fromString("9c86c750-870d-11e3-baa7-0800200c9a66");
 SessionManager
 
+000400000003000000 === 000400000003000000
+
+Apr 20, 2015 21:00:01.236102000 Pacific Daylight Time
+0141cb3555f8ffffff000000000101010201a01dfc5490d43556100e0000
+HEX: 41cb3555, normal : 5535cb41
+INT: 1103836501, normal: 1429588801, should be 1429588801000
+
+// time stuff
+millis()
+INT: 1434836371 should be 1434836371000
+HEX 5585DD93 needs to be reversed
+
 
 write() //E:\newSource\com\samsung\android\wms\util\SysInfo.java
 //E:\newSource\com\samsung\android\wms\gallery3d\exif\ExifOutputStream.java

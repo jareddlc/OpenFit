@@ -1,8 +1,7 @@
 package com.jareddlc.openfit.protocol;
 
 import android.util.Log;
-import com.jareddlc.openfit.util.OpenFitDataTypeOld;
-import com.jareddlc.openfit.util.OpenFitDataTypeAndString;
+import com.jareddlc.openfit.util.OpenFitDataType;
 import com.jareddlc.openfit.util.OpenFitVariableDataComposer;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -10,13 +9,13 @@ import java.util.List;
 
 public class OpenFitNotificationGeneralProtocol {
     private static final String LOG_TAG = "OpenFit:OpenFitNotificationGeneralProtocol";
-    private final boolean bShowDeviceOnDevice;
+    /*private final boolean bShowDeviceOnDevice;
     private byte[] dataByteArray;
     private final List<OpenFitDataTypeAndString> mDataList;
     private final long mTime;
-    private long mIndex;
+    private long mIndex;*/
 
-    public OpenFitNotificationGeneralProtocol(long msgID, String appName, String AppLabel, String uStr1, String eString1, String eString2, String pString6, boolean pShowDeviceOnDevice, long msgTime) {
+    /*public OpenFitNotificationGeneralProtocol(long msgID, String appName, String AppLabel, String uStr1, String eString1, String eString2, String pString6, boolean pShowDeviceOnDevice, long msgTime) {
         this.mIndex = msgID;
         this.mDataList = new ArrayList();
         Log.d(LOG_TAG, "about to add data: " + msgID);
@@ -64,5 +63,5 @@ public class OpenFitNotificationGeneralProtocol {
             return this.dataByteArray;
         }
         return new byte[] {(byte)OpenFitDataTypeOld.DATA_TYPE_RESERVED.i};
-    }
+    }*/
 }

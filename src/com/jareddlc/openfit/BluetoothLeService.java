@@ -345,7 +345,7 @@ public class BluetoothLeService extends Service {
     public void foo() {
         Log.d(LOG_TAG, "foo");
         if(onconnect != null) {
-            onconnect.write(OpenFitApi.getCurrentTimeInfo());
+            onconnect.write(OpenFitApi.getNotification());
         }
     }
 

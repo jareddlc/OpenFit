@@ -138,10 +138,6 @@ public class OpenFitVariableDataComposer {
         else {
             paramByteBuffer.put((byte)0);
         }
-        /*for(int i = 1;; i = 0) {
-          paramByteBuffer.put((byte)i);
-          return;
-        }*/
       }
     }
 

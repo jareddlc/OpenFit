@@ -49,7 +49,7 @@ public class OpenFitApi {
         oVariableDataComposer.writeByte((byte)1);
         return oVariableDataComposer.toByteArray();
     }
-    
+
     public static byte[] getFotaCommand() {
         //4E020000000101
         OpenFitVariableDataComposer oVariableDataComposer = new OpenFitVariableDataComposer();
@@ -59,7 +59,7 @@ public class OpenFitApi {
         oVariableDataComposer.writeByte((byte)1);
         return oVariableDataComposer.toByteArray();
     }
-    
+
     public static byte[] getCurrentTimeInfo() {
         //011E0000000141CB3555F8FFFFFF000000000101010201A01DFC5490D43556100E0000
         // build time data
@@ -117,11 +117,144 @@ public class OpenFitApi {
 
     public static byte[] getNotification() {
         Log.d(LOG_TAG, "new  OpenFitNotificationGeneralProtocol");
-        OpenFitNotificationGeneralProtocol oNotification = new OpenFitNotificationGeneralProtocol(100L + 6, "com.jareddlc.openfit", "OpenFit Label", "unknown", "", "", "unknown 2", true, 0);
-        Log.d(LOG_TAG, "new  createGeneralProtocol()");
-        oNotification.createGeneralProtocol();
-        Log.d(LOG_TAG, "getNotification bytes: "+ oNotification);
-        return oNotification.getByteArray();
+        // build message data
+        OpenFitVariableDataComposer sender = new OpenFitVariableDataComposer();
+        //4f 70 65 6e 46 69 74 "OpenFit"
+        sender.writeByte((byte)79);
+        sender.writeByte((byte)0);
+        sender.writeByte((byte)112);
+        sender.writeByte((byte)0);
+        sender.writeByte((byte)101);
+        sender.writeByte((byte)0);
+        sender.writeByte((byte)110);
+        sender.writeByte((byte)0);
+        sender.writeByte((byte)70);
+        sender.writeByte((byte)0);
+        sender.writeByte((byte)105);
+        sender.writeByte((byte)0);
+        sender.writeByte((byte)116);
+        sender.writeByte((byte)0);
+        byte senderLength = 10; //14+2
+
+
+        OpenFitVariableDataComposer number = new OpenFitVariableDataComposer();
+        //000-000-0000
+        number.writeByte((byte)48);
+        number.writeByte((byte)0);
+        number.writeByte((byte)48);
+        number.writeByte((byte)0);
+        number.writeByte((byte)48);
+        number.writeByte((byte)0);
+        number.writeByte((byte)48);
+        number.writeByte((byte)0);
+        number.writeByte((byte)48);
+        number.writeByte((byte)0);
+        number.writeByte((byte)48);
+        number.writeByte((byte)0);
+        number.writeByte((byte)48);
+        number.writeByte((byte)0);
+        number.writeByte((byte)48);
+        number.writeByte((byte)0);
+        number.writeByte((byte)48);
+        number.writeByte((byte)0);
+        number.writeByte((byte)48);
+        number.writeByte((byte)0);
+        byte numberLength = 16;//20+2
+        OpenFitVariableDataComposer title = new OpenFitVariableDataComposer();
+        // 4f 70 65 6e 46 69 74 NOTITLE
+        title.writeByte((byte)79);
+        title.writeByte((byte)0);
+        title.writeByte((byte)112);
+        title.writeByte((byte)0);
+        title.writeByte((byte)101);
+        title.writeByte((byte)0);
+        title.writeByte((byte)110);
+        title.writeByte((byte)0);
+        title.writeByte((byte)70);
+        title.writeByte((byte)0);
+        title.writeByte((byte)105);
+        title.writeByte((byte)0);
+        title.writeByte((byte)116);
+        title.writeByte((byte)0);
+        byte titleLength = 10;//14+2
+
+        OpenFitVariableDataComposer message = new OpenFitVariableDataComposer();
+        //57 65 6c 63 6f 6d 65 20 74 6f 20 4f 70 65 6e 46 69 74 21 Welcome to OpenFit!
+        message.writeByte((byte)87);
+        message.writeByte((byte)0);
+        message.writeByte((byte)101);
+        message.writeByte((byte)0);
+        message.writeByte((byte)108);
+        message.writeByte((byte)0);
+        message.writeByte((byte)99);
+        message.writeByte((byte)0);
+        message.writeByte((byte)111);
+        message.writeByte((byte)0);
+        message.writeByte((byte)109);
+        message.writeByte((byte)0);
+        message.writeByte((byte)101);
+        message.writeByte((byte)0);
+        message.writeByte((byte)32);
+        message.writeByte((byte)0);
+        message.writeByte((byte)116);
+        message.writeByte((byte)0);
+        message.writeByte((byte)111);
+        message.writeByte((byte)0);
+        message.writeByte((byte)32);
+        message.writeByte((byte)0);
+        message.writeByte((byte)79);
+        message.writeByte((byte)0);
+        message.writeByte((byte)112);
+        message.writeByte((byte)0);
+        message.writeByte((byte)101);
+        message.writeByte((byte)0);
+        message.writeByte((byte)110);
+        message.writeByte((byte)0);
+        message.writeByte((byte)70);
+        message.writeByte((byte)0);
+        message.writeByte((byte)105);
+        message.writeByte((byte)0);
+        message.writeByte((byte)116);
+        message.writeByte((byte)0);
+        message.writeByte((byte)33);
+        message.writeByte((byte)0);
+        byte messageLength = 28;//38+2
+
+        int millis = (int)(System.currentTimeMillis() / 1000L);
+
+        OpenFitVariableDataComposer oVDC = new OpenFitVariableDataComposer();
+        oVDC.writeByte((byte)4);
+        oVDC.writeInt(102);
+        oVDC.writeInt(0);
+        oVDC.writeByte(senderLength);
+        oVDC.writeByte((byte)255);
+        oVDC.writeByte((byte)254);
+        oVDC.writeBytes(sender.toByteArray());
+        oVDC.writeByte(numberLength);
+        oVDC.writeByte((byte)255);
+        oVDC.writeByte((byte)254);
+        oVDC.writeBytes(number.toByteArray());
+        oVDC.writeByte(titleLength);
+        oVDC.writeByte((byte)255);
+        oVDC.writeByte((byte)254);
+        oVDC.writeBytes(title.toByteArray());
+        oVDC.writeByte(messageLength);
+        oVDC.writeByte((byte)0);
+        oVDC.writeByte((byte)255);
+        oVDC.writeByte((byte)254);
+        oVDC.writeBytes(message.toByteArray());
+        oVDC.writeByte((byte)0);
+        oVDC.writeInt(millis);
+
+        int length = oVDC.toByteArray().length;
+
+        OpenFitVariableDataComposer oVariableDataComposer = new OpenFitVariableDataComposer();
+        oVariableDataComposer.writeByte((byte)3);
+        oVariableDataComposer.writeInt(length);
+        oVariableDataComposer.writeBytes(oVDC.toByteArray());
+        return oVariableDataComposer.toByteArray();
+
+        //return OpenFitApi.hexStringToByteArray("036500000004660000000000000022fffe41006d0062006100720020004400650020004c00610020004300720075007a0016fffe340030003800340038003300330037003300300010fffe4e004f005400490054004c0045000a00fffe5400650073007400008ed13555");
     }
 
     public static byte[] hexStringToByteArray(String s) {
@@ -166,5 +299,3 @@ public class OpenFitApi {
       return iarray;
     }
 }
-
-

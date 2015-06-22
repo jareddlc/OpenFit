@@ -2,32 +2,32 @@ package com.jareddlc.openfit.util;
 
 public class OpenFitDataTypeAndString {
     String mData;
-    OpenFitDataTypeOld mDataType;
+    OpenFitDataType mDataType;
 
-    public OpenFitDataTypeAndString(OpenFitDataTypeOld pDataType, String pString) {
-        this.mDataType = pDataType;
-        this.mData = pString;
-        if(pString == null) {
-            return;
-        }
-        /*while((!this.mDataType.equals(OpenFitDataType.BYTE)) || (this.mData.length() <= 50)) {
-            if((this.mDataType.equals(OpenFitDataType.SHORT)) && (this.mData.length() > 250)) {
-                this.mData = this.mData.substring(0, 250);
+    public OpenFitDataTypeAndString(OpenFitDataType pType, String s) {
+        mDataType = pType;
+        if(s != null) {
+            mData = s;
+            if(mDataType.equals(OpenFitDataType.SHORT) && mData.length() > 250) {
+                mData = mData.substring(0, 250);
                 return;
             }
-        }*/
-        //this.mData = this.mData.substring(0, 50);
+            if(mDataType.equals(OpenFitDataType.BYTE) && mData.length() > 50) {
+                mData = mData.substring(0, 50);
+                return;
+            }
+        }
     }
 
     public String getData() {
-      return this.mData;
+        return mData;
     }
 
-    public OpenFitDataTypeOld getDataType()  {
-      return this.mDataType;
+    public OpenFitDataType getDataType() {
+        return mDataType;
     }
 
     public int getLength() {
-      return this.mData.length();
+        return mData.length();
     }
 }

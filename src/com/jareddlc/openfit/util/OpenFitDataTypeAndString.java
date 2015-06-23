@@ -22,9 +22,17 @@ public class OpenFitDataTypeAndString {
     public String getData() {
         return mData;
     }
+    
+    public String getDataString() {
+        return mDataType.STRING;
+    }
 
     public OpenFitDataType getDataType() {
         return mDataType;
+    }
+
+    public int getDataIndex() {
+        return mDataType.INTEGER;
     }
 
     public int getLength() {

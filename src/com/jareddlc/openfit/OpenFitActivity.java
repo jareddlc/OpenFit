@@ -92,7 +92,13 @@ public class OpenFitActivity extends Activity {
                         }
                         if(bluetoothMessage.equals("isConnectedRfcomm")) {
                             Log.d(LOG_TAG, "Bluetooth RFcomm Connected");
-                            Toast.makeText(getActivity(), "Bluetooth Rfcomm Connected", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getActivity(), "Bluetooth Connected", Toast.LENGTH_SHORT).show();
+                            preference_checkbox_connect.setChecked(true);
+                        }
+                        if(bluetoothMessage.equals("isDisconnectedRfComm")) {
+                            Log.d(LOG_TAG, "Bluetooth Disconnected");
+                            Toast.makeText(getActivity(), "Bluetooth Disconnected", Toast.LENGTH_SHORT).show();
+                            preference_checkbox_connect.setChecked(false);
                         }
                         if(bluetoothMessage.equals("isConnectedRfcommFailed")) {
                             Log.d(LOG_TAG, "Bluetooth RFcomm Failed");
@@ -198,11 +204,13 @@ public class OpenFitActivity extends Activity {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
                     if((Boolean)newValue) {
-                        bluetoothLeService.connect(mDeviceAddress);
+                        //bluetoothLeService.connect(mDeviceAddress);
+                        bluetoothLeService.connectRfcomm();
                         return false;
                     }
                     else {
-                        bluetoothLeService.disconnect();
+                        //bluetoothLeService.disconnect();
+                        bluetoothLeService.disconnectRfcomm();
                         return true;
                     }
                 }
@@ -214,7 +222,7 @@ public class OpenFitActivity extends Activity {
                 public boolean onPreferenceClick(Preference preference) {
                     Toast.makeText(getActivity(), "Testing...", Toast.LENGTH_SHORT).show();
                     Log.d(LOG_TAG, "test");
-                    bluetoothLeService.connectRfcomm();
+                    bluetoothLeService.test();
                     return true;
                 }
             });
@@ -223,8 +231,8 @@ public class OpenFitActivity extends Activity {
             preference_foo.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
-                    Toast.makeText(getActivity(), "Testing...", Toast.LENGTH_SHORT).show();
-                    Log.d(LOG_TAG, "test");
+                    Toast.makeText(getActivity(), "Fooooing...", Toast.LENGTH_SHORT).show();
+                    Log.d(LOG_TAG, "Fooooing");
                     bluetoothLeService.foo();
                     return true;
                 }

@@ -60,7 +60,7 @@ public class BluetoothLeService extends Service {
     public static boolean isEnabled = false;
     public static boolean isConnected = false;
     public static boolean isScanning = false;
-    public static boolean isPaired = false;
+    public static volatile boolean isThreadRunning = false;
 
     private static onConnectThread onconnect;
     private static ConnectThread connect;
@@ -342,6 +342,13 @@ public class BluetoothLeService extends Service {
         mHandler = mHndlr;
     }
 
+    public void test() {
+        Log.d(LOG_TAG, "test");
+        if(onconnect != null) {
+            onconnect.write(OpenFitApi.getOpenNotification("Jared", "4081234567", "Hello", "Hello from Jared"));
+        }
+    }
+
     public void foo() {
         Log.d(LOG_TAG, "foo");
         if(onconnect != null) {
@@ -352,17 +359,17 @@ public class BluetoothLeService extends Service {
     public void connectRfcomm() {
         Log.d(LOG_TAG, "attempting to get connectRmcomm");
         if(mBluetoothDevice != null) {
-            server = new ServerThread();
-            server.start();
+            //server = new ServerThread();
+            //server.start();
             connect = new ConnectThread();
             connect.start();
         }
     }
 
-    public void closeRfcomm() {
+    public void disconnectRfcomm() {
         Log.d(LOG_TAG, "closing connectRmcomm");
-        if(mBluetoothDevice != null) {
-            server.close();
+        if(mBluetoothDevice != null && isConnected) {
+            //server.close();
             connect.close();
         }
     }
@@ -586,22 +593,26 @@ public class BluetoothLeService extends Service {
             try {
                 // connect the device through the socket. This will block until it succeeds or throws an exception
                 mBluetoothSocket.connect();
-                isPaired = true;
-                Message msg = mHandler.obtainMessage();
-                Bundle b = new Bundle();
-                b.putString("bluetooth", "isConnectedRfcomm");
-                msg.setData(b);
-                mHandler.sendMessage(msg);
+                isConnected = true;
+                if(mHandler != null) {
+                    Message msg = mHandler.obtainMessage();
+                    Bundle b = new Bundle();
+                    b.putString("bluetooth", "isConnectedRfcomm");
+                    msg.setData(b);
+                    mHandler.sendMessage(msg);
+                }
             }
             catch(IOException connectException) {
                 Log.e(LOG_TAG, "Error: mBluetoothSocket.connect()", connectException);
                 try {
                     mBluetoothSocket.close();
-                    Message msg = mHandler.obtainMessage();
-                    Bundle b = new Bundle();
-                    b.putString("bluetooth", "isConnectedRfcommFailed");
-                    msg.setData(b);
-                    mHandler.sendMessage(msg);
+                    if(mHandler != null) {
+                        Message msg = mHandler.obtainMessage();
+                        Bundle b = new Bundle();
+                        b.putString("bluetooth", "isConnectedRfcommFailed");
+                        msg.setData(b);
+                        mHandler.sendMessage(msg);
+                    }
                 }
                 catch (IOException closeException) {
                     Log.e(LOG_TAG, "Error: mBluetoothSocket.close()", closeException);
@@ -615,11 +626,18 @@ public class BluetoothLeService extends Service {
         }
 
         public void close() {
-            try {
-                mBluetoothSocket.close();
-            }
-            catch (IOException e) {
-                Log.e(LOG_TAG, "Error: mmSocket.close()", e);
+            if(onconnect != null) {
+                isThreadRunning = false;
+                onconnect.close();
+                isConnected = false;
+                Log.d(LOG_TAG, "Bluetooth rfComm Disconnected");
+                if(mHandler != null) {
+                    Message msg = mHandler.obtainMessage();
+                    Bundle b = new Bundle();
+                    b.putString("bluetooth", "isDisconnectedRfComm");
+                    msg.setData(b);
+                    mHandler.sendMessage(msg);
+                }
             }
         }
     }
@@ -632,6 +650,7 @@ public class BluetoothLeService extends Service {
             try {
                 mInStream = mBluetoothSocket.getInputStream();
                 mOutStream = mBluetoothSocket.getOutputStream();
+                isThreadRunning = true;
             }
             catch(IOException e) {
                 Log.e(LOG_TAG, "Error: mBluetoothSocket.getInputStream()/socket.getOutputStream()", e);
@@ -645,29 +664,28 @@ public class BluetoothLeService extends Service {
             byte[] buffer = new byte[bufferSize];
 
             // listen to the InputStream
-            while(true) {
+            while(isThreadRunning) {
                 try {
-                    while(mInStream.available() > 0) {
-                        int bytes = mInStream.read(buffer);
-                        byteArray.write(buffer, 0, bytes);
-                        String hex = OpenFitApi.byteArrayToHexString(byteArray.toByteArray());
-                        String ascii = OpenFitApi.hexStringToString(hex);
-                        Log.d(LOG_TAG, "Received: "+byteArray+ " \n Received Hex: "+hex+" \n Received Ascii: "+ascii);
-                        Log.d(LOG_TAG, byteArray+" === "+OpenFitApi.getReady());
-                        if(Arrays.equals(byteArray.toByteArray(), OpenFitApi.getReady())) {
-                            Log.d(LOG_TAG, "Recieved ready message");
-                            onconnect.write(OpenFitApi.getUpdate());
-                            onconnect.write(OpenFitApi.getUpdateFollowUp());
-                            onconnect.write(OpenFitApi.getFotaCommand());
-                            onconnect.write(OpenFitApi.getCurrentTimeInfo());
-                        }
-                        byteArray.reset();
+                    int bytes = mInStream.read(buffer);
+                    byteArray.write(buffer, 0, bytes);
+                    String hex = OpenFitApi.byteArrayToHexString(byteArray.toByteArray());
+                    String ascii = OpenFitApi.hexStringToString(hex);
+                    Log.d(LOG_TAG, "Received: "+byteArray+ " \n Received Hex: "+hex+" \n Received Ascii: "+ascii);
+                    Log.d(LOG_TAG, byteArray+" === "+OpenFitApi.getReady());
+                    if(Arrays.equals(byteArray.toByteArray(), OpenFitApi.getReady())) {
+                        Log.d(LOG_TAG, "Recieved ready message");
+                        onconnect.write(OpenFitApi.getUpdate());
+                        onconnect.write(OpenFitApi.getUpdateFollowUp());
+                        onconnect.write(OpenFitApi.getFotaCommand());
+                        onconnect.write(OpenFitApi.getCurrentTimeInfo());
                     }
+                    byteArray.reset();
                 } catch (IOException e) {
-                    Log.e(LOG_TAG, "Error: mInStream.read()", e);
+                    if(isThreadRunning) {
+                        Log.e(LOG_TAG, "Error: mInStream.read()", e);
+                    }
                 }
             }
-            
         }
 
         public void write(byte[] bytes) {
@@ -690,7 +708,6 @@ public class BluetoothLeService extends Service {
                 mInStream.close();
                 mOutStream.close();
                 mBluetoothSocket.close();
-                isConnected = false;
             }
             catch(IOException e) {
                 Log.e(LOG_TAG, "Error: mSocket.close()", e);

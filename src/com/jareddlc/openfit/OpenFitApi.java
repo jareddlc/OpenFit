@@ -1,24 +1,21 @@
 package com.jareddlc.openfit;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
 import com.jareddlc.openfit.util.OpenFitData;
-import com.jareddlc.openfit.protocol.OpenFitNotificationGeneralProtocol;
 import com.jareddlc.openfit.protocol.OpenFitNotificationMessageProtocol;
 import com.jareddlc.openfit.util.OpenFitDataType;
 import com.jareddlc.openfit.util.OpenFitDataTypeAndString;
 import com.jareddlc.openfit.util.OpenFitTimeZoneUtil;
 import com.jareddlc.openfit.util.OpenFitVariableDataComposer;
 
-import android.util.Log;
-
 public class OpenFitApi {
     private static final String LOG_TAG = "OpenFit:OpenFitApi";
+    private static long MSGID = 0;
 
     public static byte[] getReady() {
         //000400000003000000
@@ -152,9 +149,9 @@ public class OpenFitApi {
         mDataList.add(new OpenFitDataTypeAndString(OpenFitDataType.BYTE, "NOTITLE"));
         mDataList.add(new OpenFitDataTypeAndString(OpenFitDataType.SHORT, "Welcome to OpenFit!"));
 
-        long msgSize = mDataList.size();
-        byte[] msg = OpenFitNotificationMessageProtocol.createNotificationProtocol(4, msgSize, mDataList, System.currentTimeMillis());
+        byte[] msg = OpenFitNotificationMessageProtocol.createNotificationProtocol(OpenFitNotificationMessageProtocol.DATA_TYPE_MESSAGE, MSGID, mDataList, System.currentTimeMillis());
         OpenFitVariableDataComposer oDatacomposer = new OpenFitVariableDataComposer();
+        MSGID++;
         oDatacomposer.writeByte((byte)3);
         oDatacomposer.writeInt(msg.length);
         oDatacomposer.writeBytes(msg);
@@ -185,22 +182,19 @@ public class OpenFitApi {
         //570065006C0063006F006D006500200074006F0020004F00700065006E004600690074002100 = Welcome to OpenFit!
         //00
         //5E0E8955 = time stamp
-        /*List mDataList = new ArrayList();
+
+        List mDataList = new ArrayList();
         mDataList.add(new OpenFitDataTypeAndString(OpenFitDataType.BYTE, sender));
         mDataList.add(new OpenFitDataTypeAndString(OpenFitDataType.BYTE, number));
         mDataList.add(new OpenFitDataTypeAndString(OpenFitDataType.BYTE, title));
         mDataList.add(new OpenFitDataTypeAndString(OpenFitDataType.SHORT, message));
 
-        long msgSize = mDataList.size();
-        byte[] msg = OpenFitNotificationMessageProtocol.createNotificationProtocol(4, msgSize, mDataList, System.currentTimeMillis());
+        byte[] msg = OpenFitNotificationMessageProtocol.createNotificationProtocol(4, MSGID, mDataList, System.currentTimeMillis());
         OpenFitVariableDataComposer oDatacomposer = new OpenFitVariableDataComposer();
         oDatacomposer.writeByte((byte)3);
         oDatacomposer.writeInt(msg.length);
         oDatacomposer.writeBytes(msg);
-        return oDatacomposer.toByteArray();*/
-        //return OpenFitApi.hexStringToByteArray("039d0000000c5f0200000000000024fffe63006f006d002e00660061006300650062006f006f006b002e006f0072006300610014fffe4d0065007300730065006e006700650072001cfffe5a0061006300680020004300680069006c00640065007200730000003400fffe79006f0075002000700061007400630068003f000a007000720065007400740079002000730069006d0070006c0065000a000167d03555");
-        //OpenFitApi.hexStringToByteArray("037f0000000447160000000000001cfffe4a006f0068006e002000540068007500790020004d006100690016fffe3400300038003400370037003600380035003900003a00fffe540068006500200073006f0075006e00640074007200610063006b002000690073002000620061006400610073007300200074006f006f000113639c54");
-        return OpenFitApi.hexStringToByteArray("038300000004b20400000000000028fffe4d0069006300680065006c006c0065002000570061007300680069006e00670074006f006e0016fffe350035003900320038003500340030003400380010fffe4e004f005400490054004c0045002200fffe4d00650072007200790020004300680072006900730074006d0061007300210000a8349c540309000000161b15000000000000");
+        return oDatacomposer.toByteArray();
     }
 
     public static byte[] hexStringToByteArray(String s) {

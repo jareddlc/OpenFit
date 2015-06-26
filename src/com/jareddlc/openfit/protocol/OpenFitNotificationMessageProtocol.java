@@ -14,19 +14,30 @@ import android.util.Log;
 public class OpenFitNotificationMessageProtocol {
     private static final String LOG_TAG = "OpenFit:OpenFitNotificationMessageProtocol";
     private long mTime = 0;
-    private long mIndex = 0;
+    private long mMsgId = 0;
     private boolean bSupportQuickReply;
     private byte mByteArray[];
     private final List mDataList = new ArrayList();
 
-    private byte DATA_TYPE_RESERVED = 49;
-    private byte DATA_TYPE_CMAS = 35;
-    private byte DATA_TYPE_EAS = 36;
-    private byte DATA_TYPE_EMAIL = 3;
-    private byte DATA_TYPE_MESSAGE = 4;
+    public static byte DATA_TYPE_INCOMING_CALL = 0;
+    public static byte DATA_TYPE_MISSCALL = 1;
+    public static byte DATA_TYPE_EMAIL = 3;
+    public static byte DATA_TYPE_MESSAGE = 4;
+    public static byte DATA_TYPE_ALARM = 5;
+    public static byte DATA_TYPE_WEATHER = 7;
+    public static byte DATA_TYPE_CHATON = 10;
+    public static byte DATA_TYPE_GENERAL= 12;
+    public static byte DATA_TYPE_REJECT_ACTION = 13;
+    public static byte DATA_TYPE_ALARM_ACTION = 14;
+    public static byte DATA_TYPE_SMART_RELAY_REQUEST = 17;
+    public static byte DATA_TYPE_SMART_RELAY_RESPONSE = 18;
+    public static byte DATA_TYPE_IMAGE = 33;
+    public static byte DATA_TYPE_CMAS = 35;
+    public static byte DATA_TYPE_EAS = 36;
+    public static byte DATA_TYPE_RESERVED = 49;
 
-    public OpenFitNotificationMessageProtocol(long index, String senderName, String senderPhone, String msgTitle, String msgData, long time) {
-        mIndex = index;
+    public OpenFitNotificationMessageProtocol(long msgId, String senderName, String senderPhone, String msgTitle, String msgData, long time) {
+        mMsgId = msgId;
         mDataList.add(new OpenFitDataTypeAndString(OpenFitDataType.BYTE, senderName));
         mDataList.add(new OpenFitDataTypeAndString(OpenFitDataType.BYTE, senderPhone));
         mDataList.add(new OpenFitDataTypeAndString(OpenFitDataType.BYTE, msgTitle));
@@ -35,11 +46,11 @@ public class OpenFitNotificationMessageProtocol {
     }
 
     public void createCMASProtocol() {
-        mByteArray = createNotificationProtocol(DATA_TYPE_CMAS, mIndex, mDataList, mTime);
+        mByteArray = createNotificationProtocol(DATA_TYPE_CMAS, mMsgId, mDataList, mTime);
     }
 
     public void createEASEMailProtocol() {
-        mByteArray = createNotificationProtocol(DATA_TYPE_EAS, mIndex, mDataList, mTime);
+        mByteArray = createNotificationProtocol(DATA_TYPE_EAS, mMsgId, mDataList, mTime);
     }
     
     public void createMessageProtocol(int paramInt) {
@@ -47,9 +58,7 @@ public class OpenFitNotificationMessageProtocol {
         int i = DATA_TYPE_MESSAGE;
         OpenFitVariableDataComposer oDatacomposer = new OpenFitVariableDataComposer();;
         oDatacomposer.writeByte((byte)i);
-        Log.d(LOG_TAG, "Noti. Type               : " + i);
-        oDatacomposer.writeLong(this.mIndex);
-        Log.d(LOG_TAG, "mIndex               : " + this.mIndex);
+        oDatacomposer.writeLong(this.mMsgId);
         StringBuilder oStringBuilder = new StringBuilder();
         i = 0;
         Iterator oIterator = this.mDataList.iterator();
@@ -69,37 +78,31 @@ public class OpenFitNotificationMessageProtocol {
                 oDatacomposer.writeShort((short)oByte.length);
             }
         }
+        //oDataComposer.writeBoolean(this.bShowDeviceOnDevice);
         oDatacomposer.writeByte((byte)paramInt);
         OpenFitVariableDataComposer.writeTimeInfo(oDatacomposer, this.mTime);
-        Log.d(LOG_TAG, "Time                     : " + this.mTime);
         this.mByteArray = oDatacomposer.toByteArray();
     }
     
-    public static byte[] createNotificationProtocol(int msgType, long msgSize, List msgData, long timeStamp) {
+    public static byte[] createNotificationProtocol(int msgType, long msgId, List msgData, long timeStamp) {
         OpenFitVariableDataComposer oDatacomposer = new OpenFitVariableDataComposer();
-        oDatacomposer.writeByte((byte)msgType);       // i should be 4
-        oDatacomposer.writeLong(msgSize);             // size of packet
+        oDatacomposer.writeByte((byte)msgType);
+        oDatacomposer.writeLong(msgId);
         StringBuilder oStringBuilder = new StringBuilder();
         Iterator oIterator = msgData.iterator();
 
         while(oIterator.hasNext()) {
             OpenFitDataTypeAndString oDataString = (OpenFitDataTypeAndString)oIterator.next();
-            //OpenFitDataTypeAndString oDataString = new OpenFitDataTypeAndString(OpenFitDataType.BYTE, oIterator.next().toString()); //;
             byte[] oByte = OpenFitVariableDataComposer.convertToByteArray(oDataString.getData());
-            Log.d(LOG_TAG, "Iterating over:"+ oDataString.getData()+" type: "+oDataString.getDataString());
-            
+
             if(oDataString.getDataType() == OpenFitDataType.BYTE) {
-                Log.d(LOG_TAG, "writting byte "+(byte)oByte.length);
                 oDatacomposer.writeByte((byte)oByte.length);
             }
             if(oDataString.getDataType() == OpenFitDataType.SHORT) {
-                Log.d(LOG_TAG, "writting short "+(short)oByte.length);
                 oDatacomposer.writeShort((short)oByte.length);
             }
             oStringBuilder.append(oByte.length).append(" ");
             oDatacomposer.writeBytes(oByte);
-            Log.d(LOG_TAG, "wrote bytes  "+oByte);
-            
         }
         oDatacomposer.writeByte((byte)0);
         OpenFitVariableDataComposer.writeTimeInfo(oDatacomposer, timeStamp);

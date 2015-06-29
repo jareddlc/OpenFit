@@ -345,32 +345,31 @@ public class BluetoothLeService extends Service {
     public void test() {
         Log.d(LOG_TAG, "test");
         if(onconnect != null) {
-            onconnect.write(OpenFitApi.getOpenNotification("Jared", "4081234567", "Hello", "Hello from Jared"));
-        }
-    }
-
-    public void foo() {
-        Log.d(LOG_TAG, "foo");
-        if(onconnect != null) {
             onconnect.write(OpenFitApi.getNotification());
         }
     }
 
     public void connectRfcomm() {
-        Log.d(LOG_TAG, "attempting to get connectRmcomm");
         if(mBluetoothDevice != null) {
             //server = new ServerThread();
             //server.start();
             connect = new ConnectThread();
             connect.start();
+            Log.d(LOG_TAG, "Connecting to Rfcomm");
+        }
+        else {
+            Log.d(LOG_TAG, "connectRfcomm called mBluetoothDevice is null");
         }
     }
 
     public void disconnectRfcomm() {
-        Log.d(LOG_TAG, "closing connectRmcomm");
         if(mBluetoothDevice != null && isConnected) {
             //server.close();
             connect.close();
+            Log.d(LOG_TAG, "closing connectRmcomm");
+        }
+        else {
+            Log.d(LOG_TAG, "disconnectRfcomm called while not connected");
         }
     }
 
@@ -416,7 +415,7 @@ public class BluetoothLeService extends Service {
     }
 
     public static void setEntries() {
-        if(isEnabled) {            
+        if(isEnabled) {
             pairedDevices = mBluetoothAdapter.getBondedDevices();
             if(pairedDevices.size() > 0) {
                 List<CharSequence> entries = new ArrayList<CharSequence>();
@@ -449,7 +448,7 @@ public class BluetoothLeService extends Service {
             }
         }
         else {
-            Log.d(LOG_TAG, "getPaired called without BT enabled");
+            Log.d(LOG_TAG, "setEntries called without BT enabled");
         }
     }
 
@@ -669,9 +668,7 @@ public class BluetoothLeService extends Service {
                     int bytes = mInStream.read(buffer);
                     byteArray.write(buffer, 0, bytes);
                     String hex = OpenFitApi.byteArrayToHexString(byteArray.toByteArray());
-                    String ascii = OpenFitApi.hexStringToString(hex);
-                    Log.d(LOG_TAG, "Received: "+byteArray+ " \n Received Hex: "+hex+" \n Received Ascii: "+ascii);
-                    Log.d(LOG_TAG, byteArray+" === "+OpenFitApi.getReady());
+                    Log.d(LOG_TAG, "Received: "+byteArray+ " \n Received Hex: "+hex);
                     if(Arrays.equals(byteArray.toByteArray(), OpenFitApi.getReady())) {
                         Log.d(LOG_TAG, "Recieved ready message");
                         onconnect.write(OpenFitApi.getUpdate());
@@ -693,8 +690,7 @@ public class BluetoothLeService extends Service {
                 ByteArrayOutputStream byteArray = new ByteArrayOutputStream();
                 byteArray.write(bytes, 0, bytes.length);
                 String hex = OpenFitApi.byteArrayToHexString(bytes);
-                String ascii = OpenFitApi.hexStringToString(hex);
-                Log.d(LOG_TAG, "Sending: "+byteArray+" \n Sending Hex: "+hex+" \n Sending Ascii: "+ascii);
+                Log.d(LOG_TAG, "Sending: "+byteArray+" \n Sending Hex: "+hex);
                 mOutStream.write(bytes);
                 mOutStream.flush();
             }

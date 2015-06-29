@@ -18,10 +18,38 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.SwitchPreference;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 public class OpenFitActivity extends Activity {
     private static final String LOG_TAG = "OpenFit:OpenFitActivity";
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu items for use in the action bar
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        Log.d(LOG_TAG, "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+        /*switch (item.getItemId()) {
+            case R.id.new_game:
+                newGame();
+                return true;
+            case R.id.help:
+                showHelp();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }*/
+        return true;
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,8 +84,9 @@ public class OpenFitActivity extends Activity {
             addPreferencesFromResource(R.xml.preferences);
 
             // load saved preferences
-            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-            final Editor editor = preferences.edit();
+            //SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            //final Editor editor = preferences.edit();
+            final OpenFitSavedPreferences oPrefs = new OpenFitSavedPreferences(getActivity());
 
             // setup message handler
             mHandler = new Handler() {
@@ -125,11 +154,13 @@ public class OpenFitActivity extends Activity {
             final ServiceConnection mServiceConnection = new ServiceConnection() {
                 @Override
                 public void onServiceConnected(ComponentName componentName, IBinder service) {
+                    Log.d(LOG_TAG, "onService Connected");
                     bluetoothLeService = ((BluetoothLeService.LocalBinder)service).getService();
                     if(!bluetoothLeService.initialize()) {
                         Log.e(LOG_TAG, "Unable to initialize BluetoothLE");
                     }
                     bluetoothLeService.setHandler(mHandler);
+                    restorePreferences(oPrefs);
                     
                     if(BluetoothLeService.isEnabled) {
                         preference_switch_bluetooth.setChecked(true);
@@ -180,21 +211,21 @@ public class OpenFitActivity extends Activity {
             preference_list_devices.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
-                    BluetoothLeService.setEntries();
-                    preference_list_devices.setEntries(BluetoothLeService.getEntries());
-                    preference_list_devices.setEntryValues(BluetoothLeService.getEntryValues());
+                    updateDevices();
                     return true;
                 }
             });
             preference_list_devices.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    BluetoothLeService.setDevice(newValue.toString());
-                    int index = preference_list_devices.findIndexOfValue(newValue.toString());
-                    CharSequence[] entries = preference_list_devices.getEntries();
                     mDeviceAddress = newValue.toString();
+                    CharSequence[] entries = preference_list_devices.getEntries();
+                    int index = preference_list_devices.findIndexOfValue(mDeviceAddress);
                     mDeviceName = entries[index].toString();
+                    BluetoothLeService.setDevice(mDeviceAddress);
                     preference_list_devices.setSummary(mDeviceName);
+                    oPrefs.save("preference_list_devices_value", mDeviceAddress);
+                    oPrefs.save("preference_list_devices_entry", mDeviceName);
                     return true;
                 }
             });
@@ -226,17 +257,24 @@ public class OpenFitActivity extends Activity {
                     return true;
                 }
             });
+        }
+        
+        public void updateDevices() {
+            BluetoothLeService.setEntries();
+            preference_list_devices.setEntries(BluetoothLeService.getEntries());
+            preference_list_devices.setEntryValues(BluetoothLeService.getEntryValues());
+        }
 
-            preference_foo = (Preference) getPreferenceManager().findPreference("preference_foo");
-            preference_foo.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                @Override
-                public boolean onPreferenceClick(Preference preference) {
-                    Toast.makeText(getActivity(), "Fooooing...", Toast.LENGTH_SHORT).show();
-                    Log.d(LOG_TAG, "Fooooing");
-                    bluetoothLeService.foo();
-                    return true;
-                }
-            });
+        public void restorePreferences(OpenFitSavedPreferences oPrefs) {
+            Log.d(LOG_TAG, "Selected device: "+mDeviceName+":"+mDeviceAddress);
+            if(oPrefs.preference_list_devices_value != "DEFAULT") {
+                mDeviceAddress = oPrefs.preference_list_devices_value;
+                mDeviceName = oPrefs.preference_list_devices_entry;
+                preference_list_devices.setSummary(mDeviceName);
+                updateDevices();
+                BluetoothLeService.setDevice(mDeviceAddress);
+                Log.d(LOG_TAG, "Restored device: "+mDeviceName+":"+mDeviceAddress);
+            }
         }
     }
 }

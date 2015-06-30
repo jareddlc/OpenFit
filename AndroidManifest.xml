@@ -10,6 +10,7 @@
     <uses-permission android:name="android.permission.BLUETOOTH"/>
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
     <uses-permission android:name="android.permission.BLUETOOTH_PRIVILEGED"/>
+    <uses-permission android:name="android.permission.BIND_ACCESSIBILITY_SERVICE"/>
 
     <application
         android:allowBackup="true"
@@ -30,6 +31,13 @@
             android:name=".BluetoothLeService" 
             android:enabled="true"
             android:exported="false" >
+        </service>
+        <service
+            android:name=".NotificationAccessibilityService"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+               <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
         </service>
     </application>
 

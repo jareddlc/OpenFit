@@ -1,12 +1,14 @@
 package com.jareddlc.openfit;
 
+import java.util.List;
+
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -15,7 +17,6 @@ import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
-import android.preference.PreferenceManager;
 import android.preference.SwitchPreference;
 import android.util.Log;
 import android.view.Menu;
@@ -38,6 +39,14 @@ public class OpenFitActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
         Log.d(LOG_TAG, "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+        final PackageManager pm = getPackageManager();
+        List<ApplicationInfo> packages = pm.getInstalledApplications(PackageManager.GET_META_DATA);
+        for(ApplicationInfo packageInfo : packages) {
+            // filter out system apps
+            if((packageInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 1) {
+                Log.d(LOG_TAG, "Installed package :" + packageInfo.packageName);
+            }
+        }
         /*switch (item.getItemId()) {
             case R.id.new_game:
                 newGame();
@@ -84,9 +93,9 @@ public class OpenFitActivity extends Activity {
             addPreferencesFromResource(R.xml.preferences);
 
             // load saved preferences
-            //SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-            //final Editor editor = preferences.edit();
             final OpenFitSavedPreferences oPrefs = new OpenFitSavedPreferences(getActivity());
+            
+            // check to see if accessibility is enabled
 
             // setup message handler
             mHandler = new Handler() {

@@ -188,6 +188,7 @@ public class OpenFitActivity extends Activity {
             };
             Intent gattServiceIntent = new Intent(this.getActivity(), BluetoothLeService.class);
             getActivity().bindService(gattServiceIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
+            getActivity().startService(new Intent(getActivity(), NotificationService.class));
 
             // UI listeners
             preference_switch_bluetooth = (SwitchPreference) getPreferenceManager().findPreference("preference_switch_bluetooth");

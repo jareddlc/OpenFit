@@ -16,7 +16,7 @@ import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 
 public class NotificationAccessibilityService extends AccessibilityService {
-    private static final String LOG_TAG = "OpenFit:NotificationService";
+    private static final String LOG_TAG = "OpenFit:NotificationAccessibilityService";
 
     private final String INTENT_NAME = "custom";
     private final String INTENT_PACKAGE = "package";

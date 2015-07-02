@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Open Fit</string>
+    <string name="service_name">Open Fit</string>
     <string name="menu_add">Add Application</string>
     <string name="preference_category_connectivity_title">Connectivity</string>
     <string name="preference_switch_bluetooth_title">Enable Bluetooth</string>

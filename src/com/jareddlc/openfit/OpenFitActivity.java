@@ -38,27 +38,11 @@ public class OpenFitActivity extends Activity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
-        Log.d(LOG_TAG, "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
-        final PackageManager pm = getPackageManager();
-        List<ApplicationInfo> packages = pm.getInstalledApplications(PackageManager.GET_META_DATA);
-        for(ApplicationInfo packageInfo : packages) {
-            // filter out system apps
-            if((packageInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 1) {
-                Log.d(LOG_TAG, "Installed package :" + packageInfo.packageName);
-            }
-        }
-        /*switch (item.getItemId()) {
-            case R.id.new_game:
-                newGame();
-                return true;
-            case R.id.help:
-                showHelp();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }*/
+        DialogInstalled d = new DialogInstalled(getBaseContext());
+        d.show(getFragmentManager(), "installed");
         return true;
     }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,8 +78,6 @@ public class OpenFitActivity extends Activity {
 
             // load saved preferences
             final OpenFitSavedPreferences oPrefs = new OpenFitSavedPreferences(getActivity());
-            
-            // check to see if accessibility is enabled
 
             // setup message handler
             mHandler = new Handler() {

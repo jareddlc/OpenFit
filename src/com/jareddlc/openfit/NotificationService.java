@@ -3,6 +3,7 @@ package com.jareddlc.openfit;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
 import android.os.Bundle;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
@@ -26,6 +27,7 @@ public class NotificationService extends NotificationListenerService {
     public void onNotificationPosted(StatusBarNotification sbn) {
         String packageName = sbn.getPackageName();
         String shortMsg = sbn.getNotification().tickerText.toString();
+        String tag = sbn.getTag();
         // API v19
         Bundle extras = sbn.getNotification().extras;
         String title = extras.getString("android.title");
@@ -34,6 +36,7 @@ public class NotificationService extends NotificationListenerService {
         Log.d(LOG_TAG, "Captured notification message [" + notificationMsg + "] for source [" + packageName + "]");
         Log.d(LOG_TAG, "ticker: " + shortMsg);
         Log.d(LOG_TAG, "title: " + title);
+        Log.d(LOG_TAG, "tag: " + tag);
 
         Intent msg = new Intent("Notification");
         msg.putExtra("packageName", packageName);

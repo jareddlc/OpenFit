@@ -1,6 +1,7 @@
 package com.jareddlc.openfit;
 
 import android.annotation.SuppressLint;
+import android.app.Notification;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
@@ -26,17 +27,26 @@ public class NotificationService extends NotificationListenerService {
     @Override
     public void onNotificationPosted(StatusBarNotification sbn) {
         String packageName = sbn.getPackageName();
-        String shortMsg = sbn.getNotification().tickerText.toString();
+        String shortMsg = "";
+        try {
+            shortMsg = (String) sbn.getNotification().tickerText;
+        }
+        catch(Exception e) {
+            
+        }
         String tag = sbn.getTag();
         // API v19
-        Bundle extras = sbn.getNotification().extras;
+        Notification notification = sbn.getNotification();
+        Bundle extras = notification.extras;
+        //String category = notification.category; API v21
         String title = extras.getString("android.title");
         String notificationMsg = extras.getCharSequence("android.text").toString();
 
-        Log.d(LOG_TAG, "Captured notification message [" + notificationMsg + "] for source [" + packageName + "]");
+        Log.d(LOG_TAG, "Captured notification message: " + notificationMsg + " \nfrom source:" + packageName);
         Log.d(LOG_TAG, "ticker: " + shortMsg);
         Log.d(LOG_TAG, "title: " + title);
         Log.d(LOG_TAG, "tag: " + tag);
+        //Log.d(LOG_TAG, "category: " + category);
 
         Intent msg = new Intent("Notification");
         msg.putExtra("packageName", packageName);
@@ -50,7 +60,13 @@ public class NotificationService extends NotificationListenerService {
     @Override
     public void onNotificationRemoved(StatusBarNotification sbn) {
         String packageName = sbn.getPackageName();
-        String shortMsg = sbn.getNotification().tickerText.toString();
-        Log.d(LOG_TAG, "Removed notification message [" + shortMsg + "] for source [" + packageName + "]");
+        String shortMsg = "";
+        try {
+            shortMsg = (String) sbn.getNotification().tickerText;
+        }
+        catch(Exception e) {
+            
+        }
+        Log.d(LOG_TAG, "Removed notification message: " + shortMsg + " \nfrom source:" + packageName);
     }
 }

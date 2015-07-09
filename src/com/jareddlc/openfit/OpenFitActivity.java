@@ -1,14 +1,12 @@
 package com.jareddlc.openfit;
 
-import java.util.List;
-
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -17,7 +15,10 @@ import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
+import android.preference.PreferenceScreen;
 import android.preference.SwitchPreference;
+import android.support.v4.content.LocalBroadcastManager;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -49,7 +50,7 @@ public class OpenFitActivity extends Activity {
         
         // load the PreferenceFragment
         Log.d(LOG_TAG, "Loading PreferenceFragment");
-        getFragmentManager().beginTransaction().replace(android.R.id.content, new OpenFitFragment()).commit();
+        this.getFragmentManager().beginTransaction().replace(android.R.id.content, new OpenFitFragment()).commit();
     }
 
     public static class OpenFitFragment extends PreferenceFragment {
@@ -62,11 +63,10 @@ public class OpenFitActivity extends Activity {
 
         // preferences
         private static SwitchPreference preference_switch_bluetooth;
-        private static CheckBoxPreference preference_checkbox_connect;;
+        private static CheckBoxPreference preference_checkbox_connect;
         private static ListPreference preference_list_devices;
         private static Preference preference_scan;
         private static Preference preference_test;
-        private static Preference preference_foo;
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
@@ -74,7 +74,7 @@ public class OpenFitActivity extends Activity {
             
             // Load the preferences from an XML resource
             Log.d(LOG_TAG, "adding preferences from resource");
-            addPreferencesFromResource(R.xml.preferences);
+            this.addPreferencesFromResource(R.xml.preferences);
 
             // load saved preferences
             final OpenFitSavedPreferences oPrefs = new OpenFitSavedPreferences(getActivity());
@@ -169,8 +169,11 @@ public class OpenFitActivity extends Activity {
                 }
             };
             Intent gattServiceIntent = new Intent(this.getActivity(), BluetoothLeService.class);
-            getActivity().bindService(gattServiceIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
-            getActivity().startService(new Intent(getActivity(), NotificationService.class));
+            this.getActivity().bindService(gattServiceIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
+            this.getActivity().startService(new Intent(this.getActivity(), NotificationService.class));
+            
+            // App Listener 
+            LocalBroadcastManager.getInstance(this.getActivity()).registerReceiver(appListenerReceiver, new IntentFilter("appListener"));
 
             // UI listeners
             preference_switch_bluetooth = (SwitchPreference) getPreferenceManager().findPreference("preference_switch_bluetooth");
@@ -250,6 +253,20 @@ public class OpenFitActivity extends Activity {
                 }
             });
         }
+        
+        private BroadcastReceiver appListenerReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String packageName = intent.getStringExtra("packageName");
+                String appName = intent.getStringExtra("appName");
+                Log.d(LOG_TAG, "Recieved appListener: "+appName+" : "+packageName);
+                CheckBoxPreference app = new CheckBoxPreference(getActivity());
+                app.setTitle(appName);
+                app.setKey(packageName);
+                PreferenceScreen preferenceScreen = getPreferenceScreen();
+                preferenceScreen.addPreference(app);
+            }
+        };
         
         public void updateDevices() {
             BluetoothLeService.setEntries();

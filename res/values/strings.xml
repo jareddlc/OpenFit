@@ -18,4 +18,5 @@
     <string name="preference_test_title">Test</string>
     <string name="preference_test_summary">Send OpenFit welcome message</string>
     <string name="preference_category_device_title">Device</string>
+    <string name="preference_category_apps_title">Applications</string>
 </resources>

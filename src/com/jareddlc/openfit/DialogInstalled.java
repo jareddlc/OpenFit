@@ -8,11 +8,13 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.ListAdapter;
 
@@ -41,6 +43,10 @@ public class DialogInstalled extends DialogFragment {
         });*/
         builder.setAdapter(adapter, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int index) {
+                Intent msg = new Intent("appListener");
+                msg.putExtra("packageName", packageNames[index]);
+                msg.putExtra("appName", appNames[index]);
+                LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(msg);
                 Log.d(LOG_TAG, "Clicked: " + appNames[index] + " : " + packageNames[index]);
             }
         });
@@ -61,7 +67,6 @@ public class DialogInstalled extends DialogFragment {
                 String appName = (String) pm.getApplicationLabel(packageInfo);
                 //Log.d(LOG_TAG, "Installed package :" + packageInfo.packageName);
                 //Log.d(LOG_TAG, "Installed package :" + appName);
-                Log.d(LOG_TAG, "Installed icon :" + packageInfo.icon);
                 Drawable icon;
                 try {
                     icon = pm.getApplicationIcon(packageInfo.packageName);

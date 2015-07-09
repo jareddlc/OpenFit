@@ -34,4 +34,7 @@
             android:title="@string/preference_test_title"
             android:summary="@string/preference_test_summary"/>
     </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/preference_category_apps_title" >
+    </PreferenceCategory>
 </PreferenceScreen>

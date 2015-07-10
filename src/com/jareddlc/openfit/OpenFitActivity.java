@@ -1,5 +1,7 @@
 package com.jareddlc.openfit;
 
+import org.xmlpull.v1.XmlPullParser;
+
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -18,16 +20,23 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceScreen;
 import android.preference.SwitchPreference;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.AttributeSet;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.ListView;
 import android.widget.Toast;
 
 public class OpenFitActivity extends Activity {
     private static final String LOG_TAG = "OpenFit:OpenFitActivity";
-
+    
+    static ApplicationManager appManager;
+    
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu items for use in the action bar
@@ -39,8 +48,16 @@ public class OpenFitActivity extends Activity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
-        DialogInstalled d = new DialogInstalled(getBaseContext());
-        d.show(getFragmentManager(), "installed");
+        //ApplicationManager d = new ApplicationManager(getBaseContext());
+        if(item.getTitle().equals(getResources().getString(R.string.menu_add))) {
+            Log.d(LOG_TAG, "Menu selected: "+ item);
+            //appManager.showInstalledApps();
+            appManager.show(getFragmentManager(), "installed");
+        }
+        if(item.getTitle().equals(getResources().getString(R.string.menu_del))) {
+            Log.d(LOG_TAG, "Menu selected: "+ item);
+        }
+
         return true;
     }
 
@@ -51,6 +68,7 @@ public class OpenFitActivity extends Activity {
         // load the PreferenceFragment
         Log.d(LOG_TAG, "Loading PreferenceFragment");
         this.getFragmentManager().beginTransaction().replace(android.R.id.content, new OpenFitFragment()).commit();
+        appManager = new ApplicationManager(getBaseContext());
     }
 
     public static class OpenFitFragment extends PreferenceFragment {
@@ -257,16 +275,33 @@ public class OpenFitActivity extends Activity {
         private BroadcastReceiver appListenerReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                String packageName = intent.getStringExtra("packageName");
-                String appName = intent.getStringExtra("appName");
+                final String packageName = intent.getStringExtra("packageName");
+                final String appName = intent.getStringExtra("appName");
                 Log.d(LOG_TAG, "Recieved appListener: "+appName+" : "+packageName);
+                appManager.addInstalledApp(packageName);
                 CheckBoxPreference app = new CheckBoxPreference(getActivity());
                 app.setTitle(appName);
                 app.setKey(packageName);
+                app.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                    @Override
+                    public boolean onPreferenceChange(Preference preference, Object newValue) {
+                        if((Boolean)newValue) {
+                            Log.d(LOG_TAG, appName+": Enabled");
+                            return true;
+                        }
+                        else {
+                            Log.d(LOG_TAG, appName+": Disabled");
+                            return true;
+                        }
+                    }
+                });
+                app.setIcon(appManager.getIcon(packageName));
                 PreferenceScreen preferenceScreen = getPreferenceScreen();
                 preferenceScreen.addPreference(app);
             }
         };
+        
+        
         
         public void updateDevices() {
             BluetoothLeService.setEntries();

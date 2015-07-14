@@ -1,5 +1,8 @@
 package com.jareddlc.openfit;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -16,6 +19,7 @@ public class OpenFitSavedPreferences {
 
     public String preference_list_devices_value;
     public String preference_list_devices_entry;
+    public Set<String> set_packageNames = new LinkedHashSet<String>();
 
     public OpenFitSavedPreferences(Context context) {
         this.load(context);
@@ -38,5 +42,9 @@ public class OpenFitSavedPreferences {
     public void save(String key, boolean value) {
         editor.putBoolean(key, value);
         editor.commit();
+    }
+    
+    public void saveSet(String value) {
+        set_packageNames.add(value);
     }
 }

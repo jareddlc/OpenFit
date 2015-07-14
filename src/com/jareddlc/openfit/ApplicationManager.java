@@ -18,40 +18,60 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.ListAdapter;
 
-public class ApplicationManager extends DialogFragment {
+public class ApplicationManager {
     private static final String LOG_TAG = "OpenFit:ApplicationManager";
     
-    private CharSequence[] packageNames = new CharSequence[0];
-    private CharSequence[] appNames = new CharSequence[0];
-    ArrayList<Drawable> packageIcons = new ArrayList<Drawable>();
-    ArrayList<String> listeningNames = new ArrayList<String>();
-    private ListAdapter adapter;
-
-    private AlertDialog.Builder installedApps;
-    private AlertDialog.Builder listeningApps;
+    private CharSequence[] installedPackageNames = new CharSequence[0];
+    private CharSequence[] installedAppNames = new CharSequence[0];
+    ArrayList<Drawable> installedPackageIcons = new ArrayList<Drawable>();
     
-    public ApplicationManager(Context context) {
-        this.getInstalledApps(context);
+    private CharSequence[] listeningPackageNames = new CharSequence[0];
+    private CharSequence[] listeningAppNames = new CharSequence[0];
+    ArrayList<Drawable> listeningPackageIcons = new ArrayList<Drawable>();
+
+    ArrayList<String> listeningListPackageNames = new ArrayList<String>();
+    private ListAdapter adapter;
+    
+    public ApplicationManager() {
     }
 
-    @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle("Select Application");
-        builder.setAdapter(adapter, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int index) {
-                Intent msg = new Intent("appListener");
-                msg.putExtra("packageName", packageNames[index]);
-                msg.putExtra("appName", appNames[index]);
-                LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(msg);
-                Log.d(LOG_TAG, "Clicked: " + appNames[index] + " : " + packageNames[index]);
+    public ListAdapter getListeningAdapter(Context context) {
+        ArrayList<String> aName = new ArrayList<String>();
+        ArrayList<String> pName = new ArrayList<String>();
+        ArrayList<Drawable> iDraw = new ArrayList<Drawable>();
+
+        for(int i = 0; i < listeningListPackageNames.size(); i++) {
+            Log.d(LOG_TAG, "installed :" + listeningListPackageNames.get(i));
+            PackageManager pm = context.getPackageManager();
+            Drawable icon;
+            try {
+                icon = pm.getApplicationIcon(listeningListPackageNames.get(i));
+                icon.setBounds(0, 0, 144, 144);
             }
-        });
-
-        return builder.create();
+            catch(NameNotFoundException e) {
+                icon = null;
+            }
+            String packageName = listeningListPackageNames.get(i);
+            ApplicationInfo packageInfo;
+            try {
+                packageInfo = pm.getApplicationInfo(packageName, PackageManager.GET_META_DATA);
+            }
+            catch (NameNotFoundException e) {
+                packageInfo = null;
+            }
+            String appName = (String) pm.getApplicationLabel(packageInfo);
+            pName.add(packageName);
+            aName.add(appName);
+            iDraw.add(icon);
+        }
+        listeningPackageNames = pName.toArray(new CharSequence[pName.size()]);
+        listeningAppNames = aName.toArray(new CharSequence[aName.size()]);
+        listeningPackageIcons = iDraw;
+        ListAdapter adapter = new ArrayAdapterWithIcon(context, aName, iDraw);;
+        return adapter;
     }
 
-    public void getInstalledApps(Context context) {
+    public ListAdapter getInstalledAdapter(Context context) {
         PackageManager pm = context.getPackageManager();
         List<ApplicationInfo> packages = pm.getInstalledApplications(PackageManager.GET_META_DATA);
         ArrayList<String> aName = new ArrayList<String>();
@@ -76,36 +96,37 @@ public class ApplicationManager extends DialogFragment {
                 iDraw.add(icon);
             }
         }
-        packageNames = pName.toArray(new CharSequence[pName.size()]);
-        appNames = aName.toArray(new CharSequence[aName.size()]);
-        packageIcons = iDraw;
+        installedPackageNames = pName.toArray(new CharSequence[pName.size()]);
+        installedAppNames = aName.toArray(new CharSequence[aName.size()]);
+        installedPackageIcons = iDraw;
         adapter = new ArrayAdapterWithIcon(context, aName, iDraw);
-        
-        /*installedApps = new AlertDialog.Builder(context);
-        installedApps.setTitle("Select Application");
-        installedApps.setAdapter(adapter, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int index) {
-                Intent msg = new Intent("appListener");
-                msg.putExtra("packageName", packageNames[index]);
-                msg.putExtra("appName", appNames[index]);
-                LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(msg);
-                Log.d(LOG_TAG, "Clicked: " + appNames[index] + " : " + packageNames[index]);
-            }
-        });
-        installedApps.create();*/
+
+        return adapter;
     }
     
-    public void showInstalledApps() {
-        installedApps.show();
+    public CharSequence[] getListeningPackageNames() {
+        return listeningPackageNames;
     }
-    
+
+    public CharSequence[] getListeningAppNames() {
+        return listeningAppNames;
+    }
+
+    public CharSequence[] getInstalledPackageNames() {
+        return installedPackageNames;
+    }
+
+    public CharSequence[] getInstalledAppNames() {
+        return installedAppNames;
+    }
+
     public Drawable getIcon(String packageName) {
         Log.d(LOG_TAG, "Getting icon for package :" + packageName);
         Drawable icon = null;
-        for(int i = 0; i < packageNames.length; i++) {
+        for(int i = 0; i < installedPackageNames.length; i++) {
             //Log.d(LOG_TAG, "pckg :" + packageNames[i]);
-            if(packageNames[i].equals(packageName)) {
-                icon = packageIcons.get(i);
+            if(installedPackageNames[i].equals(packageName)) {
+                icon = installedPackageIcons.get(i);
                 break;
             }
         }
@@ -114,7 +135,7 @@ public class ApplicationManager extends DialogFragment {
 
     public void addInstalledApp(String packageName) {
         Log.d(LOG_TAG, "Adding package to listeningApps: " + packageName);
-        listeningNames.add(packageName);
+        listeningListPackageNames.add(packageName);
     }
 
 }

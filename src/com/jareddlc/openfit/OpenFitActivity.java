@@ -1,6 +1,5 @@
 package com.jareddlc.openfit;
 
-import org.xmlpull.v1.XmlPullParser;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -16,20 +15,14 @@ import android.os.Message;
 import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
+import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
-import android.preference.PreferenceScreen;
 import android.preference.SwitchPreference;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.ListView;
 import android.widget.Toast;
 
 public class OpenFitActivity extends Activity {
@@ -48,14 +41,15 @@ public class OpenFitActivity extends Activity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
-        //ApplicationManager d = new ApplicationManager(getBaseContext());
         if(item.getTitle().equals(getResources().getString(R.string.menu_add))) {
-            Log.d(LOG_TAG, "Menu selected: "+ item);
-            //appManager.showInstalledApps();
-            appManager.show(getFragmentManager(), "installed");
+            Log.d(LOG_TAG, "Add selected: "+ item);
+            DialogAddApplication d = new DialogAddApplication(appManager.getInstalledAdapter(getBaseContext()), appManager.getInstalledPackageNames(), appManager.getInstalledAppNames());
+            d.show(getFragmentManager(), "installed");
         }
         if(item.getTitle().equals(getResources().getString(R.string.menu_del))) {
-            Log.d(LOG_TAG, "Menu selected: "+ item);
+            Log.d(LOG_TAG, "Remove selected: "+ item);
+            DialogDelApplication d = new DialogDelApplication(appManager.getListeningAdapter(getBaseContext()), appManager.getListeningPackageNames(), appManager.getListeningAppNames());
+            d.show(getFragmentManager(), "listening");
         }
 
         return true;
@@ -68,7 +62,7 @@ public class OpenFitActivity extends Activity {
         // load the PreferenceFragment
         Log.d(LOG_TAG, "Loading PreferenceFragment");
         this.getFragmentManager().beginTransaction().replace(android.R.id.content, new OpenFitFragment()).commit();
-        appManager = new ApplicationManager(getBaseContext());
+        appManager = new ApplicationManager();
     }
 
     public static class OpenFitFragment extends PreferenceFragment {
@@ -78,6 +72,7 @@ public class OpenFitActivity extends Activity {
         private String mDeviceAddress;
         private static Handler mHandler;
         private static BluetoothLeService bluetoothLeService;
+        private OpenFitSavedPreferences oPrefs;
 
         // preferences
         private static SwitchPreference preference_switch_bluetooth;
@@ -95,7 +90,7 @@ public class OpenFitActivity extends Activity {
             this.addPreferencesFromResource(R.xml.preferences);
 
             // load saved preferences
-            final OpenFitSavedPreferences oPrefs = new OpenFitSavedPreferences(getActivity());
+            oPrefs = new OpenFitSavedPreferences(getActivity());
 
             // setup message handler
             mHandler = new Handler() {
@@ -191,7 +186,8 @@ public class OpenFitActivity extends Activity {
             this.getActivity().startService(new Intent(this.getActivity(), NotificationService.class));
             
             // App Listener 
-            LocalBroadcastManager.getInstance(this.getActivity()).registerReceiver(appListenerReceiver, new IntentFilter("appListener"));
+            LocalBroadcastManager.getInstance(this.getActivity()).registerReceiver(addApplicationReceiver, new IntentFilter("addApplication"));
+            LocalBroadcastManager.getInstance(this.getActivity()).registerReceiver(delApplicationReceiver, new IntentFilter("delApplication"));
 
             // UI listeners
             preference_switch_bluetooth = (SwitchPreference) getPreferenceManager().findPreference("preference_switch_bluetooth");
@@ -272,34 +268,59 @@ public class OpenFitActivity extends Activity {
             });
         }
         
-        private BroadcastReceiver appListenerReceiver = new BroadcastReceiver() {
+        private BroadcastReceiver addApplicationReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 final String packageName = intent.getStringExtra("packageName");
                 final String appName = intent.getStringExtra("appName");
-                Log.d(LOG_TAG, "Recieved appListener: "+appName+" : "+packageName);
+                Log.d(LOG_TAG, "Recieved add application: "+appName+" : "+packageName);
                 appManager.addInstalledApp(packageName);
-                CheckBoxPreference app = new CheckBoxPreference(getActivity());
-                app.setTitle(appName);
-                app.setKey(packageName);
-                app.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-                    @Override
-                    public boolean onPreferenceChange(Preference preference, Object newValue) {
-                        if((Boolean)newValue) {
-                            Log.d(LOG_TAG, appName+": Enabled");
-                            return true;
-                        }
-                        else {
-                            Log.d(LOG_TAG, appName+": Disabled");
-                            return true;
-                        }
-                    }
-                });
-                app.setIcon(appManager.getIcon(packageName));
-                PreferenceScreen preferenceScreen = getPreferenceScreen();
-                preferenceScreen.addPreference(app);
+                oPrefs.saveSet(packageName);
+                oPrefs.save(packageName, true);
+                CheckBoxPreference app = createAppPreference(packageName, appName);
+                PreferenceCategory category = (PreferenceCategory) findPreference("preference_category_apps");
+                category.addPreference(app);
             }
         };
+        
+        private BroadcastReceiver delApplicationReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                final String packageName = intent.getStringExtra("packageName");
+                final String appName = intent.getStringExtra("appName");
+                Log.d(LOG_TAG, "Recieved del application: "+appName+" : "+packageName);
+                /*appManager.addInstalledApp(packageName);
+                oPrefs.saveSet(packageName);
+                oPrefs.save(packageName, true);
+                CheckBoxPreference app = createAppPreference(packageName, appName);
+                PreferenceCategory category = (PreferenceCategory) findPreference("preference_category_apps");
+                category.addPreference(app);*/
+            }
+        };
+        
+        public CheckBoxPreference createAppPreference(final String packageName, final String appName) {
+            CheckBoxPreference app = new CheckBoxPreference(getActivity());
+            app.setTitle(appName);
+            app.setKey(packageName);
+            app.setChecked(true);
+            app.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    if((Boolean)newValue) {
+                        oPrefs.save(packageName, true);
+                        Log.d(LOG_TAG, appName+": Enabled");
+                        return true;
+                    }
+                    else {
+                        oPrefs.save(packageName, false);
+                        Log.d(LOG_TAG, appName+": Disabled");
+                        return true;
+                    }
+                }
+            });
+            app.setIcon(appManager.getIcon(packageName));
+            return app;
+        }
         
         
         

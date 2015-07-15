@@ -2,6 +2,7 @@ package com.jareddlc.openfit;
 
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -80,6 +81,7 @@ public class OpenFitActivity extends Activity {
         private static ListPreference preference_list_devices;
         private static Preference preference_scan;
         private static Preference preference_test;
+
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
@@ -267,7 +269,7 @@ public class OpenFitActivity extends Activity {
                 }
             });
         }
-        
+
         private BroadcastReceiver addApplicationReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -282,22 +284,21 @@ public class OpenFitActivity extends Activity {
                 category.addPreference(app);
             }
         };
-        
+
         private BroadcastReceiver delApplicationReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
+
                 final String packageName = intent.getStringExtra("packageName");
                 final String appName = intent.getStringExtra("appName");
                 Log.d(LOG_TAG, "Recieved del application: "+appName+" : "+packageName);
-                /*appManager.addInstalledApp(packageName);
-                oPrefs.saveSet(packageName);
-                oPrefs.save(packageName, true);
-                CheckBoxPreference app = createAppPreference(packageName, appName);
                 PreferenceCategory category = (PreferenceCategory) findPreference("preference_category_apps");
-                category.addPreference(app);*/
+                CheckBoxPreference app = (CheckBoxPreference) findPreference(packageName);
+                category.removePreference(app);
+                appManager.delInstalledApp(packageName);
             }
         };
-        
+
         public CheckBoxPreference createAppPreference(final String packageName, final String appName) {
             CheckBoxPreference app = new CheckBoxPreference(getActivity());
             app.setTitle(appName);
@@ -321,9 +322,7 @@ public class OpenFitActivity extends Activity {
             app.setIcon(appManager.getIcon(packageName));
             return app;
         }
-        
-        
-        
+
         public void updateDevices() {
             BluetoothLeService.setEntries();
             preference_list_devices.setEntries(BluetoothLeService.getEntries());
@@ -340,6 +339,13 @@ public class OpenFitActivity extends Activity {
                 BluetoothLeService.setDevice(mDeviceAddress);
                 Log.d(LOG_TAG, "Restored device: "+mDeviceName+":"+mDeviceAddress);
             }
+        }
+
+        @Override
+        public void onDestroy() {
+            LocalBroadcastManager.getInstance(this.getActivity()).unregisterReceiver(addApplicationReceiver);
+            LocalBroadcastManager.getInstance(this.getActivity()).unregisterReceiver(delApplicationReceiver);
+            super.onDestroy();
         }
     }
 }

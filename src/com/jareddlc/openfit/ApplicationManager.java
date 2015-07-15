@@ -138,5 +138,9 @@ public class ApplicationManager {
         listeningListPackageNames.add(packageName);
     }
 
+    public void delInstalledApp(String packageName) {
+        Log.d(LOG_TAG, "Removing package to listeningApps: " + packageName);
+        listeningListPackageNames.remove(packageName);
+    }
 }
 

@@ -1,6 +1,9 @@
 package com.jareddlc.openfit;
 
 
+import java.util.ArrayList;
+import java.util.Set;
+
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.BroadcastReceiver;
@@ -64,6 +67,7 @@ public class OpenFitActivity extends Activity {
         Log.d(LOG_TAG, "Loading PreferenceFragment");
         this.getFragmentManager().beginTransaction().replace(android.R.id.content, new OpenFitFragment()).commit();
         appManager = new ApplicationManager();
+        appManager.getInstalledAdapter(getBaseContext());
     }
 
     public static class OpenFitFragment extends PreferenceFragment {
@@ -235,8 +239,8 @@ public class OpenFitActivity extends Activity {
                     mDeviceName = entries[index].toString();
                     BluetoothLeService.setDevice(mDeviceAddress);
                     preference_list_devices.setSummary(mDeviceName);
-                    oPrefs.save("preference_list_devices_value", mDeviceAddress);
-                    oPrefs.save("preference_list_devices_entry", mDeviceName);
+                    oPrefs.saveString("preference_list_devices_value", mDeviceAddress);
+                    oPrefs.saveString("preference_list_devices_entry", mDeviceName);
                     return true;
                 }
             });
@@ -278,8 +282,9 @@ public class OpenFitActivity extends Activity {
                 Log.d(LOG_TAG, "Recieved add application: "+appName+" : "+packageName);
                 appManager.addInstalledApp(packageName);
                 oPrefs.saveSet(packageName);
-                oPrefs.save(packageName, true);
-                CheckBoxPreference app = createAppPreference(packageName, appName);
+                oPrefs.saveBoolean(packageName, true);
+                oPrefs.saveString(packageName, appName);
+                CheckBoxPreference app = createAppPreference(packageName, appName, true);
                 PreferenceCategory category = (PreferenceCategory) findPreference("preference_category_apps");
                 category.addPreference(app);
             }
@@ -292,28 +297,32 @@ public class OpenFitActivity extends Activity {
                 final String packageName = intent.getStringExtra("packageName");
                 final String appName = intent.getStringExtra("appName");
                 Log.d(LOG_TAG, "Recieved del application: "+appName+" : "+packageName);
+                appManager.delInstalledApp(packageName);
+                oPrefs.removeSet(packageName);
+                oPrefs.removeBoolean(packageName);
+                oPrefs.removeString(packageName);
                 PreferenceCategory category = (PreferenceCategory) findPreference("preference_category_apps");
                 CheckBoxPreference app = (CheckBoxPreference) findPreference(packageName);
                 category.removePreference(app);
-                appManager.delInstalledApp(packageName);
+                
             }
         };
 
-        public CheckBoxPreference createAppPreference(final String packageName, final String appName) {
+        public CheckBoxPreference createAppPreference(final String packageName, final String appName, final boolean value) {
             CheckBoxPreference app = new CheckBoxPreference(getActivity());
             app.setTitle(appName);
             app.setKey(packageName);
-            app.setChecked(true);
+            app.setChecked(value);
             app.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
                     if((Boolean)newValue) {
-                        oPrefs.save(packageName, true);
+                        oPrefs.saveBoolean(packageName, true);
                         Log.d(LOG_TAG, appName+": Enabled");
                         return true;
                     }
                     else {
-                        oPrefs.save(packageName, false);
+                        oPrefs.saveBoolean(packageName, false);
                         Log.d(LOG_TAG, appName+": Disabled");
                         return true;
                     }
@@ -330,6 +339,11 @@ public class OpenFitActivity extends Activity {
         }
 
         public void restorePreferences(OpenFitSavedPreferences oPrefs) {
+            this.restoreDevices(oPrefs);
+            this.restoreListeningApps(oPrefs);
+        }
+
+        public void restoreDevices(OpenFitSavedPreferences oPrefs) {
             Log.d(LOG_TAG, "Selected device: "+mDeviceName+":"+mDeviceAddress);
             if(oPrefs.preference_list_devices_value != "DEFAULT") {
                 mDeviceAddress = oPrefs.preference_list_devices_value;
@@ -338,6 +352,20 @@ public class OpenFitActivity extends Activity {
                 updateDevices();
                 BluetoothLeService.setDevice(mDeviceAddress);
                 Log.d(LOG_TAG, "Restored device: "+mDeviceName+":"+mDeviceAddress);
+            }
+        }
+
+        public void restoreListeningApps(OpenFitSavedPreferences oPrefs) {
+            Log.d(LOG_TAG, "Getting listening apps");
+            PreferenceCategory category = (PreferenceCategory) findPreference("preference_category_apps");
+            Set<String> listeningPackageNames = oPrefs.getSet();
+            for(String packageName : listeningPackageNames) {
+                boolean value = oPrefs.getBoolean(packageName);
+                String appName = oPrefs.getString(packageName);
+                Log.d(LOG_TAG, "Listening App: " + packageName + ":" + value);
+                CheckBoxPreference app = createAppPreference(packageName, appName, value);
+                category.addPreference(app);
+                appManager.addInstalledApp(packageName);
             }
         }
 

@@ -3,18 +3,11 @@ package com.jareddlc.openfit;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.DialogFragment;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.drawable.Drawable;
-import android.os.Bundle;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.ListAdapter;
 
@@ -30,8 +23,7 @@ public class ApplicationManager {
     ArrayList<Drawable> listeningPackageIcons = new ArrayList<Drawable>();
 
     ArrayList<String> listeningListPackageNames = new ArrayList<String>();
-    private ListAdapter adapter;
-    
+
     public ApplicationManager() {
     }
 
@@ -41,7 +33,7 @@ public class ApplicationManager {
         ArrayList<Drawable> iDraw = new ArrayList<Drawable>();
 
         for(int i = 0; i < listeningListPackageNames.size(); i++) {
-            Log.d(LOG_TAG, "installed :" + listeningListPackageNames.get(i));
+            Log.d(LOG_TAG, "installed:" + listeningListPackageNames.get(i));
             PackageManager pm = context.getPackageManager();
             Drawable icon;
             try {
@@ -99,7 +91,7 @@ public class ApplicationManager {
         installedPackageNames = pName.toArray(new CharSequence[pName.size()]);
         installedAppNames = aName.toArray(new CharSequence[aName.size()]);
         installedPackageIcons = iDraw;
-        adapter = new ArrayAdapterWithIcon(context, aName, iDraw);
+        ListAdapter adapter = new ArrayAdapterWithIcon(context, aName, iDraw);
 
         return adapter;
     }
@@ -121,8 +113,9 @@ public class ApplicationManager {
     }
 
     public Drawable getIcon(String packageName) {
-        Log.d(LOG_TAG, "Getting icon for package :" + packageName);
+        Log.d(LOG_TAG, "Getting icon for package: " + packageName);
         Drawable icon = null;
+        Log.d(LOG_TAG, "installedPackageNames.length: " + installedPackageNames.length);
         for(int i = 0; i < installedPackageNames.length; i++) {
             //Log.d(LOG_TAG, "pckg :" + packageNames[i]);
             if(installedPackageNames[i].equals(packageName)) {
@@ -141,6 +134,10 @@ public class ApplicationManager {
     public void delInstalledApp(String packageName) {
         Log.d(LOG_TAG, "Removing package to listeningApps: " + packageName);
         listeningListPackageNames.remove(packageName);
+    }
+    
+    public ArrayList<String> getInstalledApp() {
+        return listeningListPackageNames;
     }
 }
 

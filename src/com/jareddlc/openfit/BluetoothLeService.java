@@ -209,6 +209,8 @@ public class BluetoothLeService extends Service {
     public boolean onUnbind(Intent intent) {
         close();
         Log.d(LOG_TAG, "unbind.");
+        mHandler = null;
+        stopSelf();
         return super.onUnbind(intent);
     }
 

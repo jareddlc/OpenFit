@@ -32,6 +32,11 @@
             android:enabled="true"
             android:exported="false" >
         </service>
+        <service 
+            android:name=".OpenFitService" 
+            android:enabled="true"
+            android:exported="false" >
+        </service>
         <service android:name=".NotificationService"
             android:label="@string/service_name"
             android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">

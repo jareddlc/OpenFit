@@ -6,6 +6,9 @@ import java.util.Set;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.PendingIntent.CanceledException;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -22,6 +25,7 @@ import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.SwitchPreference;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.Menu;
@@ -31,9 +35,9 @@ import android.widget.Toast;
 
 public class OpenFitActivity extends Activity {
     private static final String LOG_TAG = "OpenFit:OpenFitActivity";
-    
+
     static ApplicationManager appManager;
-    
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu items for use in the action bar
@@ -85,6 +89,9 @@ public class OpenFitActivity extends Activity {
         private static ListPreference preference_list_devices;
         private static Preference preference_scan;
         private static Preference preference_test;
+
+        // service intents
+        Intent serviceIntent;
 
 
         @Override
@@ -189,7 +196,11 @@ public class OpenFitActivity extends Activity {
             };
             Intent gattServiceIntent = new Intent(this.getActivity(), BluetoothLeService.class);
             this.getActivity().bindService(gattServiceIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
-            this.getActivity().startService(new Intent(this.getActivity(), NotificationService.class));
+            Intent notificationIntent = new Intent(this.getActivity(), NotificationService.class);
+            this.getActivity().startService(notificationIntent);
+            serviceIntent = new Intent(this.getActivity(), OpenFitService.class);
+            this.getActivity().startService(serviceIntent);
+            //this.getActivity().stopService(notificationIntent);
             
             // App Listener 
             LocalBroadcastManager.getInstance(this.getActivity()).registerReceiver(addApplicationReceiver, new IntentFilter("addApplication"));
@@ -268,7 +279,23 @@ public class OpenFitActivity extends Activity {
                 public boolean onPreferenceClick(Preference preference) {
                     Toast.makeText(getActivity(), "Testing...", Toast.LENGTH_SHORT).show();
                     Log.d(LOG_TAG, "test");
-                    bluetoothLeService.test();
+                    
+                    Intent stopService =  new Intent("stopOpenFitService");
+                    PendingIntent pIntent = PendingIntent.getBroadcast(getActivity(), 0, stopService, PendingIntent.FLAG_UPDATE_CURRENT);
+                    
+                    NotificationCompat.Builder nBuilder = new NotificationCompat.Builder(getActivity());
+                    nBuilder.setSmallIcon(R.drawable.open_fit_notification);
+                    nBuilder.setContentTitle("Open Fit");
+                    nBuilder.setContentText("Listening for notifications");
+                    nBuilder.setContentIntent(pIntent);
+                    nBuilder.setAutoCancel(true);
+                    NotificationCompat.Builder n = nBuilder.addAction(android.R.drawable.ic_menu_close_clear_cancel, "Stop", pIntent);
+                    n.setAutoCancel(true);
+                    
+                    // Sets an ID for the notification
+                    int mNotificationId = 001;
+                    NotificationManager nManager = (NotificationManager) getActivity().getSystemService(NOTIFICATION_SERVICE);
+                    nManager.notify(mNotificationId, nBuilder.build());
                     return true;
                 }
             });
@@ -367,6 +394,12 @@ public class OpenFitActivity extends Activity {
                 category.addPreference(app);
                 appManager.addInstalledApp(packageName);
             }
+        }
+
+        public void notifyService(String intentName) {
+            Log.d(LOG_TAG, "Notifying Service");
+            Intent msg = new Intent(intentName);
+            LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(msg);
         }
 
         @Override

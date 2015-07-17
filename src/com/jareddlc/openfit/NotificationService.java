@@ -1,5 +1,7 @@
 package com.jareddlc.openfit;
 
+import java.util.ArrayList;
+
 import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.content.Context;
@@ -14,7 +16,8 @@ import android.util.Log;
 public class NotificationService extends NotificationListenerService {
     private static final String LOG_TAG = "OpenFit:NotificationService";
 
-    Context context;
+    private ArrayList<String> listeningListPackageNames = new ArrayList<String>();
+    private Context context;
 
     @Override
     public void onCreate() {
@@ -22,7 +25,7 @@ public class NotificationService extends NotificationListenerService {
         super.onCreate();
         context = getApplicationContext();
     }
-    
+
     @SuppressLint("NewApi")
     @Override
     public void onNotificationPosted(StatusBarNotification sbn) {
@@ -35,6 +38,9 @@ public class NotificationService extends NotificationListenerService {
             
         }
         String tag = sbn.getTag();
+        long time = sbn.getPostTime();
+        int id = sbn.getId();
+        
         // API v19
         Notification notification = sbn.getNotification();
         Bundle extras = notification.extras;
@@ -46,15 +52,27 @@ public class NotificationService extends NotificationListenerService {
         Log.d(LOG_TAG, "ticker: " + shortMsg);
         Log.d(LOG_TAG, "title: " + title);
         Log.d(LOG_TAG, "tag: " + tag);
+        Log.d(LOG_TAG, "time: " + time);
+        Log.d(LOG_TAG, "id: " + id);
         //Log.d(LOG_TAG, "category: " + category);
+        
+        if((2 & sbn.getNotification().flags) != 2) {
+            Log.d(LOG_TAG, "Flag != 2");
+        }
+        else {
+            Log.d(LOG_TAG, "Flag else");
+        }
+        if(listeningListPackageNames.contains(packageName)) {
+            Intent msg = new Intent("Notification");
+            msg.putExtra("packageName", packageName);
+            msg.putExtra("ticker", shortMsg);
+            msg.putExtra("title", title);
+            msg.putExtra("notificationMsg", notificationMsg);
+            msg.putExtra("time", time);
+            msg.putExtra("id", id);
 
-        Intent msg = new Intent("Notification");
-        msg.putExtra("packageName", packageName);
-        msg.putExtra("ticker", shortMsg);
-        msg.putExtra("title", title);
-        msg.putExtra("notificationMsg", notificationMsg);
-
-        LocalBroadcastManager.getInstance(context).sendBroadcast(msg);
+            LocalBroadcastManager.getInstance(context).sendBroadcast(msg);
+        }
     }
 
     @Override
@@ -68,5 +86,9 @@ public class NotificationService extends NotificationListenerService {
             
         }
         Log.d(LOG_TAG, "Removed notification message: " + shortMsg + " \nfrom source:" + packageName);
+    }
+
+    public void setListeningPackageNames(ArrayList<String> packageNames) {
+        listeningListPackageNames = packageNames;
     }
 }

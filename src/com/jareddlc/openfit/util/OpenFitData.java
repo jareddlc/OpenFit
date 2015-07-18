@@ -71,11 +71,11 @@ public class OpenFitData {
     public static final int DISCONNECTED_BY_SOCKET_CLOSED = 1;
     public static final int DISCONNECTED_BY_TIMEOUT = 3;
 
-    private static final int MSG_ID_CONNECTED = 2;
-    private static final int MSG_ID_DATA_RECEIVED = 5;
-    private static final int MSG_ID_DISCONNECTED = 3;
-    private static final int MSG_ID_ETC_DATA_RECEIVED = 6;
-    
+    public static final int MSG_ID_CONNECTED = 2;
+    public static final int MSG_ID_DATA_RECEIVED = 5;
+    public static final int MSG_ID_DISCONNECTED = 3;
+    public static final int MSG_ID_ETC_DATA_RECEIVED = 6;
+
     public static final byte LAUNCHER_APP_TYPE_CLOCK = 1;
     public static final byte LAUNCHER_APP_TYPE_CUIP = 0;
     public static final byte LAUNCHER_APP_TYPE_EXERCISE = 6;

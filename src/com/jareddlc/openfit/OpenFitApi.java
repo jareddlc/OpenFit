@@ -14,7 +14,6 @@ import com.jareddlc.openfit.util.OpenFitTimeZoneUtil;
 import com.jareddlc.openfit.util.OpenFitVariableDataComposer;
 
 public class OpenFitApi {
-    private static final String LOG_TAG = "OpenFit:OpenFitApi";
     private static long MSGID = 0;
 
     public static byte[] getReady() {
@@ -52,7 +51,7 @@ public class OpenFitApi {
         oVariableDataComposer.writeByte((byte)1);
         return oVariableDataComposer.toByteArray();
     }
-    
+
     public static byte[] getFotaCommand() {
         //4E020000000101
         OpenFitVariableDataComposer oVariableDataComposer = new OpenFitVariableDataComposer();
@@ -143,7 +142,7 @@ public class OpenFitApi {
         //570065006C0063006F006D006500200074006F0020004F00700065006E004600690074002100 = Welcome to OpenFit!
         //00
         //5E0E8955 = time stamp
-        List mDataList = new ArrayList();
+        List<OpenFitDataTypeAndString> mDataList = new ArrayList<OpenFitDataTypeAndString>();
         mDataList.add(new OpenFitDataTypeAndString(OpenFitDataType.BYTE, "OpenFit"));
         mDataList.add(new OpenFitDataTypeAndString(OpenFitDataType.BYTE, "5551234567"));
         mDataList.add(new OpenFitDataTypeAndString(OpenFitDataType.BYTE, "NOTITLE"));
@@ -183,7 +182,7 @@ public class OpenFitApi {
         //00
         //5E0E8955 = time stamp
 
-        List mDataList = new ArrayList();
+        List<OpenFitDataTypeAndString> mDataList = new ArrayList<OpenFitDataTypeAndString>();
         mDataList.add(new OpenFitDataTypeAndString(OpenFitDataType.BYTE, sender));
         mDataList.add(new OpenFitDataTypeAndString(OpenFitDataType.BYTE, number));
         mDataList.add(new OpenFitDataTypeAndString(OpenFitDataType.BYTE, title));

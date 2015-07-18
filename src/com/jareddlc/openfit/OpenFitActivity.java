@@ -1,14 +1,7 @@
 package com.jareddlc.openfit;
 
-
-import java.util.ArrayList;
 import java.util.Set;
-
 import android.app.Activity;
-import android.app.Fragment;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.app.PendingIntent.CanceledException;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -25,7 +18,6 @@ import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.SwitchPreference;
-import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.Menu;
@@ -66,7 +58,7 @@ public class OpenFitActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
+
         // load the PreferenceFragment
         Log.d(LOG_TAG, "Loading PreferenceFragment");
         this.getFragmentManager().beginTransaction().replace(android.R.id.content, new OpenFitFragment()).commit();
@@ -79,20 +71,19 @@ public class OpenFitActivity extends Activity {
 
         private String mDeviceName;
         private String mDeviceAddress;
-        private static Handler mHandler;
+        private  Handler mHandler;
         private static BluetoothLeService bluetoothLeService;
         private OpenFitSavedPreferences oPrefs;
 
-        // preferences
+        // UI preferences
         private static SwitchPreference preference_switch_bluetooth;
         private static CheckBoxPreference preference_checkbox_connect;
+        private static CheckBoxPreference preference_checkbox_phone;
+        private static CheckBoxPreference preference_checkbox_sms;
+        private static CheckBoxPreference preference_checkbox_time;
         private static ListPreference preference_list_devices;
         private static Preference preference_scan;
         private static Preference preference_test;
-
-        // service intents
-        Intent serviceIntent;
-
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
@@ -105,7 +96,53 @@ public class OpenFitActivity extends Activity {
             // load saved preferences
             oPrefs = new OpenFitSavedPreferences(getActivity());
 
+            this.setupMessageHandler();
+
+            // initialize BluetoothLE
+            final ServiceConnection mServiceConnection = new ServiceConnection() {
+                @Override
+                public void onServiceConnected(ComponentName componentName, IBinder service) {
+                    Log.d(LOG_TAG, "onService Connected");
+                    bluetoothLeService = ((BluetoothLeService.LocalBinder)service).getService();
+                    if(!bluetoothLeService.initialize()) {
+                        Log.e(LOG_TAG, "Unable to initialize BluetoothLE");
+                    }
+                    bluetoothLeService.setHandler(mHandler);
+                    restorePreferences(oPrefs);
+                    
+                    if(BluetoothLeService.isEnabled) {
+                        preference_switch_bluetooth.setChecked(true);
+                    }
+                    else {
+                        preference_switch_bluetooth.setChecked(false);
+                    }
+                    // Automatically connects to the device upon successful start-up initialization.
+                    //bluetoothLeService.connect(mDeviceAddress);
+                }
+
+                @Override
+                public void onServiceDisconnected(ComponentName componentName) {
+                    bluetoothLeService = null;
+                }
+            };
+            Intent gattServiceIntent = new Intent(this.getActivity(), BluetoothLeService.class);
+            this.getActivity().bindService(gattServiceIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
+            Intent notificationIntent = new Intent(this.getActivity(), NotificationService.class);
+            this.getActivity().startService(notificationIntent);
+            Intent serviceIntent = new Intent(this.getActivity(), OpenFitService.class);
+            this.getActivity().startService(serviceIntent);
+            //this.getActivity().stopService(notificationIntent);
+            
+            // App Listener 
+            LocalBroadcastManager.getInstance(this.getActivity()).registerReceiver(addApplicationReceiver, new IntentFilter("addApplication"));
+            LocalBroadcastManager.getInstance(this.getActivity()).registerReceiver(delApplicationReceiver, new IntentFilter("delApplication"));
+
+            this.setupUIListeners();
+        }
+
+        public void setupMessageHandler() {
             // setup message handler
+            Log.d(LOG_TAG, "Setting up message handler");
             mHandler = new Handler() {
                 @Override
                 public void handleMessage(Message msg) {
@@ -166,47 +203,11 @@ public class OpenFitActivity extends Activity {
                     }
                 }
             };
+        }
 
-            // initialize BluetoothLE
-            final ServiceConnection mServiceConnection = new ServiceConnection() {
-                @Override
-                public void onServiceConnected(ComponentName componentName, IBinder service) {
-                    Log.d(LOG_TAG, "onService Connected");
-                    bluetoothLeService = ((BluetoothLeService.LocalBinder)service).getService();
-                    if(!bluetoothLeService.initialize()) {
-                        Log.e(LOG_TAG, "Unable to initialize BluetoothLE");
-                    }
-                    bluetoothLeService.setHandler(mHandler);
-                    restorePreferences(oPrefs);
-                    
-                    if(BluetoothLeService.isEnabled) {
-                        preference_switch_bluetooth.setChecked(true);
-                    }
-                    else {
-                        preference_switch_bluetooth.setChecked(false);
-                    }
-                    // Automatically connects to the device upon successful start-up initialization.
-                    //bluetoothLeService.connect(mDeviceAddress);
-                }
-
-                @Override
-                public void onServiceDisconnected(ComponentName componentName) {
-                    bluetoothLeService = null;
-                }
-            };
-            Intent gattServiceIntent = new Intent(this.getActivity(), BluetoothLeService.class);
-            this.getActivity().bindService(gattServiceIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
-            Intent notificationIntent = new Intent(this.getActivity(), NotificationService.class);
-            this.getActivity().startService(notificationIntent);
-            serviceIntent = new Intent(this.getActivity(), OpenFitService.class);
-            this.getActivity().startService(serviceIntent);
-            //this.getActivity().stopService(notificationIntent);
-            
-            // App Listener 
-            LocalBroadcastManager.getInstance(this.getActivity()).registerReceiver(addApplicationReceiver, new IntentFilter("addApplication"));
-            LocalBroadcastManager.getInstance(this.getActivity()).registerReceiver(delApplicationReceiver, new IntentFilter("delApplication"));
-
+        private void setupUIListeners() {
             // UI listeners
+            Log.d(LOG_TAG, "Setting up UI Listeners");
             preference_switch_bluetooth = (SwitchPreference) getPreferenceManager().findPreference("preference_switch_bluetooth");
             preference_switch_bluetooth.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
@@ -273,29 +274,57 @@ public class OpenFitActivity extends Activity {
                 }
             });
 
+            preference_checkbox_phone = (CheckBoxPreference) getPreferenceManager().findPreference("preference_checkbox_phone");
+            preference_checkbox_phone.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    if((Boolean)newValue) {
+                        oPrefs.saveBoolean("preference_checkbox_phone", true);
+                        return true;
+                    }
+                    else {
+                        oPrefs.saveBoolean("preference_checkbox_phone", false);
+                        return true;
+                    }
+                }
+            });
+
+            preference_checkbox_sms = (CheckBoxPreference) getPreferenceManager().findPreference("preference_checkbox_sms");
+            preference_checkbox_sms.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    if((Boolean)newValue) {
+                        oPrefs.saveBoolean("preference_checkbox_sms", true);
+                        return true;
+                    }
+                    else {
+                        oPrefs.saveBoolean("preference_checkbox_sms", false);
+                        return true;
+                    }
+                }
+            });
+
+            preference_checkbox_time = (CheckBoxPreference) getPreferenceManager().findPreference("preference_checkbox_time");
+            preference_checkbox_time.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    if((Boolean)newValue) {
+                        oPrefs.saveBoolean("preference_checkbox_time", true);
+                        return true;
+                    }
+                    else {
+                        oPrefs.saveBoolean("preference_checkbox_time", false);
+                        return true;
+                    }
+                }
+            });
+
             preference_test = (Preference) getPreferenceManager().findPreference("preference_test");
             preference_test.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
                     Toast.makeText(getActivity(), "Testing...", Toast.LENGTH_SHORT).show();
                     Log.d(LOG_TAG, "test");
-                    
-                    Intent stopService =  new Intent("stopOpenFitService");
-                    PendingIntent pIntent = PendingIntent.getBroadcast(getActivity(), 0, stopService, PendingIntent.FLAG_UPDATE_CURRENT);
-                    
-                    NotificationCompat.Builder nBuilder = new NotificationCompat.Builder(getActivity());
-                    nBuilder.setSmallIcon(R.drawable.open_fit_notification);
-                    nBuilder.setContentTitle("Open Fit");
-                    nBuilder.setContentText("Listening for notifications");
-                    nBuilder.setContentIntent(pIntent);
-                    nBuilder.setAutoCancel(true);
-                    NotificationCompat.Builder n = nBuilder.addAction(android.R.drawable.ic_menu_close_clear_cancel, "Stop", pIntent);
-                    n.setAutoCancel(true);
-                    
-                    // Sets an ID for the notification
-                    int mNotificationId = 001;
-                    NotificationManager nManager = (NotificationManager) getActivity().getSystemService(NOTIFICATION_SERVICE);
-                    nManager.notify(mNotificationId, nBuilder.build());
                     return true;
                 }
             });
@@ -331,7 +360,6 @@ public class OpenFitActivity extends Activity {
                 PreferenceCategory category = (PreferenceCategory) findPreference("preference_category_apps");
                 CheckBoxPreference app = (CheckBoxPreference) findPreference(packageName);
                 category.removePreference(app);
-                
             }
         };
 
@@ -366,11 +394,12 @@ public class OpenFitActivity extends Activity {
         }
 
         public void restorePreferences(OpenFitSavedPreferences oPrefs) {
-            this.restoreDevices(oPrefs);
+            this.restoreDevicesList(oPrefs);
             this.restoreListeningApps(oPrefs);
+            this.restoreDeviceListeners(oPrefs);
         }
 
-        public void restoreDevices(OpenFitSavedPreferences oPrefs) {
+        public void restoreDevicesList(OpenFitSavedPreferences oPrefs) {
             Log.d(LOG_TAG, "Selected device: "+mDeviceName+":"+mDeviceAddress);
             if(oPrefs.preference_list_devices_value != "DEFAULT") {
                 mDeviceAddress = oPrefs.preference_list_devices_value;
@@ -383,7 +412,7 @@ public class OpenFitActivity extends Activity {
         }
 
         public void restoreListeningApps(OpenFitSavedPreferences oPrefs) {
-            Log.d(LOG_TAG, "Getting listening apps");
+            Log.d(LOG_TAG, "Restoring listening apps");
             PreferenceCategory category = (PreferenceCategory) findPreference("preference_category_apps");
             Set<String> listeningPackageNames = oPrefs.getSet();
             for(String packageName : listeningPackageNames) {
@@ -394,6 +423,13 @@ public class OpenFitActivity extends Activity {
                 category.addPreference(app);
                 appManager.addInstalledApp(packageName);
             }
+        }
+
+        public void restoreDeviceListeners(OpenFitSavedPreferences oPrefs) {
+            Log.d(LOG_TAG, "Restoring device listeners");
+            preference_checkbox_phone.setChecked(oPrefs.preference_checkbox_phone);
+            preference_checkbox_sms.setChecked(oPrefs.preference_checkbox_sms);
+            preference_checkbox_time.setChecked(oPrefs.preference_checkbox_time);
         }
 
         public void notifyService(String intentName) {

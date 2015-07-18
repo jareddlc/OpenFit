@@ -16,8 +16,13 @@
     <string name="preference_checkbox_connect_on">Connected</string>
     <string name="preference_checkbox_connect_off">Disconnected</string>
     <string name="preference_list_devices_default">None</string>
+    <string name="preference_category_device_title">Device</string>
+    <string name="preference_checkbox_sms_title">Text Messages</string>
+    <string name="preference_checkbox_phone_title">Phone Calls</string>
+    <string name="preference_checkbox_time_title">Clock Format</string>
+    <string name="preference_checkbox_time_on">24-hour clock</string>
+    <string name="preference_checkbox_time_off">12-hour clock</string>
     <string name="preference_test_title">Test</string>
     <string name="preference_test_summary">Send OpenFit welcome message</string>
-    <string name="preference_category_device_title">Device</string>
     <string name="preference_category_apps_title">Applications</string>
 </resources>

@@ -20,6 +20,9 @@ public class OpenFitSavedPreferences {
 
     public String preference_list_devices_value;
     public String preference_list_devices_entry;
+    public boolean preference_checkbox_phone;
+    public boolean preference_checkbox_sms;
+    public boolean preference_checkbox_time;
     public Set<String> set_packageNames = new LinkedHashSet<String>();
 
     public OpenFitSavedPreferences(Context context) {
@@ -33,6 +36,9 @@ public class OpenFitSavedPreferences {
         Log.d(LOG_TAG, "Loading saved preferences");
         preference_list_devices_value = preferences.getString("preference_list_devices_value", PREFS_DEFAULT);
         preference_list_devices_entry = preferences.getString("preference_list_devices_entry", PREFS_DEFAULT);
+        preference_checkbox_phone = preferences.getBoolean("preference_checkbox_phone", PREFS_DEFAULT_BOOL);
+        preference_checkbox_sms = preferences.getBoolean("preference_checkbox_sms", PREFS_DEFAULT_BOOL);
+        preference_checkbox_time = preferences.getBoolean("preference_checkbox_time", PREFS_DEFAULT_BOOL);
     }
 
     public void saveBoolean(String key, boolean value) {

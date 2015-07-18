@@ -9,8 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class OpenFitVariableDataComposer {
-    private static final String LOG_TAG = "OpenFit:OpenFitVariableDataComposer";
-    private final List<IVariableData> mDataList = new ArrayList();
+    private final List<IVariableData> mDataList = new ArrayList<IVariableData>();
     private int mPayloadSize;
 
     static final ByteOrder BYTE_ORDER = ByteOrder.LITTLE_ENDIAN;
@@ -212,7 +211,7 @@ public class OpenFitVariableDataComposer {
       }
     }
 
-    private static abstract interface IVariableData {
+    public static abstract interface IVariableData {
       public abstract int getByteSize();
       public abstract void writeTo(ByteBuffer paramByteBuffer);
     }

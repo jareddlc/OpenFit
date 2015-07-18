@@ -10,8 +10,8 @@ public final class OpenFitDataType {
     public static final OpenFitDataType INT;
     public static final OpenFitDataType LONG;
     public static final OpenFitDataType SHORT;
-    public static String STRING;
-    public static int INTEGER;
+    public String STRING;
+    public int INTEGER;
 
     private OpenFitDataType(String s, int i) {
         //super(s, i);

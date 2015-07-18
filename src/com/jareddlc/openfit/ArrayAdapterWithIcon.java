@@ -11,7 +11,6 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 public class ArrayAdapterWithIcon extends ArrayAdapter<String> {
-    private static final String LOG_TAG = "OpenFit:ArrayAdapterWithIcon";
     private List<Drawable> icons;
 
     public ArrayAdapterWithIcon(Context context, List<String> items, List<Drawable> images) {

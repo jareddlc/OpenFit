@@ -37,7 +37,7 @@ public class BluetoothLeService extends Service {
     private static final String LOG_TAG = "OpenFit:BluetoothLeService";
 
     private static Handler mHandler;
-    private static String setDeviceMac;
+    private static String mDeviceMac;
     private String mBluetoothDeviceAddress;
     public static InputStream mInStream;
     public static OutputStream mOutStream;
@@ -64,7 +64,6 @@ public class BluetoothLeService extends Service {
 
     private static onConnectThread onconnect;
     private static ConnectThread connect;
-    private static ServerThread server;
 
     private static final int STATE_FORCE = 3;
     private static final long SCAN_PERIOD = 5000;
@@ -77,8 +76,6 @@ public class BluetoothLeService extends Service {
     public final static String ACTION_GATT_DISCONNECTED = "ACTION_GATT_DISCONNECTED";
     public final static String ACTION_GATT_SERVICES_DISCOVERED = "ACTION_GATT_SERVICES_DISCOVERED";
     private static final UUID MY_UUID_SECURE = UUID.fromString("9c86c750-870d-11e3-baa7-0800200c9a66");
-    private static final UUID MY_UUID_INSECURE = UUID.fromString("9c86c750-870d-11e3-baa7-0800200c9a66");
-
     public static String[] gattStatus = {"Success", "Failure"};
     public static String[] gattState = {"Disconnected", "Connecting", "Connected", "Disconnecting"};
     public static String[] gattServiceType = {"Primary", "Secondary"};
@@ -390,8 +387,8 @@ public class BluetoothLeService extends Service {
         isEnabled = false;
     }
 
-    public static void setDevice(String devMac) {
-        setDeviceMac = devMac;
+    public void setDevice(String devMac) {
+        mDeviceMac = devMac;
         setBluetoothDevice();
     }
 
@@ -399,7 +396,7 @@ public class BluetoothLeService extends Service {
         // loop through devices
         if(pairedDevices != null) {
             for(BluetoothDevice device : pairedDevices) {
-                if(device.getAddress().equals(setDeviceMac)) {
+                if(device.getAddress().equals(mDeviceMac)) {
                     Log.d(LOG_TAG, "Set device: "+device.getName()+":"+device.getAddress());
                     mBluetoothDevice = device;
                 }
@@ -416,7 +413,7 @@ public class BluetoothLeService extends Service {
         }
     }
 
-    public static void setEntries() {
+    public void setEntries() {
         if(isEnabled) {
             pairedDevices = mBluetoothAdapter.getBondedDevices();
             if(pairedDevices.size() > 0) {
@@ -444,6 +441,14 @@ public class BluetoothLeService extends Service {
                 }
                 pairedEntries = entries.toArray(new CharSequence[entries.size()]);
                 pairedEntryValues = values.toArray(new CharSequence[values.size()]);
+
+                Message msg = mHandler.obtainMessage();
+                Bundle b = new Bundle();
+                b.putString("bluetoothDevicesList", "bluetoothDevicesList");
+                b.putCharSequenceArray("bluetoothEntries", pairedEntries);
+                b.putCharSequenceArray("bluetoothEntryValues", pairedEntryValues);
+                msg.setData(b);
+                mHandler.sendMessage(msg);
             }
             else {
                 Log.d(LOG_TAG, "No pairedDevices");
@@ -519,7 +524,6 @@ public class BluetoothLeService extends Service {
                 Message msg = mHandler.obtainMessage();
                 Bundle b = new Bundle();
                 b.putString("bluetoothDevice", device.getName()+","+device.getAddress());
-                //b.putParcelable("bluetoothDevice", device);
                 msg.setData(b);
                 mHandler.sendMessage(msg);
                 setEntries();
@@ -713,6 +717,7 @@ public class BluetoothLeService extends Service {
         }
     }
 
+    @SuppressWarnings("unused")
     private class ServerThread extends Thread {
         public ServerThread() {
             Log.d(LOG_TAG, "Initializing ServerThread");

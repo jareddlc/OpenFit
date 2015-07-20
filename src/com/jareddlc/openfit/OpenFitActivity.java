@@ -3,15 +3,10 @@ package com.jareddlc.openfit;
 import java.util.Set;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.IBinder;
-import android.os.Message;
 import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -51,7 +46,6 @@ public class OpenFitActivity extends Activity {
             DialogDelApplication d = new DialogDelApplication(appManager.getListeningAdapter(getBaseContext()), appManager.getListeningPackageNames(), appManager.getListeningAppNames());
             d.show(getFragmentManager(), "listening");
         }
-
         return true;
     }
 
@@ -69,10 +63,6 @@ public class OpenFitActivity extends Activity {
     public static class OpenFitFragment extends PreferenceFragment {
         private static final String LOG_TAG = "OpenFit:OpenFitFragment";
 
-        private String mDeviceName;
-        private String mDeviceAddress;
-        private  Handler mHandler;
-        private static BluetoothLeService bluetoothLeService;
         private OpenFitSavedPreferences oPrefs;
 
         // UI preferences
@@ -83,7 +73,6 @@ public class OpenFitActivity extends Activity {
         private static CheckBoxPreference preference_checkbox_time;
         private static ListPreference preference_list_devices;
         private static Preference preference_scan;
-        private static Preference preference_test;
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
@@ -93,116 +82,20 @@ public class OpenFitActivity extends Activity {
             Log.d(LOG_TAG, "adding preferences from resource");
             this.addPreferencesFromResource(R.xml.preferences);
 
-            // load saved preferences
-            oPrefs = new OpenFitSavedPreferences(getActivity());
+            // setup UI
+            this.setupUIListeners();
 
-            this.setupMessageHandler();
-
-            // initialize BluetoothLE
-            final ServiceConnection mServiceConnection = new ServiceConnection() {
-                @Override
-                public void onServiceConnected(ComponentName componentName, IBinder service) {
-                    Log.d(LOG_TAG, "onService Connected");
-                    bluetoothLeService = ((BluetoothLeService.LocalBinder)service).getService();
-                    if(!bluetoothLeService.initialize()) {
-                        Log.e(LOG_TAG, "Unable to initialize BluetoothLE");
-                    }
-                    bluetoothLeService.setHandler(mHandler);
-                    restorePreferences(oPrefs);
-                    
-                    if(BluetoothLeService.isEnabled) {
-                        preference_switch_bluetooth.setChecked(true);
-                    }
-                    else {
-                        preference_switch_bluetooth.setChecked(false);
-                    }
-                    // Automatically connects to the device upon successful start-up initialization.
-                    //bluetoothLeService.connect(mDeviceAddress);
-                }
-
-                @Override
-                public void onServiceDisconnected(ComponentName componentName) {
-                    bluetoothLeService = null;
-                }
-            };
-            Intent gattServiceIntent = new Intent(this.getActivity(), BluetoothLeService.class);
-            this.getActivity().bindService(gattServiceIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
-            Intent notificationIntent = new Intent(this.getActivity(), NotificationService.class);
-            this.getActivity().startService(notificationIntent);
+            // start service
             Intent serviceIntent = new Intent(this.getActivity(), OpenFitService.class);
             this.getActivity().startService(serviceIntent);
-            //this.getActivity().stopService(notificationIntent);
-            
+
             // App Listener 
             LocalBroadcastManager.getInstance(this.getActivity()).registerReceiver(addApplicationReceiver, new IntentFilter("addApplication"));
             LocalBroadcastManager.getInstance(this.getActivity()).registerReceiver(delApplicationReceiver, new IntentFilter("delApplication"));
+            this.getActivity().registerReceiver(bluetoothUIReceiver, new IntentFilter("bluetoothUI"));
 
-            this.setupUIListeners();
-        }
-
-        public void setupMessageHandler() {
-            // setup message handler
-            Log.d(LOG_TAG, "Setting up message handler");
-            mHandler = new Handler() {
-                @Override
-                public void handleMessage(Message msg) {
-                    Log.d(LOG_TAG, "handleMessage: "+msg.getData());
-                    String bluetoothMessage = msg.getData().getString("bluetooth");
-                    String bluetoothDevice = msg.getData().getString("bluetoothDevice");
-                    if(bluetoothMessage != null && !bluetoothMessage.isEmpty()) {
-                        if(bluetoothMessage.equals("isEnabled")) {
-                            Toast.makeText(getActivity(), "Bluetooth Enabled", Toast.LENGTH_SHORT).show();
-                            preference_switch_bluetooth.setChecked(true);
-                        }
-                        if(bluetoothMessage.equals("isEnabledFailed")) {
-                            Toast.makeText(getActivity(), "Failed", Toast.LENGTH_SHORT).show();
-                            preference_switch_bluetooth.setChecked(false);
-                        }
-                        if(bluetoothMessage.equals("isConnected")) {
-                            Log.d(LOG_TAG, "Bluetooth Connected");
-                            Toast.makeText(getActivity(), "Bluetooth Connected", Toast.LENGTH_SHORT).show();
-                            preference_checkbox_connect.setChecked(true);
-                        }
-                        if(bluetoothMessage.equals("isDisconnected")) {
-                            Log.d(LOG_TAG, "Bluetooth Disconnected");
-                            Toast.makeText(getActivity(), "Bluetooth Disconnected", Toast.LENGTH_SHORT).show();
-                            preference_checkbox_connect.setChecked(false);
-                        }
-                        if(bluetoothMessage.equals("isConnectedFailed")) {
-                            Log.d(LOG_TAG, "Bluetooth Connected Failed");
-                            Toast.makeText(getActivity(), "Bluetooth Connected failed", Toast.LENGTH_SHORT).show();
-                            preference_checkbox_connect.setChecked(false);
-                        }
-                        if(bluetoothMessage.equals("isConnectedRfcomm")) {
-                            Log.d(LOG_TAG, "Bluetooth RFcomm Connected");
-                            Toast.makeText(getActivity(), "Bluetooth Connected", Toast.LENGTH_SHORT).show();
-                            preference_checkbox_connect.setChecked(true);
-                        }
-                        if(bluetoothMessage.equals("isDisconnectedRfComm")) {
-                            Log.d(LOG_TAG, "Bluetooth Disconnected");
-                            Toast.makeText(getActivity(), "Bluetooth Disconnected", Toast.LENGTH_SHORT).show();
-                            preference_checkbox_connect.setChecked(false);
-                        }
-                        if(bluetoothMessage.equals("isConnectedRfcommFailed")) {
-                            Log.d(LOG_TAG, "Bluetooth RFcomm Failed");
-                            Toast.makeText(getActivity(), "Bluetooth Rfcomm Failed", Toast.LENGTH_SHORT).show();
-                        }
-                        if(bluetoothMessage.equals("scanStopped")) {
-                            Log.d(LOG_TAG, "Bluetooth scanning done");
-                            preference_list_devices.setEntries(BluetoothLeService.getEntries());
-                            preference_list_devices.setEntryValues(BluetoothLeService.getEntryValues());
-                            CharSequence text = "Scanning complete. Please select device";
-                            Toast.makeText(getActivity(), text, Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                    if(bluetoothDevice != null && !bluetoothDevice.isEmpty()) {
-                        String[] sDevice = bluetoothDevice.split(",");
-                        String sDeviceName = sDevice[0];
-                        String sDeviceAddress = sDevice[1];
-                        Log.d(LOG_TAG, "Bluetooth device name: "+sDeviceName+" address: "+sDeviceAddress);
-                    }
-                }
-            };
+            // load saved preferences
+            oPrefs = new OpenFitSavedPreferences(getActivity());
         }
 
         private void setupUIListeners() {
@@ -213,12 +106,12 @@ public class OpenFitActivity extends Activity {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
                     if((Boolean)newValue) {
+                        sendIntent("bluetooth", "enable");
                         preference_switch_bluetooth.setChecked(false);
-                        bluetoothLeService.enableBluetooth();
                         Toast.makeText(getActivity(), "Enabling...", Toast.LENGTH_SHORT).show();
                     }
                     else {
-                        bluetoothLeService.disableBluetooth();
+                        sendIntent("bluetooth", "disable");
                     }
                     return true;
                 }
@@ -229,7 +122,7 @@ public class OpenFitActivity extends Activity {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
                     Toast.makeText(getActivity(), "Scanning...", Toast.LENGTH_SHORT).show();
-                    bluetoothLeService.scanLeDevice();
+                    sendIntent("bluetooth", "scan");
                     return true;
                 }
             });
@@ -238,21 +131,21 @@ public class OpenFitActivity extends Activity {
             preference_list_devices.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
-                    updateDevices();
+                    sendIntent("bluetooth", "setEntries");
                     return true;
                 }
             });
             preference_list_devices.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    mDeviceAddress = newValue.toString();
+                    String mDeviceAddress = newValue.toString();
                     CharSequence[] entries = preference_list_devices.getEntries();
                     int index = preference_list_devices.findIndexOfValue(mDeviceAddress);
-                    mDeviceName = entries[index].toString();
-                    BluetoothLeService.setDevice(mDeviceAddress);
+                    String mDeviceName = entries[index].toString();
                     preference_list_devices.setSummary(mDeviceName);
                     oPrefs.saveString("preference_list_devices_value", mDeviceAddress);
                     oPrefs.saveString("preference_list_devices_entry", mDeviceName);
+                    sendIntent("bluetooth", "setDevice", mDeviceAddress);
                     return true;
                 }
             });
@@ -262,13 +155,11 @@ public class OpenFitActivity extends Activity {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
                     if((Boolean)newValue) {
-                        //bluetoothLeService.connect(mDeviceAddress);
-                        bluetoothLeService.connectRfcomm();
+                        sendIntent("bluetooth", "connect");
                         return false;
                     }
                     else {
-                        //bluetoothLeService.disconnect();
-                        bluetoothLeService.disconnectRfcomm();
+                        sendIntent("bluetooth", "disconnect");
                         return true;
                     }
                 }
@@ -318,18 +209,66 @@ public class OpenFitActivity extends Activity {
                     }
                 }
             });
-
-            preference_test = (Preference) getPreferenceManager().findPreference("preference_test");
-            preference_test.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                @Override
-                public boolean onPreferenceClick(Preference preference) {
-                    Toast.makeText(getActivity(), "Testing...", Toast.LENGTH_SHORT).show();
-                    Log.d(LOG_TAG, "test");
-                    return true;
-                }
-            });
         }
 
+        public void handleBluetoothMessage(String message, Intent intent) {
+            // setup message handler
+            if(message != null && !message.isEmpty()) {
+                if(message.equals("OpenFitService")) {
+                    this.restorePreferences(oPrefs);
+                }
+                if(message.equals("isEnabled")) {
+                    Toast.makeText(getActivity(), "Bluetooth Enabled", Toast.LENGTH_SHORT).show();
+                    preference_switch_bluetooth.setChecked(true);
+                }
+                if(message.equals("isEnabledFailed")) {
+                    Toast.makeText(getActivity(), "Failed", Toast.LENGTH_SHORT).show();
+                    preference_switch_bluetooth.setChecked(false);
+                }
+                if(message.equals("isConnected")) {
+                    Log.d(LOG_TAG, "Bluetooth Connected");
+                    Toast.makeText(getActivity(), "Bluetooth Connected", Toast.LENGTH_SHORT).show();
+                    preference_checkbox_connect.setChecked(true);
+                }
+                if(message.equals("isDisconnected")) {
+                    Log.d(LOG_TAG, "Bluetooth Disconnected");
+                    Toast.makeText(getActivity(), "Bluetooth Disconnected", Toast.LENGTH_SHORT).show();
+                    preference_checkbox_connect.setChecked(false);
+                }
+                if(message.equals("isConnectedFailed")) {
+                    Log.d(LOG_TAG, "Bluetooth Connected Failed");
+                    Toast.makeText(getActivity(), "Bluetooth Connected failed", Toast.LENGTH_SHORT).show();
+                    preference_checkbox_connect.setChecked(false);
+                }
+                if(message.equals("isConnectedRfcomm")) {
+                    Log.d(LOG_TAG, "Bluetooth RFcomm Connected");
+                    Toast.makeText(getActivity(), "Bluetooth Connected", Toast.LENGTH_SHORT).show();
+                    preference_checkbox_connect.setChecked(true);
+                }
+                if(message.equals("isDisconnectedRfComm")) {
+                    Log.d(LOG_TAG, "Bluetooth Disconnected");
+                    Toast.makeText(getActivity(), "Bluetooth Disconnected", Toast.LENGTH_SHORT).show();
+                    preference_checkbox_connect.setChecked(false);
+                }
+                if(message.equals("isConnectedRfcommFailed")) {
+                    Log.d(LOG_TAG, "Bluetooth RFcomm Failed");
+                    Toast.makeText(getActivity(), "Bluetooth Rfcomm Failed", Toast.LENGTH_SHORT).show();
+                }
+                if(message.equals("scanStopped")) {
+                    Log.d(LOG_TAG, "Bluetooth scanning done");
+                    sendIntent("bluetooth", "setEntries");
+                    Toast.makeText(getActivity(), "Scanning complete. Please select device", Toast.LENGTH_SHORT).show();
+                }
+                if(message.equals("bluetoothDevicesList")) {
+                    Log.d(LOG_TAG, "Bluetooth device list");
+                    Toast.makeText(getActivity(), "Device list updated", Toast.LENGTH_SHORT).show();
+                    preference_list_devices.setEntries(intent.getCharSequenceArrayExtra("bluetoothEntries"));
+                    preference_list_devices.setEntryValues(intent.getCharSequenceArrayExtra("bluetoothEntryValues"));
+                }
+            }
+        }
+
+        // broadcast receivers
         private BroadcastReceiver addApplicationReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -363,6 +302,15 @@ public class OpenFitActivity extends Activity {
             }
         };
 
+        private BroadcastReceiver bluetoothUIReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                final String message = intent.getStringExtra("message");
+                Log.d(LOG_TAG, "Recieved bluetoothUI: " + message);
+                handleBluetoothMessage(message, intent);
+            }
+        };
+
         public CheckBoxPreference createAppPreference(final String packageName, final String appName, final boolean value) {
             CheckBoxPreference app = new CheckBoxPreference(getActivity());
             app.setTitle(appName);
@@ -387,12 +335,6 @@ public class OpenFitActivity extends Activity {
             return app;
         }
 
-        public void updateDevices() {
-            BluetoothLeService.setEntries();
-            preference_list_devices.setEntries(BluetoothLeService.getEntries());
-            preference_list_devices.setEntryValues(BluetoothLeService.getEntryValues());
-        }
-
         public void restorePreferences(OpenFitSavedPreferences oPrefs) {
             this.restoreDevicesList(oPrefs);
             this.restoreListeningApps(oPrefs);
@@ -400,13 +342,13 @@ public class OpenFitActivity extends Activity {
         }
 
         public void restoreDevicesList(OpenFitSavedPreferences oPrefs) {
-            Log.d(LOG_TAG, "Selected device: "+mDeviceName+":"+mDeviceAddress);
+            Log.d(LOG_TAG, "Resotoring devices list");
             if(oPrefs.preference_list_devices_value != "DEFAULT") {
-                mDeviceAddress = oPrefs.preference_list_devices_value;
-                mDeviceName = oPrefs.preference_list_devices_entry;
+                String mDeviceAddress = oPrefs.preference_list_devices_value;
+                String mDeviceName = oPrefs.preference_list_devices_entry;
                 preference_list_devices.setSummary(mDeviceName);
-                updateDevices();
-                BluetoothLeService.setDevice(mDeviceAddress);
+                sendIntent("bluetooth", "setEntries");
+                sendIntent("bluetooth", "setDevice", mDeviceAddress);
                 Log.d(LOG_TAG, "Restored device: "+mDeviceName+":"+mDeviceAddress);
             }
         }
@@ -432,16 +374,26 @@ public class OpenFitActivity extends Activity {
             preference_checkbox_time.setChecked(oPrefs.preference_checkbox_time);
         }
 
-        public void notifyService(String intentName) {
-            Log.d(LOG_TAG, "Notifying Service");
-            Intent msg = new Intent(intentName);
-            LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(msg);
+        public void sendIntent(String intentName, String intentMsg) {
+            Log.d(LOG_TAG, "Sending Intent: " + intentName + ":" + intentMsg);
+            Intent i = new Intent(intentName);
+            i.putExtra("message", intentMsg);
+            getActivity().sendBroadcast(i);
+        }
+
+        public void sendIntent(String intentName, String intentMsg, String IntentData) {
+            Log.d(LOG_TAG, "Sending Intent: " + intentName + ":" + intentMsg + ":" + IntentData);
+            Intent i = new Intent(intentName);
+            i.putExtra("message", intentMsg);
+            i.putExtra("data", IntentData);
+            getActivity().sendBroadcast(i);
         }
 
         @Override
         public void onDestroy() {
             LocalBroadcastManager.getInstance(this.getActivity()).unregisterReceiver(addApplicationReceiver);
             LocalBroadcastManager.getInstance(this.getActivity()).unregisterReceiver(delApplicationReceiver);
+            this.getActivity().unregisterReceiver(bluetoothUIReceiver);
             super.onDestroy();
         }
     }

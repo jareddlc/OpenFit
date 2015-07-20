@@ -115,7 +115,6 @@ public class ApplicationManager {
     public Drawable getIcon(String packageName) {
         Log.d(LOG_TAG, "Getting icon for package: " + packageName);
         Drawable icon = null;
-        Log.d(LOG_TAG, "installedPackageNames.length: " + installedPackageNames.length);
         for(int i = 0; i < installedPackageNames.length; i++) {
             //Log.d(LOG_TAG, "pckg :" + packageNames[i]);
             if(installedPackageNames[i].equals(packageName)) {

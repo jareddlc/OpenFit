@@ -4,12 +4,13 @@ import java.util.ArrayList;
 
 import android.annotation.SuppressLint;
 import android.app.Notification;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 public class NotificationService extends NotificationListenerService {
@@ -21,17 +22,19 @@ public class NotificationService extends NotificationListenerService {
     @Override
     public void onCreate() {
         Log.d(LOG_TAG, "Created NotificationService");
-        super.onCreate();
+        this.registerReceiver(stopServiceReceiver, new IntentFilter("stopOpenFitService"));
         context = getApplicationContext();
+        super.onCreate();
+
     }
 
     @SuppressLint("NewApi")
     @Override
     public void onNotificationPosted(StatusBarNotification sbn) {
         String packageName = sbn.getPackageName();
-        String shortMsg = "";
+        String ticker = "";
         try {
-            shortMsg = (String) sbn.getNotification().tickerText;
+            ticker = (String) sbn.getNotification().tickerText;
         }
         catch(Exception e) {
             
@@ -45,16 +48,8 @@ public class NotificationService extends NotificationListenerService {
         Bundle extras = notification.extras;
         //String category = notification.category; API v21
         String title = extras.getString("android.title");
-        String notificationMsg = extras.getCharSequence("android.text").toString();
+        String message = extras.getCharSequence("android.text").toString();
 
-        Log.d(LOG_TAG, "Captured notification message: " + notificationMsg + " \nfrom source:" + packageName);
-        Log.d(LOG_TAG, "ticker: " + shortMsg);
-        Log.d(LOG_TAG, "title: " + title);
-        Log.d(LOG_TAG, "tag: " + tag);
-        Log.d(LOG_TAG, "time: " + time);
-        Log.d(LOG_TAG, "id: " + id);
-        //Log.d(LOG_TAG, "category: " + category);
-        
         if((2 & sbn.getNotification().flags) != 2) {
             Log.d(LOG_TAG, "Flag != 2");
         }
@@ -62,15 +57,24 @@ public class NotificationService extends NotificationListenerService {
             Log.d(LOG_TAG, "Flag else");
         }
         if(listeningListPackageNames.contains(packageName)) {
-            Intent msg = new Intent("Notification");
+            Log.d(LOG_TAG, "Captured notification message: " + message + " \nfrom source:" + packageName);
+            Log.d(LOG_TAG, "ticker: " + ticker);
+            Log.d(LOG_TAG, "title: " + title);
+            Log.d(LOG_TAG, "tag: " + tag);
+            Log.d(LOG_TAG, "time: " + time);
+            Log.d(LOG_TAG, "id: " + id);
+            //Log.d(LOG_TAG, "category: " + category);
+            
+            Intent msg = new Intent("notification");
             msg.putExtra("packageName", packageName);
-            msg.putExtra("ticker", shortMsg);
+            msg.putExtra("ticker", ticker);
             msg.putExtra("title", title);
-            msg.putExtra("notificationMsg", notificationMsg);
+            msg.putExtra("message", message);
             msg.putExtra("time", time);
             msg.putExtra("id", id);
 
-            LocalBroadcastManager.getInstance(context).sendBroadcast(msg);
+            //LocalBroadcastManager.getInstance(context).sendBroadcast(msg);
+            context.sendBroadcast(msg);
         }
     }
 
@@ -90,4 +94,12 @@ public class NotificationService extends NotificationListenerService {
     public void setListeningPackageNames(ArrayList<String> packageNames) {
         listeningListPackageNames = packageNames;
     }
+    
+    private BroadcastReceiver stopServiceReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d(LOG_TAG, "Stopping Service");
+            stopSelf();
+        }
+    };
 }

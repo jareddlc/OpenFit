@@ -8,6 +8,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.drawable.Drawable;
+import android.provider.Settings;
 import android.util.Log;
 import android.widget.ListAdapter;
 
@@ -21,6 +22,10 @@ public class ApplicationManager {
     private CharSequence[] listeningPackageNames = new CharSequence[0];
     private CharSequence[] listeningAppNames = new CharSequence[0];
     ArrayList<Drawable> listeningPackageIcons = new ArrayList<Drawable>();
+
+    private Drawable dailerIcon;
+    private Drawable smsIcon;
+    private Drawable clockIcon;
 
     ArrayList<String> listeningListPackageNames = new ArrayList<String>();
 
@@ -69,6 +74,7 @@ public class ApplicationManager {
         ArrayList<String> aName = new ArrayList<String>();
         ArrayList<String> pName = new ArrayList<String>();
         ArrayList<Drawable> iDraw = new ArrayList<Drawable>();
+
         for(ApplicationInfo packageInfo : packages) {
             // filter out system apps
             if((packageInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 1) {
@@ -92,6 +98,16 @@ public class ApplicationManager {
         installedAppNames = aName.toArray(new CharSequence[aName.size()]);
         installedPackageIcons = iDraw;
         ListAdapter adapter = new ArrayAdapterWithIcon(context, aName, iDraw);
+
+        try {
+            Log.d(LOG_TAG, "Grabbed dailer/sms icon");
+            dailerIcon = pm.getApplicationIcon("com.android.dialer");
+            smsIcon = pm.getApplicationIcon("com.android.mms");
+            clockIcon = pm.getApplicationIcon("com.android.deskclock");
+        } 
+        catch (NameNotFoundException e) {
+            Log.d(LOG_TAG, "Cannot find dailer/sms icon");
+        }
 
         return adapter;
     }
@@ -137,6 +153,18 @@ public class ApplicationManager {
     
     public ArrayList<String> getInstalledApp() {
         return listeningListPackageNames;
+    }
+
+    public Drawable getDailerIcon() {
+        return dailerIcon;
+    }
+
+    public Drawable getSmsIcon() {
+        return smsIcon;
+    }
+
+    public Drawable getClockIcon() {
+        return clockIcon;
     }
 }
 

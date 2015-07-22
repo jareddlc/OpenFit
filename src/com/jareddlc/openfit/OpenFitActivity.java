@@ -93,6 +93,7 @@ public class OpenFitActivity extends Activity {
             LocalBroadcastManager.getInstance(this.getActivity()).registerReceiver(addApplicationReceiver, new IntentFilter("addApplication"));
             LocalBroadcastManager.getInstance(this.getActivity()).registerReceiver(delApplicationReceiver, new IntentFilter("delApplication"));
             this.getActivity().registerReceiver(bluetoothUIReceiver, new IntentFilter("bluetoothUI"));
+            this.getActivity().registerReceiver(stopServiceReceiver, new IntentFilter("stopOpenFitService"));
 
             // load saved preferences
             oPrefs = new OpenFitSavedPreferences(getActivity());
@@ -171,14 +172,17 @@ public class OpenFitActivity extends Activity {
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
                     if((Boolean)newValue) {
                         oPrefs.saveBoolean("preference_checkbox_phone", true);
+                        sendIntent("bluetooth", "phone", "true");
                         return true;
                     }
                     else {
                         oPrefs.saveBoolean("preference_checkbox_phone", false);
+                        sendIntent("bluetooth", "phone", "false");
                         return true;
                     }
                 }
             });
+            preference_checkbox_phone.setIcon(appManager.getDailerIcon());
 
             preference_checkbox_sms = (CheckBoxPreference) getPreferenceManager().findPreference("preference_checkbox_sms");
             preference_checkbox_sms.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
@@ -186,29 +190,35 @@ public class OpenFitActivity extends Activity {
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
                     if((Boolean)newValue) {
                         oPrefs.saveBoolean("preference_checkbox_sms", true);
+                        sendIntent("bluetooth", "sms", "true");
                         return true;
                     }
                     else {
                         oPrefs.saveBoolean("preference_checkbox_sms", false);
+                        sendIntent("bluetooth", "sms", "false");
                         return true;
                     }
                 }
             });
+            preference_checkbox_sms.setIcon(appManager.getSmsIcon());
 
             preference_checkbox_time = (CheckBoxPreference) getPreferenceManager().findPreference("preference_checkbox_time");
             preference_checkbox_time.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
                     if((Boolean)newValue) {
+                        sendIntent("bluetooth", "time", "true");
                         oPrefs.saveBoolean("preference_checkbox_time", true);
                         return true;
                     }
                     else {
+                        sendIntent("bluetooth", "time", "false");
                         oPrefs.saveBoolean("preference_checkbox_time", false);
                         return true;
                     }
                 }
             });
+            preference_checkbox_time.setIcon(appManager.getClockIcon());
         }
 
         public void handleBluetoothMessage(String message, Intent intent) {
@@ -311,6 +321,14 @@ public class OpenFitActivity extends Activity {
             }
         };
 
+        private BroadcastReceiver stopServiceReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Log.d(LOG_TAG, "Stopping Activity");
+                getActivity().finish();
+            }
+        };
+
         public CheckBoxPreference createAppPreference(final String packageName, final String appName, final boolean value) {
             CheckBoxPreference app = new CheckBoxPreference(getActivity());
             app.setTitle(appName);
@@ -394,6 +412,7 @@ public class OpenFitActivity extends Activity {
             LocalBroadcastManager.getInstance(this.getActivity()).unregisterReceiver(addApplicationReceiver);
             LocalBroadcastManager.getInstance(this.getActivity()).unregisterReceiver(delApplicationReceiver);
             this.getActivity().unregisterReceiver(bluetoothUIReceiver);
+            this.getActivity().unregisterReceiver(stopServiceReceiver);
             super.onDestroy();
         }
     }

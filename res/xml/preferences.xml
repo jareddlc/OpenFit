@@ -32,16 +32,19 @@
         <CheckBoxPreference
             android:key="preference_checkbox_sms"
             android:title="@string/preference_checkbox_sms_title"
+            android:icon="@android:drawable/ic_menu_edit"
             android:defaultValue="false" />
         <CheckBoxPreference
             android:key="preference_checkbox_phone"
             android:title="@string/preference_checkbox_phone_title"
+            android:icon="@android:drawable/ic_menu_call"
             android:defaultValue="false" />
         <CheckBoxPreference
             android:key="preference_checkbox_time"
             android:title="@string/preference_checkbox_time_title"
             android:summaryOn="@string/preference_checkbox_time_on"
-            android:summaryOff="@string/preference_checkbox_time_off"
+            android:summaryOff="@string/preference_checkbox_time_off" 
+            android:icon="@android:drawable/ic_menu_recent_history"
             android:defaultValue="false" />
     </PreferenceCategory>
 

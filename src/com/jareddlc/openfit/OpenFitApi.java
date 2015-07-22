@@ -14,7 +14,6 @@ import com.jareddlc.openfit.util.OpenFitTimeZoneUtil;
 import com.jareddlc.openfit.util.OpenFitVariableDataComposer;
 
 public class OpenFitApi {
-    private static long MSGID = 0;
 
     public static byte[] getReady() {
         //000400000003000000
@@ -24,6 +23,7 @@ public class OpenFitApi {
         oVariableDataComposer.writeInt(3);
         return oVariableDataComposer.toByteArray();
     }
+
     public static byte[] getUpdate() {
         OpenFitVariableDataComposer oVariableDataComposer = new OpenFitVariableDataComposer();
         oVariableDataComposer.writeByte(OpenFitData.PORT_FOTA);
@@ -62,7 +62,7 @@ public class OpenFitApi {
         return oVariableDataComposer.toByteArray();
     }
     
-    public static byte[] getCurrentTimeInfo() {
+    public static byte[] getCurrentTimeInfo(boolean is24Hour) {
         //011E0000000141CB3555F8FFFFFF000000000101010201A01DFC5490D43556100E0000
         //01
         //1e000000
@@ -101,7 +101,8 @@ public class OpenFitApi {
         oVDC.writeInt(j);
         oVDC.writeInt(k);
         oVDC.writeByte(OpenFitData.TEXT_DATE_FORMAT_TYPE);
-        oVDC.writeBoolean(OpenFitData.IS_TIME_DISPLAY_24);
+        //oVDC.writeBoolean(OpenFitData.IS_TIME_DISPLAY_24);
+        oVDC.writeBoolean(is24Hour);
         oVDC.writeBoolean(inDaylightTime);
         oVDC.writeByte(OpenFitData.NUMBER_DATE_FORMAT_TYPE);
         oVDC.writeBoolean(useDaylightTime);
@@ -118,7 +119,7 @@ public class OpenFitApi {
         return oVariableDataComposer.toByteArray();
     }
 
-    public static byte[] getNotification() {
+    public static byte[] getOpenFitWelcomeNotification() {
         //03
         //71000000 = size of msg
         //04 = DATA_TYPE_MESSAGE
@@ -148,16 +149,15 @@ public class OpenFitApi {
         mDataList.add(new OpenFitDataTypeAndString(OpenFitDataType.BYTE, "NOTITLE"));
         mDataList.add(new OpenFitDataTypeAndString(OpenFitDataType.SHORT, "Welcome to OpenFit!"));
 
-        byte[] msg = OpenFitNotificationMessageProtocol.createNotificationProtocol(OpenFitNotificationMessageProtocol.DATA_TYPE_MESSAGE, MSGID, mDataList, System.currentTimeMillis());
+        byte[] msg = OpenFitNotificationMessageProtocol.createNotificationProtocol(OpenFitNotificationMessageProtocol.DATA_TYPE_MESSAGE, 555, mDataList, System.currentTimeMillis());
         OpenFitVariableDataComposer oDatacomposer = new OpenFitVariableDataComposer();
-        MSGID++;
         oDatacomposer.writeByte((byte)3);
         oDatacomposer.writeInt(msg.length);
         oDatacomposer.writeBytes(msg);
         return oDatacomposer.toByteArray();
     }
 
-    public static byte[] getOpenNotification(String sender, String number, String title, String message) {
+    public static byte[] getOpenNotification(String sender, String number, String title, String message, long id) {
         //03
         //71000000 = size of msg
         //04 = DATA_TYPE_MESSAGE
@@ -188,7 +188,7 @@ public class OpenFitApi {
         mDataList.add(new OpenFitDataTypeAndString(OpenFitDataType.BYTE, title));
         mDataList.add(new OpenFitDataTypeAndString(OpenFitDataType.SHORT, message));
 
-        byte[] msg = OpenFitNotificationMessageProtocol.createNotificationProtocol(4, MSGID, mDataList, System.currentTimeMillis());
+        byte[] msg = OpenFitNotificationMessageProtocol.createNotificationProtocol(4, id, mDataList, System.currentTimeMillis());
         OpenFitVariableDataComposer oDatacomposer = new OpenFitVariableDataComposer();
         oDatacomposer.writeByte((byte)3);
         oDatacomposer.writeInt(msg.length);

@@ -15,6 +15,7 @@ public class SmsListener extends BroadcastReceiver {
     private Context context;
 
     public SmsListener(Context cntxt) {
+        Log.d(LOG_TAG, "SMS listening");
         context = cntxt;
     }
 

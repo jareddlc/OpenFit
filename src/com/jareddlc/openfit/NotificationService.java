@@ -23,9 +23,12 @@ public class NotificationService extends NotificationListenerService {
     public void onCreate() {
         Log.d(LOG_TAG, "Created NotificationService");
         this.registerReceiver(stopServiceReceiver, new IntentFilter("stopOpenFitService"));
+        this.registerReceiver(appsReceiver, new IntentFilter("listeningApps"));
         context = getApplicationContext();
-        super.onCreate();
 
+        Intent msg = new Intent("NotificationService");
+        context.sendBroadcast(msg);
+        super.onCreate();
     }
 
     @SuppressLint("NewApi")
@@ -48,23 +51,23 @@ public class NotificationService extends NotificationListenerService {
         Bundle extras = notification.extras;
         //String category = notification.category; API v21
         String title = extras.getString("android.title");
-        String message = extras.getCharSequence("android.text").toString();
+        String message = (String) extras.getCharSequence("android.text");
+        Log.d(LOG_TAG, "Captured notification message: " + message + " from source:" + packageName);
 
-        if((2 & sbn.getNotification().flags) != 2) {
+        /*if((2 & sbn.getNotification().flags) != 2) {
             Log.d(LOG_TAG, "Flag != 2");
         }
         else {
             Log.d(LOG_TAG, "Flag else");
-        }
+        }*/
         if(listeningListPackageNames.contains(packageName)) {
-            Log.d(LOG_TAG, "Captured notification message: " + message + " \nfrom source:" + packageName);
             Log.d(LOG_TAG, "ticker: " + ticker);
             Log.d(LOG_TAG, "title: " + title);
             Log.d(LOG_TAG, "tag: " + tag);
             Log.d(LOG_TAG, "time: " + time);
             Log.d(LOG_TAG, "id: " + id);
             //Log.d(LOG_TAG, "category: " + category);
-            
+
             Intent msg = new Intent("notification");
             msg.putExtra("packageName", packageName);
             msg.putExtra("ticker", ticker);
@@ -75,6 +78,7 @@ public class NotificationService extends NotificationListenerService {
 
             //LocalBroadcastManager.getInstance(context).sendBroadcast(msg);
             context.sendBroadcast(msg);
+            Log.d(LOG_TAG, "Sending notification message: " + message + " from source:" + packageName);
         }
     }
 
@@ -88,18 +92,28 @@ public class NotificationService extends NotificationListenerService {
         catch(Exception e) {
             
         }
-        Log.d(LOG_TAG, "Removed notification message: " + shortMsg + " \nfrom source:" + packageName);
+        Log.d(LOG_TAG, "Removed notification message: " + shortMsg + " from source:" + packageName);
     }
 
     public void setListeningPackageNames(ArrayList<String> packageNames) {
         listeningListPackageNames = packageNames;
     }
-    
+
     private BroadcastReceiver stopServiceReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d(LOG_TAG, "Stopping Service");
             stopSelf();
+            unregisterReceiver(appsReceiver);
+        }
+    };
+
+    private BroadcastReceiver appsReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            ArrayList<String> listeningApps = intent.getStringArrayListExtra("data");
+            setListeningPackageNames(listeningApps);
+            Log.d(LOG_TAG, "Recieved listeningApps");
         }
     };
 }

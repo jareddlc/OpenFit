@@ -1,5 +1,6 @@
 package com.jareddlc.openfit;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import android.app.NotificationManager;
@@ -15,6 +16,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -29,6 +31,9 @@ public class OpenFitService extends Service {
     private int NotificationId = 1;
     private boolean smsEnabled = false;
     private boolean phoneEnabled = false;
+    private SmsListener smsListener;
+    private TelephonyManager telephony;
+    private DialerListener dailerListener;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -43,6 +48,8 @@ public class OpenFitService extends Service {
         this.registerReceiver(stopServiceReceiver, new IntentFilter("stopOpenFitService"));
         this.registerReceiver(bluetoothReceiver, new IntentFilter("bluetooth"));
         this.registerReceiver(notificationReceiver, new IntentFilter("notification"));
+        this.registerReceiver(smsReceiver, new IntentFilter("sms"));
+        this.registerReceiver(phoneReceiver, new IntentFilter("phone"));
 
         // start service
         this.createNotification();
@@ -110,6 +117,7 @@ public class OpenFitService extends Service {
         };
         Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
         this.bindService(gattServiceIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
+        Log.d(LOG_TAG, "Starting bluetooth service");
     }
 
     public void startBluetoothHandler() {
@@ -186,11 +194,13 @@ public class OpenFitService extends Service {
             }
             if(message.equals("phone")) {
                 String s = intent.getStringExtra("data");
-                phoneEnabled = Boolean.parseBoolean(s);;
+                phoneEnabled = Boolean.parseBoolean(s);
+                startDailerListener();
             }
             if(message.equals("sms")) {
                 String s = intent.getStringExtra("data");
                 smsEnabled = Boolean.parseBoolean(s);
+                startSmsListener();
             }
         }
     }
@@ -208,22 +218,36 @@ public class OpenFitService extends Service {
     public void startNotificationListenerService() {
         Intent notificationIntent = new Intent(this, NotificationService.class);
         this.startService(notificationIntent);
+        Log.d(LOG_TAG, "Starting notification service");
     }
-    public void startDialerSmsListener() {
+
+    public void startDailerListener() {
+        if(phoneEnabled) {
+            dailerListener = new DialerListener(this);
+            telephony = (TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE);
+            telephony.listen(dailerListener, PhoneStateListener.LISTEN_CALL_STATE);
+            Log.d(LOG_TAG, "phone listening");
+        }
+        else {
+            if(telephony != null) {
+                telephony.listen(dailerListener, PhoneStateListener.LISTEN_NONE);
+                dailerListener.destroy(); 
+            }
+        }
+    }
+
+    public void startSmsListener() {
         // register listeners
         if(smsEnabled) {
-            SmsListener smsListener = new SmsListener(this);
+            smsListener = new SmsListener(this);
             IntentFilter smsFilter = new IntentFilter("android.provider.Telephony.SMS_RECEIVED");
             this.registerReceiver(smsListener, smsFilter);
             Log.d(LOG_TAG, "sms listening");
         }
-
-        if(phoneEnabled) {
-            TelephonyManager telephony;
-            DialerListener dailerListener = new DialerListener(this);
-            telephony = (TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE);
-            telephony.listen(dailerListener, PhoneStateListener.LISTEN_CALL_STATE);
-            Log.d(LOG_TAG, "phone listening");
+        else {
+            if(smsListener != null) {
+                this.unregisterReceiver(smsListener);
+            }
         }
     }
 
@@ -254,12 +278,41 @@ public class OpenFitService extends Service {
         bluetoothLeService.write(OpenFitApi.getCurrentTimeInfo(is24Hour));
     }
 
+    public void sendAppNotification(String packageName, String number, String title, String message, int id) {
+        byte[] bytes = OpenFitApi.getOpenNotification(packageName, number, title, message, id);
+        bluetoothLeService.write(bytes);
+    }
+
+    public void sendDialerNotification(String sender) {
+        String message = "Receiving phone call from: " + sender;
+        long id = (long)(System.currentTimeMillis() / 1000L);
+        byte[] bytes = OpenFitApi.getOpenNotification("Phone Call", sender, "Phone Call", message, id);
+        bluetoothLeService.write(bytes);
+    }
+
+    public void sendSmsNotification(String sender, String message) {
+        long id = (long)(System.currentTimeMillis() / 1000L);
+        byte[] bytes = OpenFitApi.getOpenNotification("Text Message", sender, "Text Message", message, id);
+        bluetoothLeService.write(bytes);
+    }
+
     private BroadcastReceiver stopServiceReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d(LOG_TAG, "Stopping Service");
             clearNotification();
             stopSelf();
+            unregisterReceiver(bluetoothReceiver);
+            unregisterReceiver(notificationReceiver);
+            unregisterReceiver(smsReceiver);
+            unregisterReceiver(phoneReceiver);
+            if(smsEnabled) {
+                unregisterReceiver(smsListener);
+            }
+            if(phoneEnabled) {
+                telephony.listen(dailerListener, PhoneStateListener.LISTEN_NONE);
+                dailerListener.destroy();
+            }
         }
     };
 
@@ -283,8 +336,26 @@ public class OpenFitService extends Service {
             final int id = intent.getIntExtra("id", 0);
 
             Log.d(LOG_TAG, "Received notification message: " + message + " \nfrom source:" + packageName);
-            byte[] bytes = OpenFitApi.getOpenNotification(packageName, packageName, title, message, id);
-            bluetoothLeService.write(bytes);
+            sendAppNotification(packageName, packageName, title, message, id);
+        }
+    };
+
+    private BroadcastReceiver smsReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String message = intent.getStringExtra("message");
+            String sender = intent.getStringExtra("sender");
+            Log.d(LOG_TAG, "Recieved SMS message: "+sender+" - "+message);
+            sendSmsNotification(sender, message);
+        }
+    };
+
+    private BroadcastReceiver phoneReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String sender = intent.getStringExtra("sender");
+            Log.d(LOG_TAG, "Recieved PHONE: "+sender);
+            sendDialerNotification(sender);
         }
     };
 }

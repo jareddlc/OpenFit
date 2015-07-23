@@ -7,11 +7,12 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 
 public class DialerListener extends PhoneStateListener {
-    private static final String LOG_TAG = "TurquoiseBicuspid:CallListener";
+    private static final String LOG_TAG = "TurquoiseBicuspid:DialerListener";
 
     private Context context;
 
     public DialerListener(Context cntxt) {
+        Log.d(LOG_TAG, "Dailer listening");
         context = cntxt;
     }
 

@@ -94,6 +94,7 @@ public class OpenFitActivity extends Activity {
             LocalBroadcastManager.getInstance(this.getActivity()).registerReceiver(delApplicationReceiver, new IntentFilter("delApplication"));
             this.getActivity().registerReceiver(bluetoothUIReceiver, new IntentFilter("bluetoothUI"));
             this.getActivity().registerReceiver(stopServiceReceiver, new IntentFilter("stopOpenFitService"));
+            this.getActivity().registerReceiver(notificationServiceReceiver, new IntentFilter("NotificationService"));
 
             // load saved preferences
             oPrefs = new OpenFitSavedPreferences(getActivity());
@@ -278,57 +279,6 @@ public class OpenFitActivity extends Activity {
             }
         }
 
-        // broadcast receivers
-        private BroadcastReceiver addApplicationReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                final String packageName = intent.getStringExtra("packageName");
-                final String appName = intent.getStringExtra("appName");
-                Log.d(LOG_TAG, "Recieved add application: "+appName+" : "+packageName);
-                appManager.addInstalledApp(packageName);
-                oPrefs.saveSet(packageName);
-                oPrefs.saveBoolean(packageName, true);
-                oPrefs.saveString(packageName, appName);
-                CheckBoxPreference app = createAppPreference(packageName, appName, true);
-                PreferenceCategory category = (PreferenceCategory) findPreference("preference_category_apps");
-                category.addPreference(app);
-            }
-        };
-
-        private BroadcastReceiver delApplicationReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-
-                final String packageName = intent.getStringExtra("packageName");
-                final String appName = intent.getStringExtra("appName");
-                Log.d(LOG_TAG, "Recieved del application: "+appName+" : "+packageName);
-                appManager.delInstalledApp(packageName);
-                oPrefs.removeSet(packageName);
-                oPrefs.removeBoolean(packageName);
-                oPrefs.removeString(packageName);
-                PreferenceCategory category = (PreferenceCategory) findPreference("preference_category_apps");
-                CheckBoxPreference app = (CheckBoxPreference) findPreference(packageName);
-                category.removePreference(app);
-            }
-        };
-
-        private BroadcastReceiver bluetoothUIReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                final String message = intent.getStringExtra("message");
-                Log.d(LOG_TAG, "Recieved bluetoothUI: " + message);
-                handleBluetoothMessage(message, intent);
-            }
-        };
-
-        private BroadcastReceiver stopServiceReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                Log.d(LOG_TAG, "Stopping Activity");
-                getActivity().finish();
-            }
-        };
-
         public CheckBoxPreference createAppPreference(final String packageName, final String appName, final boolean value) {
             CheckBoxPreference app = new CheckBoxPreference(getActivity());
             app.setTitle(appName);
@@ -340,11 +290,13 @@ public class OpenFitActivity extends Activity {
                     if((Boolean)newValue) {
                         oPrefs.saveBoolean(packageName, true);
                         Log.d(LOG_TAG, appName+": Enabled");
+                        sendIntentListeningApps();
                         return true;
                     }
                     else {
                         oPrefs.saveBoolean(packageName, false);
                         Log.d(LOG_TAG, appName+": Disabled");
+                        sendIntentListeningApps();
                         return true;
                     }
                 }
@@ -383,6 +335,7 @@ public class OpenFitActivity extends Activity {
                 category.addPreference(app);
                 appManager.addInstalledApp(packageName);
             }
+            sendIntentListeningApps();
         }
 
         public void restoreDeviceListeners(OpenFitSavedPreferences oPrefs) {
@@ -390,6 +343,14 @@ public class OpenFitActivity extends Activity {
             preference_checkbox_phone.setChecked(oPrefs.preference_checkbox_phone);
             preference_checkbox_sms.setChecked(oPrefs.preference_checkbox_sms);
             preference_checkbox_time.setChecked(oPrefs.preference_checkbox_time);
+        }
+        
+        public void sendIntentListeningApps() {
+            Log.d(LOG_TAG, "Sending Intent: listeningApps");
+            Intent i = new Intent("listeningApps");
+            i.putExtra("message", "listeningApps");
+            i.putExtra("data", appManager.getInstalledApp());
+            getActivity().sendBroadcast(i);
         }
 
         public void sendIntent(String intentName, String intentMsg) {
@@ -413,7 +374,68 @@ public class OpenFitActivity extends Activity {
             LocalBroadcastManager.getInstance(this.getActivity()).unregisterReceiver(delApplicationReceiver);
             this.getActivity().unregisterReceiver(bluetoothUIReceiver);
             this.getActivity().unregisterReceiver(stopServiceReceiver);
+            this.getActivity().unregisterReceiver(notificationServiceReceiver);
             super.onDestroy();
         }
+
+        // broadcast receivers
+        private BroadcastReceiver addApplicationReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                final String packageName = intent.getStringExtra("packageName");
+                final String appName = intent.getStringExtra("appName");
+                Log.d(LOG_TAG, "Recieved add application: "+appName+" : "+packageName);
+                appManager.addInstalledApp(packageName);
+                oPrefs.saveSet(packageName);
+                oPrefs.saveBoolean(packageName, true);
+                oPrefs.saveString(packageName, appName);
+                CheckBoxPreference app = createAppPreference(packageName, appName, true);
+                PreferenceCategory category = (PreferenceCategory) findPreference("preference_category_apps");
+                category.addPreference(app);
+                sendIntentListeningApps();
+            }
+        };
+
+        private BroadcastReceiver delApplicationReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+
+                final String packageName = intent.getStringExtra("packageName");
+                final String appName = intent.getStringExtra("appName");
+                Log.d(LOG_TAG, "Recieved del application: "+appName+" : "+packageName);
+                appManager.delInstalledApp(packageName);
+                oPrefs.removeSet(packageName);
+                oPrefs.removeBoolean(packageName);
+                oPrefs.removeString(packageName);
+                PreferenceCategory category = (PreferenceCategory) findPreference("preference_category_apps");
+                CheckBoxPreference app = (CheckBoxPreference) findPreference(packageName);
+                category.removePreference(app);
+                sendIntentListeningApps();
+            }
+        };
+
+        private BroadcastReceiver bluetoothUIReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                final String message = intent.getStringExtra("message");
+                Log.d(LOG_TAG, "Recieved bluetoothUI: " + message);
+                handleBluetoothMessage(message, intent);
+            }
+        };
+
+        private BroadcastReceiver stopServiceReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Log.d(LOG_TAG, "Stopping Activity");
+                getActivity().finish();
+            }
+        };
+        private BroadcastReceiver notificationServiceReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Log.d(LOG_TAG, "Received Notification Service");
+                sendIntentListeningApps();
+            }
+        };
     }
 }

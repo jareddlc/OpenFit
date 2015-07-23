@@ -5,5 +5,4 @@ Open source application for the Samsung Gear Fit
 
 ### What is OpenFit
 
-OpenFit is an open source application that will try to be a full replacement to Samsungs's Gear Fit Manager application. 
-Currently it is not in a working state, I would just like to see if this is possible and to see if there is any use for an application like this.
+OpenFit is an open source alternative to the Gear Fit Manager (which cannot be run natively on non-samsung devices), with hopes that it will provide most/all of the features provided by the Gear Fit Manager app and possibly even more.

@@ -77,7 +77,7 @@ public class ApplicationManager {
 
         for(ApplicationInfo packageInfo : packages) {
             // filter out system apps
-            if((packageInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 1) {
+            if((packageInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 1 || packageInfo.packageName.contains("com.google.android")) {
                 String appName = (String) pm.getApplicationLabel(packageInfo);
                 //Log.d(LOG_TAG, "Installed package :" + packageInfo.packageName);
                 //Log.d(LOG_TAG, "Installed package :" + appName);

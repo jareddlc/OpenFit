@@ -12,6 +12,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -27,6 +30,7 @@ public class OpenFitService extends Service {
     // services
     private BluetoothLeService bluetoothLeService;
     private  Handler mHandler;
+    private PackageManager pManager;
 
     private int NotificationId = 1;
     private boolean smsEnabled = false;
@@ -50,6 +54,7 @@ public class OpenFitService extends Service {
         this.registerReceiver(notificationReceiver, new IntentFilter("notification"));
         this.registerReceiver(smsReceiver, new IntentFilter("sms"));
         this.registerReceiver(phoneReceiver, new IntentFilter("phone"));
+        pManager = this.getPackageManager();
 
         // start service
         this.createNotification();
@@ -276,10 +281,11 @@ public class OpenFitService extends Service {
 
     public void setTime(boolean is24Hour) {
         bluetoothLeService.write(OpenFitApi.getCurrentTimeInfo(is24Hour));
+        //bluetoothLeService.write(OpenFitApi.getOpenFitWelcomeNotification());
     }
 
-    public void sendAppNotification(String packageName, String number, String title, String message, int id) {
-        byte[] bytes = OpenFitApi.getOpenNotification(packageName, number, title, message, id);
+    public void sendAppNotification(String packageName, String sender, String title, String message, int id) {
+        byte[] bytes = OpenFitApi.getOpenNotification(packageName, sender, title, message, id);
         bluetoothLeService.write(bytes);
     }
 
@@ -294,6 +300,18 @@ public class OpenFitService extends Service {
         long id = (long)(System.currentTimeMillis() / 1000L);
         byte[] bytes = OpenFitApi.getOpenNotification("Text Message", sender, "Text Message", message, id);
         bluetoothLeService.write(bytes);
+    }
+
+    public String getAppName(String packageName) {
+        ApplicationInfo appInfo = null;
+        try {
+            appInfo = pManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA);
+        }
+        catch (NameNotFoundException e) {
+            Log.d(LOG_TAG, "Cannot get application info");
+        }
+        String appName = (String) pManager.getApplicationLabel(appInfo);
+        return appName;
     }
 
     private BroadcastReceiver stopServiceReceiver = new BroadcastReceiver() {
@@ -329,14 +347,15 @@ public class OpenFitService extends Service {
         @Override
         public void onReceive(Context context, Intent intent) {
             final String packageName = intent.getStringExtra("packageName");
-            //final String ticker = intent.getStringExtra("ticker");
+            final String ticker = intent.getStringExtra("ticker");
             final String title = intent.getStringExtra("title");
             final String message = intent.getStringExtra("message");
             //long time = intent.getLongExtra("time", 0);
             final int id = intent.getIntExtra("id", 0);
+            final String appName = getAppName(packageName);
 
-            Log.d(LOG_TAG, "Received notification message: " + message + " \nfrom source:" + packageName);
-            sendAppNotification(packageName, packageName, title, message, id);
+            Log.d(LOG_TAG, "Received notification message: " + message + " from source:" + packageName);
+            sendAppNotification(appName, title, ticker, message, id);
         }
     };
 

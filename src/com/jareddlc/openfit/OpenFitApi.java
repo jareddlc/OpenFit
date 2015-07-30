@@ -148,8 +148,9 @@ public class OpenFitApi {
         mDataList.add(new OpenFitDataTypeAndString(OpenFitDataType.BYTE, "5551234567"));
         mDataList.add(new OpenFitDataTypeAndString(OpenFitDataType.BYTE, "NOTITLE"));
         mDataList.add(new OpenFitDataTypeAndString(OpenFitDataType.SHORT, "Welcome to OpenFit!"));
-
-        byte[] msg = OpenFitNotificationMessageProtocol.createNotificationProtocol(OpenFitNotificationMessageProtocol.DATA_TYPE_MESSAGE, 555, mDataList, System.currentTimeMillis());
+        
+        long id = System.currentTimeMillis() / 1000L;
+        byte[] msg = OpenFitNotificationMessageProtocol.createNotificationProtocol(OpenFitNotificationMessageProtocol.DATA_TYPE_MESSAGE, id, mDataList, System.currentTimeMillis());
         OpenFitVariableDataComposer oDatacomposer = new OpenFitVariableDataComposer();
         oDatacomposer.writeByte((byte)3);
         oDatacomposer.writeInt(msg.length);

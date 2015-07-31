@@ -1,6 +1,5 @@
 package com.jareddlc.openfit;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 
 import android.app.NotificationManager;
@@ -19,7 +18,6 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.content.LocalBroadcastManager;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -78,52 +76,54 @@ public class OpenFitService extends Service {
     }
 
     public void startBluetoothService() {
-     // initialize BluetoothLE
-        final ServiceConnection mServiceConnection = new ServiceConnection() {
-            @Override
-            public void onServiceConnected(ComponentName componentName, IBinder service) {
-                Log.d(LOG_TAG, "onService Connected");
-                bluetoothLeService = ((BluetoothLeService.LocalBinder)service).getService();
-                if(!bluetoothLeService.initialize()) {
-                    Log.e(LOG_TAG, "Unable to initialize BluetoothLE");
-                }
-                bluetoothLeService.setHandler(mHandler);
-                sendServiceStarted();
-                
-                // update bluetooth ui
-                if(BluetoothLeService.isEnabled) {
-                    Intent i = new Intent("bluetoothUI");
-                    i.putExtra("message", "isEnabled");
-                    sendBroadcast(i);
-                }
-                else {
-                    Intent i = new Intent("bluetoothUI");
-                    i.putExtra("message", "isEnabledFailed");
-                    sendBroadcast(i);
-                }
-                if(BluetoothLeService.isConnected) {
-                    Intent i = new Intent("bluetoothUI");
-                    i.putExtra("message", "isConnected");
-                    sendBroadcast(i);
-                }
-                else {
-                    Intent i = new Intent("bluetoothUI");
-                    i.putExtra("message", "isDisconnected");
-                    sendBroadcast(i);
-                }
-                // Automatically connects to the device upon successful start-up initialization.
-                //bluetoothLeService.connect(mDeviceAddress);
-            }
-
-            @Override
-            public void onServiceDisconnected(ComponentName componentName) {
-                bluetoothLeService = null;
-            }
-        };
+        // initialize BluetoothLE
         Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
         this.bindService(gattServiceIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
         Log.d(LOG_TAG, "Starting bluetooth service");
     }
+
+    protected ServiceConnection mServiceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder service) {
+            Log.d(LOG_TAG, "onService Connected");
+            bluetoothLeService = ((BluetoothLeService.LocalBinder)service).getService();
+            if(!bluetoothLeService.initialize()) {
+                Log.e(LOG_TAG, "Unable to initialize BluetoothLE");
+            }
+            bluetoothLeService.setHandler(mHandler);
+            sendServiceStarted();
+            
+            // update bluetooth ui
+            if(BluetoothLeService.isEnabled) {
+                Intent i = new Intent("bluetoothUI");
+                i.putExtra("message", "isEnabled");
+                sendBroadcast(i);
+            }
+            else {
+                Intent i = new Intent("bluetoothUI");
+                i.putExtra("message", "isEnabledFailed");
+                sendBroadcast(i);
+            }
+            if(BluetoothLeService.isConnected) {
+                Intent i = new Intent("bluetoothUI");
+                i.putExtra("message", "isConnected");
+                sendBroadcast(i);
+            }
+            else {
+                Intent i = new Intent("bluetoothUI");
+                i.putExtra("message", "isDisconnected");
+                sendBroadcast(i);
+            }
+            // Automatically connects to the device upon successful start-up initialization.
+            //bluetoothLeService.connect(mDeviceAddress);
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            Log.d(LOG_TAG, "Bluetooth onServiceDisconnected");
+            bluetoothLeService = null;
+        }
+    };
 
     public void startBluetoothHandler() {
         // setup message handler
@@ -285,7 +285,8 @@ public class OpenFitService extends Service {
     }
 
     public void sendAppNotification(String packageName, String sender, String title, String message, int id) {
-        byte[] bytes = OpenFitApi.getOpenNotification(packageName, sender, title, message, id);
+        long idTimestamp = (long)(System.currentTimeMillis() / 1000L);
+        byte[] bytes = OpenFitApi.getOpenNotification(packageName, sender, title, message, idTimestamp);
         bluetoothLeService.write(bytes);
     }
 
@@ -319,11 +320,11 @@ public class OpenFitService extends Service {
         public void onReceive(Context context, Intent intent) {
             Log.d(LOG_TAG, "Stopping Service");
             clearNotification();
-            stopSelf();
             unregisterReceiver(bluetoothReceiver);
             unregisterReceiver(notificationReceiver);
             unregisterReceiver(smsReceiver);
             unregisterReceiver(phoneReceiver);
+            unbindService(mServiceConnection);
             if(smsEnabled) {
                 unregisterReceiver(smsListener);
             }
@@ -331,6 +332,7 @@ public class OpenFitService extends Service {
                 telephony.listen(dailerListener, PhoneStateListener.LISTEN_NONE);
                 dailerListener.destroy();
             }
+            stopSelf();
         }
     };
 
@@ -354,7 +356,7 @@ public class OpenFitService extends Service {
             final int id = intent.getIntExtra("id", 0);
             final String appName = getAppName(packageName);
 
-            Log.d(LOG_TAG, "Received notification message: " + message + " from source:" + packageName);
+            Log.d(LOG_TAG, "Received notification: appName:" + appName + " title:" + title + " ticker:" + ticker + " message:" + message);
             sendAppNotification(appName, title, ticker, message, id);
         }
     };

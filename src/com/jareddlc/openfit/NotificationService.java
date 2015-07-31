@@ -51,15 +51,22 @@ public class NotificationService extends NotificationListenerService {
         Bundle extras = notification.extras;
         //String category = notification.category; API v21
         String title = extras.getString("android.title");
-        String message = (String) extras.getCharSequence("android.text");
+        //CharSequence m = extras.getCharSequence("android.text");
+        String message = extras.getCharSequence("android.text").toString();
+        /*try {
+            message = (String) m.toString();
+        }
+        catch(Exception e) {
+            Log.d(LOG_TAG, "Could not get string message");
+        }*/
         Log.d(LOG_TAG, "Captured notification message: " + message + " from source:" + packageName);
 
-        /*if((2 & sbn.getNotification().flags) != 2) {
+        if((2 & sbn.getNotification().flags) != 2) {
             Log.d(LOG_TAG, "Flag != 2");
         }
         else {
             Log.d(LOG_TAG, "Flag else");
-        }*/
+        }
         if(listeningListPackageNames.contains(packageName)) {
             Log.d(LOG_TAG, "ticker: " + ticker);
             Log.d(LOG_TAG, "title: " + title);
@@ -105,6 +112,7 @@ public class NotificationService extends NotificationListenerService {
             Log.d(LOG_TAG, "Stopping Service");
             stopSelf();
             unregisterReceiver(appsReceiver);
+            unregisterReceiver(stopServiceReceiver);
         }
     };
 

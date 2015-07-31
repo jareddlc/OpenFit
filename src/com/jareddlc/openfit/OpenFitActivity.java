@@ -125,6 +125,8 @@ public class OpenFitActivity extends Activity {
                 public boolean onPreferenceClick(Preference preference) {
                     Toast.makeText(getActivity(), "Scanning...", Toast.LENGTH_SHORT).show();
                     sendIntent("bluetooth", "scan");
+                    preference_list_devices.setEnabled(false);
+                    preference_scan.setSummary("Scanning...please wait");
                     return true;
                 }
             });
@@ -267,6 +269,8 @@ public class OpenFitActivity extends Activity {
                 }
                 if(message.equals("scanStopped")) {
                     Log.d(LOG_TAG, "Bluetooth scanning done");
+                    preference_list_devices.setEnabled(true);
+                    preference_scan.setSummary(R.string.preference_scan_summary);
                     sendIntent("bluetooth", "setEntries");
                     Toast.makeText(getActivity(), "Scanning complete. Please select device", Toast.LENGTH_SHORT).show();
                 }

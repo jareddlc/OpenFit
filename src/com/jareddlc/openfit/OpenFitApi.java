@@ -148,7 +148,7 @@ public class OpenFitApi {
         mDataList.add(new OpenFitDataTypeAndString(OpenFitDataType.BYTE, "5551234567"));
         mDataList.add(new OpenFitDataTypeAndString(OpenFitDataType.BYTE, "NOTITLE"));
         mDataList.add(new OpenFitDataTypeAndString(OpenFitDataType.SHORT, "Welcome to OpenFit!"));
-        
+
         long id = System.currentTimeMillis() / 1000L;
         byte[] msg = OpenFitNotificationMessageProtocol.createNotificationProtocol(OpenFitNotificationMessageProtocol.DATA_TYPE_MESSAGE, id, mDataList, System.currentTimeMillis());
         OpenFitVariableDataComposer oDatacomposer = new OpenFitVariableDataComposer();
@@ -182,12 +182,24 @@ public class OpenFitApi {
         //570065006C0063006F006D006500200074006F0020004F00700065006E004600690074002100 = Welcome to OpenFit!
         //00
         //5E0E8955 = time stamp
+        if(sender == null || sender.isEmpty()) {
+            sender = "OpenFit";
+        }
+        if(number == null || number.isEmpty()) {
+            number = "OpenFit";
+        }
+        if(title == null || title.isEmpty()) {
+            title = "OpenFit Title";
+        }
+        if(message == null || message.isEmpty()) {
+            message = "OpenFit Message";
+        }
 
         List<OpenFitDataTypeAndString> mDataList = new ArrayList<OpenFitDataTypeAndString>();
         mDataList.add(new OpenFitDataTypeAndString(OpenFitDataType.BYTE, sender));
         mDataList.add(new OpenFitDataTypeAndString(OpenFitDataType.BYTE, number));
-        mDataList.add(new OpenFitDataTypeAndString(OpenFitDataType.BYTE, title));
-        mDataList.add(new OpenFitDataTypeAndString(OpenFitDataType.SHORT, message));
+        mDataList.add(new OpenFitDataTypeAndString(OpenFitDataType.BYTE, trimString(title)));
+        mDataList.add(new OpenFitDataTypeAndString(OpenFitDataType.SHORT, trimString(message)));
 
         byte[] msg = OpenFitNotificationMessageProtocol.createNotificationProtocol(4, id, mDataList, System.currentTimeMillis());
         OpenFitVariableDataComposer oDatacomposer = new OpenFitVariableDataComposer();
@@ -195,6 +207,11 @@ public class OpenFitApi {
         oDatacomposer.writeInt(msg.length);
         oDatacomposer.writeBytes(msg);
         return oDatacomposer.toByteArray();
+    }
+    
+    public static String trimString(String s) {
+        s = s.substring(0, Math.min(s.length(), 32));
+        return s;
     }
 
     public static byte[] hexStringToByteArray(String s) {

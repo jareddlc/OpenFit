@@ -64,6 +64,7 @@ public class OpenFitActivity extends Activity {
         private static final String LOG_TAG = "OpenFit:OpenFitFragment";
 
         private OpenFitSavedPreferences oPrefs;
+        private Boolean serviceStarted = false;
 
         // UI preferences
         private static SwitchPreference preference_switch_bluetooth;
@@ -98,6 +99,15 @@ public class OpenFitActivity extends Activity {
 
             // load saved preferences
             oPrefs = new OpenFitSavedPreferences(getActivity());
+        }
+
+        @Override
+        public void onResume () {
+            Log.d(LOG_TAG, "onResume");
+            if(serviceStarted) {
+                //this.restorePreferences(oPrefs);
+            }
+            super.onResume();
         }
 
         private void setupUIListeners() {
@@ -229,6 +239,7 @@ public class OpenFitActivity extends Activity {
             if(message != null && !message.isEmpty()) {
                 if(message.equals("OpenFitService")) {
                     this.restorePreferences(oPrefs);
+                    serviceStarted = true;
                 }
                 if(message.equals("isEnabled")) {
                     Toast.makeText(getActivity(), "Bluetooth Enabled", Toast.LENGTH_SHORT).show();
@@ -347,6 +358,10 @@ public class OpenFitActivity extends Activity {
             preference_checkbox_phone.setChecked(oPrefs.preference_checkbox_phone);
             preference_checkbox_sms.setChecked(oPrefs.preference_checkbox_sms);
             preference_checkbox_time.setChecked(oPrefs.preference_checkbox_time);
+            String sms = Boolean.toString(oPrefs.preference_checkbox_sms);
+            String phone = Boolean.toString(oPrefs.preference_checkbox_phone);
+            sendIntent("bluetooth", "sms", sms);
+            sendIntent("bluetooth", "phone", phone);
         }
         
         public void sendIntentListeningApps() {

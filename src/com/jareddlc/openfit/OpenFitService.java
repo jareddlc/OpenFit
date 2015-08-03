@@ -1,6 +1,9 @@
 package com.jareddlc.openfit;
 
 import java.util.Arrays;
+import java.util.Calendar;
+
+
 
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -29,10 +32,14 @@ public class OpenFitService extends Service {
     private BluetoothLeService bluetoothLeService;
     private  Handler mHandler;
     private PackageManager pManager;
+    private static ReconnectBluetoothThread reconnectThread;
 
     private int NotificationId = 1;
     private boolean smsEnabled = false;
     private boolean phoneEnabled = false;
+    private boolean isConnected = false;
+    private boolean isReconnect = false;
+    private boolean reconnecting = false;
     private SmsListener smsListener;
     private TelephonyManager telephony;
     private DialerListener dailerListener;
@@ -82,6 +89,22 @@ public class OpenFitService extends Service {
         Log.d(LOG_TAG, "Starting bluetooth service");
     }
 
+    public void reconnectBluetoothService() {
+        Log.d(LOG_TAG, "starting reconnect thread");
+        reconnecting = true;
+        reconnectThread = new ReconnectBluetoothThread();
+        reconnectThread.start();
+    }
+
+    public void reconnectBluetootStop() {
+        Log.d(LOG_TAG, "stopping reconnect thread");
+        reconnecting = false;
+        if(reconnectThread != null) {
+            reconnectThread.close();
+            reconnectThread = null;
+        }
+    }
+
     protected ServiceConnection mServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder service) {
@@ -92,7 +115,7 @@ public class OpenFitService extends Service {
             }
             bluetoothLeService.setHandler(mHandler);
             sendServiceStarted();
-            
+
             // update bluetooth ui
             if(BluetoothLeService.isEnabled) {
                 Intent i = new Intent("bluetoothUI");
@@ -164,6 +187,18 @@ public class OpenFitService extends Service {
                     byte[] byteArray = msg.getData().getByteArray("data");
                     handleBluetoothData(byteArray);
                 }
+                if(bluetoothMessage != null && bluetoothMessage.equals("isConnectedRfcomm")) {
+                    isConnected = true;
+                    if(reconnecting) {
+                        reconnectBluetootStop();
+                    }
+                }
+                if(bluetoothMessage != null && bluetoothMessage.equals("isDisconnectedRfComm")) {
+                    isConnected = false;
+                    if(isReconnect) {
+                        reconnectBluetoothService();
+                    }
+                }
             }
         };
     }
@@ -181,9 +216,11 @@ public class OpenFitService extends Service {
             }
             if(message.equals("connect")) {
                 bluetoothLeService.connectRfcomm();
+                isReconnect = true;
             }
             if(message.equals("disconnect")) {
                 bluetoothLeService.disconnectRfcomm();
+                isReconnect = false;
             }
             if(message.equals("setEntries")) {
                 bluetoothLeService.setEntries();
@@ -379,4 +416,29 @@ public class OpenFitService extends Service {
             sendDialerNotification(sender);
         }
     };
+
+    private class ReconnectBluetoothThread extends Thread {
+        public void run() {
+            long timeStart = Calendar.getInstance().getTimeInMillis();
+            Log.d(LOG_TAG, "Reconnecting Bluetooth: "+timeStart);
+
+            while(reconnecting) {
+                try {
+                    long timeDiff =  Calendar.getInstance().getTimeInMillis() - timeStart;
+                    Log.d(LOG_TAG, "Reconnecting Elapsed time: " + timeDiff/1000);
+                    bluetoothLeService.connectRfcomm();
+                    Thread.sleep(10000L);
+                }
+                catch(InterruptedException ie) {
+                    // unexpected interruption while enabling bluetooth
+                    Thread.currentThread().interrupt(); // restore interrupted flag
+                    return;
+                }
+            }
+        }
+
+        public void close() {
+            reconnecting = false;
+        }
+    }
 }

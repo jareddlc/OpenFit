@@ -348,6 +348,10 @@ public class BluetoothLeService extends Service {
     }
 
     public void connectRfcomm() {
+        if(!mBluetoothAdapter.isEnabled()) {
+            Log.d(LOG_TAG, "connect called when Bluetooth is not enabled.");
+            return;
+        }
         if(mBluetoothDevice != null) {
             connect = new ConnectThread();
             connect.start();
@@ -578,7 +582,6 @@ public class BluetoothLeService extends Service {
                 mHandler.sendMessage(msg);
                 Log.d(LOG_TAG, "Enabling Bluetooth timed out");
             }
-            
         }
     }
 
@@ -664,6 +667,7 @@ public class BluetoothLeService extends Service {
                 isThreadRunning = true;
             }
             catch(IOException e) {
+                close();
                 Log.e(LOG_TAG, "Error: mBluetoothSocket.getInputStream()/socket.getOutputStream()", e);
             }
         }
@@ -691,6 +695,12 @@ public class BluetoothLeService extends Service {
                 catch (IOException e) {
                     if(isThreadRunning) {
                         Log.e(LOG_TAG, "Error: mInStream.read()", e);
+                        close();
+                        onconnect.close();
+                        if(connect != null) {
+                            connect.close();
+                            connect = null;
+                        }
                     }
                 }
             }
@@ -712,11 +722,21 @@ public class BluetoothLeService extends Service {
         public void close() {
             try {
                 mInStream.close();
+            }
+            catch(IOException e) {
+                Log.e(LOG_TAG, "Error: mInStream.close()", e);
+            }
+            try {
                 mOutStream.close();
+            }
+            catch(IOException e) {
+                Log.e(LOG_TAG, "Error: mOutStream.close()", e);
+            }
+            try {
                 mBluetoothSocket.close();
             }
             catch(IOException e) {
-                Log.e(LOG_TAG, "Error: mSocket.close()", e);
+                Log.e(LOG_TAG, "Error: mBluetoothSocket.close()", e);
             }
         }
     }

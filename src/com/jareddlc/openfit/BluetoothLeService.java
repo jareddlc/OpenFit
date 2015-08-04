@@ -684,12 +684,18 @@ public class BluetoothLeService extends Service {
                     int bytes = mInStream.read(buffer);
                     byteArray.write(buffer, 0, bytes);
                     Log.d(LOG_TAG, "Received: "+byteArray);
-                    Message msg = mHandler.obtainMessage();
-                    Bundle b = new Bundle();
-                    b.putString("bluetoothData", "bluetoothData");
-                    b.putByteArray("data", byteArray.toByteArray());
-                    msg.setData(b);
-                    mHandler.sendMessage(msg);
+                    try {
+                        Message msg = mHandler.obtainMessage();
+                        Bundle b = new Bundle();
+                        b.putString("bluetoothData", "bluetoothData");
+                        b.putByteArray("data", byteArray.toByteArray());
+                        msg.setData(b);
+                        mHandler.sendMessage(msg);
+                    }
+                    catch(Exception e) {
+                        Log.e(LOG_TAG, "Error: mHandler.obtainMessage()", e);
+                    }
+                    
                     byteArray.reset();
                 }
                 catch (IOException e) {

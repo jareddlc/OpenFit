@@ -10,6 +10,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -17,9 +18,12 @@ import android.content.ServiceConnection;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.provider.ContactsContract.PhoneLookup;
 import android.support.v4.app.NotificationCompat;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
@@ -327,16 +331,29 @@ public class OpenFitService extends Service {
         bluetoothLeService.write(bytes);
     }
 
-    public void sendDialerNotification(String sender) {
-        String message = "Receiving phone call from: " + sender;
+    public void sendDialerNotification(String number) {
         long id = (long)(System.currentTimeMillis() / 1000L);
-        byte[] bytes = OpenFitApi.getOpenNotification("Phone Call", sender, "Phone Call", message, id);
+        String title = "Phone Call";
+        String sender = "Phone Call";
+        String message = "Receiving phone call from: " + number;
+        String name = getContactName(number);
+        if(name != null) {
+            sender = name;
+            message = "Receiving phone call from: " + name;
+        }
+        byte[] bytes = OpenFitApi.getOpenNotification(sender, number, title, message, id);
         bluetoothLeService.write(bytes);
     }
 
-    public void sendSmsNotification(String sender, String message) {
+    public void sendSmsNotification(String number, String message) {
         long id = (long)(System.currentTimeMillis() / 1000L);
-        byte[] bytes = OpenFitApi.getOpenNotification("Text Message", sender, "Text Message", message, id);
+        String title = "Text Message";
+        String sender = "Text Message";
+        String name = getContactName(number);
+        if(name != null) {
+            sender = name;
+        }
+        byte[] bytes = OpenFitApi.getOpenNotification(sender, number, title, message, id);
         bluetoothLeService.write(bytes);
     }
 
@@ -350,6 +367,23 @@ public class OpenFitService extends Service {
         }
         String appName = (String) pManager.getApplicationLabel(appInfo);
         return appName;
+    }
+
+    public String getContactName(String phoneNumber) {
+        ContentResolver cr = this.getContentResolver();
+        Uri uri = Uri.withAppendedPath(PhoneLookup.CONTENT_FILTER_URI, Uri.encode(phoneNumber));
+        Cursor cursor = cr.query(uri, new String[] {PhoneLookup.DISPLAY_NAME}, null, null, null);
+        if(cursor == null) {
+            return null;
+        }
+        String contactName = null;
+        if(cursor.moveToFirst()) {
+            contactName = cursor.getString(cursor.getColumnIndex(PhoneLookup.DISPLAY_NAME));
+        }
+        if(cursor != null && !cursor.isClosed()) {
+            cursor.close();
+        }
+        return contactName;
     }
 
     private BroadcastReceiver stopServiceReceiver = new BroadcastReceiver() {

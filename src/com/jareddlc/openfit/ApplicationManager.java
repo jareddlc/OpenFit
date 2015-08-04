@@ -37,7 +37,7 @@ public class ApplicationManager {
         ArrayList<Drawable> iDraw = new ArrayList<Drawable>();
 
         for(int i = 0; i < listeningListPackageNames.size(); i++) {
-            Log.d(LOG_TAG, "installed:" + listeningListPackageNames.get(i));
+            //Log.d(LOG_TAG, "installed:" + listeningListPackageNames.get(i));
             PackageManager pm = context.getPackageManager();
             Drawable icon;
             try {
@@ -128,7 +128,6 @@ public class ApplicationManager {
     }
 
     public Drawable getIcon(String packageName) {
-        Log.d(LOG_TAG, "Getting icon for package: " + packageName);
         Drawable icon = null;
         for(int i = 0; i < installedPackageNames.length; i++) {
             //Log.d(LOG_TAG, "pckg :" + packageNames[i]);
@@ -141,12 +140,10 @@ public class ApplicationManager {
     }
 
     public void addInstalledApp(String packageName) {
-        Log.d(LOG_TAG, "Adding package to listeningApps: " + packageName);
         listeningListPackageNames.add(packageName);
     }
 
     public void delInstalledApp(String packageName) {
-        Log.d(LOG_TAG, "Removing package to listeningApps: " + packageName);
         listeningListPackageNames.remove(packageName);
     }
     

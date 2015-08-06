@@ -45,6 +45,7 @@ public class OpenFitService extends Service {
     private boolean isReconnect = false;
     private boolean reconnecting = false;
     private SmsListener smsListener;
+    private MmsListener mmsListener;
     private TelephonyManager telephony;
     private DialerListener dailerListener;
 
@@ -62,6 +63,7 @@ public class OpenFitService extends Service {
         this.registerReceiver(bluetoothReceiver, new IntentFilter("bluetooth"));
         this.registerReceiver(notificationReceiver, new IntentFilter("notification"));
         this.registerReceiver(smsReceiver, new IntentFilter("sms"));
+        this.registerReceiver(mmsReceiver, new IntentFilter("mms"));
         this.registerReceiver(phoneReceiver, new IntentFilter("phone"));
         pManager = this.getPackageManager();
 
@@ -288,11 +290,16 @@ public class OpenFitService extends Service {
             smsListener = new SmsListener(this);
             IntentFilter smsFilter = new IntentFilter("android.provider.Telephony.SMS_RECEIVED");
             this.registerReceiver(smsListener, smsFilter);
+            mmsListener = new MmsListener(this);
+            IntentFilter mmsFilter = new IntentFilter("android.provider.Telephony.WAP_PUSH_RECEIVED");
+            this.registerReceiver(mmsListener, mmsFilter);
             Log.d(LOG_TAG, "sms listening");
+            Log.d(LOG_TAG, "mms listening");
         }
         else {
             if(smsListener != null) {
                 this.unregisterReceiver(smsListener);
+                this.unregisterReceiver(mmsListener);
             }
         }
     }
@@ -394,15 +401,18 @@ public class OpenFitService extends Service {
             unregisterReceiver(bluetoothReceiver);
             unregisterReceiver(notificationReceiver);
             unregisterReceiver(smsReceiver);
+            unregisterReceiver(mmsReceiver);
             unregisterReceiver(phoneReceiver);
             unbindService(mServiceConnection);
             if(smsEnabled) {
                 unregisterReceiver(smsListener);
+                unregisterReceiver(mmsListener);
             }
             if(phoneEnabled) {
                 telephony.listen(dailerListener, PhoneStateListener.LISTEN_NONE);
                 dailerListener.destroy();
             }
+            reconnectBluetootStop();
             stopSelf();
         }
     };
@@ -438,6 +448,16 @@ public class OpenFitService extends Service {
             String message = intent.getStringExtra("message");
             String sender = intent.getStringExtra("sender");
             Log.d(LOG_TAG, "Recieved SMS message: "+sender+" - "+message);
+            sendSmsNotification(sender, message);
+        }
+    };
+
+    private BroadcastReceiver mmsReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String message = "MMS received";
+            String sender = intent.getStringExtra("sender");
+            Log.d(LOG_TAG, "Recieved MMS message: "+sender+" - "+message);
             sendSmsNotification(sender, message);
         }
     };

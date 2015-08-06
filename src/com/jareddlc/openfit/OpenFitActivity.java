@@ -366,6 +366,7 @@ public class OpenFitActivity extends Activity {
             Log.d(LOG_TAG, "Clearing listening apps");
             PreferenceCategory category = (PreferenceCategory) findPreference("preference_category_apps");
             category.removeAll();
+            appManager.clearInstalledApp();
         }
 
         public void sendIntentListeningApps() {

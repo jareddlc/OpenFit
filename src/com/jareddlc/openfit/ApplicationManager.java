@@ -1,6 +1,7 @@
 package com.jareddlc.openfit;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import android.content.Context;
@@ -73,6 +74,7 @@ public class ApplicationManager {
         ArrayList<String> aName = new ArrayList<String>();
         ArrayList<String> pName = new ArrayList<String>();
         ArrayList<Drawable> iDraw = new ArrayList<Drawable>();
+        Collections.sort(packages, new ApplicationInfo.DisplayNameComparator(pm));
 
         for(ApplicationInfo packageInfo : packages) {
             // filter out system apps
@@ -146,9 +148,13 @@ public class ApplicationManager {
     public void delInstalledApp(String packageName) {
         listeningListPackageNames.remove(packageName);
     }
-    
+
     public ArrayList<String> getInstalledApp() {
         return listeningListPackageNames;
+    }
+
+    public void clearInstalledApp() {
+        listeningListPackageNames = new ArrayList<String>();
     }
 
     public Drawable getDailerIcon() {

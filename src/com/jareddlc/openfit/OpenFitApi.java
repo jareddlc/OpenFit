@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.TimeZone;
 
 import com.jareddlc.openfit.util.OpenFitData;
-import com.jareddlc.openfit.protocol.OpenFitNotificationMessageProtocol;
+import com.jareddlc.openfit.protocol.OpenFitNotificationProtocol;
 import com.jareddlc.openfit.util.OpenFitDataType;
 import com.jareddlc.openfit.util.OpenFitDataTypeAndString;
 import com.jareddlc.openfit.util.OpenFitTimeZoneUtil;
@@ -150,7 +150,7 @@ public class OpenFitApi {
         mDataList.add(new OpenFitDataTypeAndString(OpenFitDataType.SHORT, "Welcome to OpenFit!"));
 
         long id = System.currentTimeMillis() / 1000L;
-        byte[] msg = OpenFitNotificationMessageProtocol.createNotificationProtocol(OpenFitNotificationMessageProtocol.DATA_TYPE_MESSAGE, id, mDataList, System.currentTimeMillis());
+        byte[] msg = OpenFitNotificationProtocol.createNotificationProtocol(OpenFitNotificationProtocol.DATA_TYPE_MESSAGE, id, mDataList, System.currentTimeMillis());
         OpenFitVariableDataComposer oDatacomposer = new OpenFitVariableDataComposer();
         oDatacomposer.writeByte((byte)3);
         oDatacomposer.writeInt(msg.length);
@@ -198,19 +198,52 @@ public class OpenFitApi {
         List<OpenFitDataTypeAndString> mDataList = new ArrayList<OpenFitDataTypeAndString>();
         mDataList.add(new OpenFitDataTypeAndString(OpenFitDataType.BYTE, sender));
         mDataList.add(new OpenFitDataTypeAndString(OpenFitDataType.BYTE, number));
-        mDataList.add(new OpenFitDataTypeAndString(OpenFitDataType.BYTE, trimString(title)));
-        mDataList.add(new OpenFitDataTypeAndString(OpenFitDataType.SHORT, trimString(message)));
+        mDataList.add(new OpenFitDataTypeAndString(OpenFitDataType.BYTE, trimTitle(title)));
+        mDataList.add(new OpenFitDataTypeAndString(OpenFitDataType.SHORT, trimMessage(message)));
 
-        byte[] msg = OpenFitNotificationMessageProtocol.createNotificationProtocol(4, id, mDataList, System.currentTimeMillis());
+        byte[] msg = OpenFitNotificationProtocol.createNotificationProtocol(OpenFitNotificationProtocol.DATA_TYPE_MESSAGE, id, mDataList, System.currentTimeMillis());
         OpenFitVariableDataComposer oDatacomposer = new OpenFitVariableDataComposer();
         oDatacomposer.writeByte((byte)3);
         oDatacomposer.writeInt(msg.length);
         oDatacomposer.writeBytes(msg);
         return oDatacomposer.toByteArray();
     }
+
+    public static byte[] getOpenEmail(String sender, String number, String title, String message, long id) {
+        if(sender == null || sender.isEmpty()) {
+            sender = "OpenFit";
+        }
+        if(number == null || number.isEmpty()) {
+            number = "OpenFit";
+        }
+        if(title == null || title.isEmpty()) {
+            title = "OpenFit Title";
+        }
+        if(message == null || message.isEmpty()) {
+            message = "OpenFit Email";
+        }
+
+        List<OpenFitDataTypeAndString> mDataList = new ArrayList<OpenFitDataTypeAndString>();
+        mDataList.add(new OpenFitDataTypeAndString(OpenFitDataType.BYTE, sender));
+        mDataList.add(new OpenFitDataTypeAndString(OpenFitDataType.BYTE, number));
+        mDataList.add(new OpenFitDataTypeAndString(OpenFitDataType.BYTE, trimTitle(title)));
+        mDataList.add(new OpenFitDataTypeAndString(OpenFitDataType.SHORT, trimMessage(message)));
+
+        byte[] msg = OpenFitNotificationProtocol.createEmailProtocol(OpenFitNotificationProtocol.DATA_TYPE_EMAIL, id, mDataList, System.currentTimeMillis());
+        OpenFitVariableDataComposer oDatacomposer = new OpenFitVariableDataComposer();
+        oDatacomposer.writeByte((byte)3);
+        oDatacomposer.writeInt(msg.length);
+        oDatacomposer.writeBytes(msg);
+        return oDatacomposer.toByteArray();
+    }
+
+    public static String trimTitle(String s) {
+        s = s.substring(0, Math.min(s.length(), 50));
+        return s;
+    }
     
-    public static String trimString(String s) {
-        s = s.substring(0, Math.min(s.length(), 32));
+    public static String trimMessage(String s) {
+        s = s.substring(0, Math.min(s.length(), 250));
         return s;
     }
 

@@ -15,6 +15,23 @@ public class OpenFitData {
     public static final byte PORT_RSSI = 127;
     public static final byte PORT_SENSOR = 8;
 
+    public static byte DATA_TYPE_INCOMING_CALL = 0;
+    public static byte DATA_TYPE_MISSCALL = 1;
+    public static byte DATA_TYPE_EMAIL = 3;
+    public static byte DATA_TYPE_MESSAGE = 4;
+    public static byte DATA_TYPE_ALARM = 5;
+    public static byte DATA_TYPE_WEATHER = 7;
+    public static byte DATA_TYPE_CHATON = 10;
+    public static byte DATA_TYPE_GENERAL= 12;
+    public static byte DATA_TYPE_REJECT_ACTION = 13;
+    public static byte DATA_TYPE_ALARM_ACTION = 14;
+    public static byte DATA_TYPE_SMART_RELAY_REQUEST = 17;
+    public static byte DATA_TYPE_SMART_RELAY_RESPONSE = 18;
+    public static byte DATA_TYPE_IMAGE = 33;
+    public static byte DATA_TYPE_CMAS = 35;
+    public static byte DATA_TYPE_EAS = 36;
+    public static byte DATA_TYPE_RESERVED = 49;
+
     // Status Data Type
     public static final byte ALL_INFO = 2;
     public static final byte AUTO_LOCK = 3;

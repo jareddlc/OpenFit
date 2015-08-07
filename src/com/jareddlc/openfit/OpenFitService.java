@@ -102,7 +102,7 @@ public class OpenFitService extends Service {
         reconnectThread.start();
     }
 
-    public void reconnectBluetootStop() {
+    public void reconnectBluetoothStop() {
         Log.d(LOG_TAG, "stopping reconnect thread");
         reconnecting = false;
         if(reconnectThread != null) {
@@ -196,7 +196,7 @@ public class OpenFitService extends Service {
                 if(bluetoothMessage != null && bluetoothMessage.equals("isConnectedRfcomm")) {
                     isConnected = true;
                     if(reconnecting) {
-                        reconnectBluetootStop();
+                        reconnectBluetoothStop();
                     }
                 }
                 if(bluetoothMessage != null && bluetoothMessage.equals("isDisconnectedRfComm")) {
@@ -330,11 +330,20 @@ public class OpenFitService extends Service {
     public void setTime(boolean is24Hour) {
         bluetoothLeService.write(OpenFitApi.getCurrentTimeInfo(is24Hour));
         //bluetoothLeService.write(OpenFitApi.getOpenFitWelcomeNotification());
+        //long idTimestamp = (long)(System.currentTimeMillis() / 1000L);
+        //byte[] bytes = OpenFitApi.getOpenNotification("Gmail", "number", "Hello OpenFit", "Far far away,", idTimestamp);
+        //bluetoothLeService.write(bytes);
     }
 
     public void sendAppNotification(String packageName, String sender, String title, String message, int id) {
         long idTimestamp = (long)(System.currentTimeMillis() / 1000L);
         byte[] bytes = OpenFitApi.getOpenNotification(packageName, sender, title, message, idTimestamp);
+        bluetoothLeService.write(bytes);
+    }
+
+    public void sendEmailNotification(String packageName, String sender, String title, String message, int id) {
+        long idTimestamp = (long)(System.currentTimeMillis() / 1000L);
+        byte[] bytes = OpenFitApi.getOpenEmail(sender, title, message, message, idTimestamp);
         bluetoothLeService.write(bytes);
     }
 
@@ -412,7 +421,7 @@ public class OpenFitService extends Service {
                 telephony.listen(dailerListener, PhoneStateListener.LISTEN_NONE);
                 dailerListener.destroy();
             }
-            reconnectBluetootStop();
+            reconnectBluetoothStop();
             stopSelf();
         }
     };
@@ -436,9 +445,15 @@ public class OpenFitService extends Service {
             //long time = intent.getLongExtra("time", 0);
             final int id = intent.getIntExtra("id", 0);
             final String appName = getAppName(packageName);
-
-            Log.d(LOG_TAG, "Received notification: appName:" + appName + " title:" + title + " ticker:" + ticker + " message:" + message);
-            sendAppNotification(appName, title, ticker, message, id);
+            
+            if(packageName.equals("com.google.android.gm")) {
+                Log.d(LOG_TAG, "Received email:" + appName + " title:" + title + " ticker:" + ticker + " message:" + message);
+                sendEmailNotification(appName, title, ticker, message, id);
+            }
+            else {
+                Log.d(LOG_TAG, "Received notification appName:" + appName + " title:" + title + " ticker:" + ticker + " message:" + message);
+                sendAppNotification(appName, title, ticker, message, id);
+            }
         }
     };
 

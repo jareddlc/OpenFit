@@ -14,7 +14,6 @@ public final class OpenFitDataType {
     public int INTEGER;
 
     private OpenFitDataType(String s, int i) {
-        //super(s, i);
         STRING = s;
         INTEGER = i;
     }

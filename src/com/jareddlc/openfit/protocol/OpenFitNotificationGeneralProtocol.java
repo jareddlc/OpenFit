@@ -9,7 +9,8 @@ import java.util.List;
 
 public class OpenFitNotificationGeneralProtocol {
     private static final String LOG_TAG = "OpenFit:OpenFitNotificationGeneralProtocol";
-    /*private final boolean bShowDeviceOnDevice;
+    /*
+    private final boolean bShowDeviceOnDevice;
     private byte[] dataByteArray;
     private final List<OpenFitDataTypeAndString> mDataList;
     private final long mTime;
@@ -63,5 +64,41 @@ public class OpenFitNotificationGeneralProtocol {
             return this.dataByteArray;
         }
         return new byte[] {(byte)OpenFitDataTypeOld.DATA_TYPE_RESERVED.i};
-    }*/
+    }
+    
+    private void readFromParcel(Parcel paramParcel)
+  {
+    this.time = paramParcel.readLong();
+    this.heartRate = paramParcel.readInt();
+    this.eventTime = paramParcel.readLong();
+    this.interval = paramParcel.readLong();
+    this.SNR = paramParcel.readFloat();
+    this.SNRUnit = paramParcel.readInt();
+    Parcelable[] arrayOfParcelable = paramParcel.readParcelableArray(SHeartRateRawData.class.getClassLoader());
+    SHeartRateRawData[] arrayOfSHeartRateRawData;
+    int i;
+    if (arrayOfParcelable != null)
+    {
+      arrayOfSHeartRateRawData = new SHeartRateRawData[arrayOfParcelable.length];
+      i = 0;
+      if (i < arrayOfParcelable.length) {}
+    }
+    for (this.heartRateRawData = arrayOfSHeartRateRawData;; this.heartRateRawData = null)
+    {
+      this.extra = paramParcel.readBundle();
+      return;
+      arrayOfSHeartRateRawData[i] = ((SHeartRateRawData)arrayOfParcelable[i]);
+      i += 1;
+      break;
+    }
+  }
+  
+      private void readFromParcel(Parcel paramParcel)
+    {
+      this.samplingTime = paramParcel.readLong();
+      this.heartRate = paramParcel.readInt();
+      this.extra = paramParcel.readBundle();
+    }
+
+    */
 }

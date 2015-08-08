@@ -1,7 +1,7 @@
 package com.jareddlc.openfit.util;
 
 public final class OpenFitDataType {
-    
+
     public static final OpenFitDataType BIT;
     public static final OpenFitDataType BYTE;
     public static final OpenFitDataType DOUBLE;

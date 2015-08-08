@@ -18,249 +18,249 @@ public class OpenFitVariableDataComposer {
     public static byte[] convertToByteArray(String pString) {
         return pString.getBytes(DEFAULT_CHARSET);
     }
-    
+
     public static void writeCurrentTimeInfo(OpenFitVariableDataComposer pDataComposer)  {
         pDataComposer.writeInt((int)(System.currentTimeMillis() / 1000L));
     }
-    
+
     public static void writeStringWithOneByteLength(OpenFitVariableDataComposer pDataComposer, String pString) {
         writeStringWithOneByteLength(pDataComposer, pString, 255);
     }
-    
+
     public static void writeStringWithOneByteLength(OpenFitVariableDataComposer pDataComposer, String pString, int paramInt) {
         byte[] oString = convertToByteArray(pString);
         paramInt = Math.min(paramInt, oString.length);
         pDataComposer.writeByte((byte)paramInt);
         if(paramInt > 0) {
-          pDataComposer.writeBytes(oString, 0, paramInt);
+            pDataComposer.writeBytes(oString, 0, paramInt);
         }
     }
-    
+
     public static void writeTimeInfo(OpenFitVariableDataComposer paramDataComposer, long paramLong) {
         paramDataComposer.writeInt((int)(paramLong / 1000L));
     }
 
     private void addData(IVariableData paramIVariableData) {
-      this.mDataList.add(paramIVariableData);
-      this.mPayloadSize += paramIVariableData.getByteSize();
+        this.mDataList.add(paramIVariableData);
+        this.mPayloadSize += paramIVariableData.getByteSize();
     }
 
     protected int getPayloadSize() {
-      return this.mPayloadSize;
+        return this.mPayloadSize;
     }
 
     public void reset() {
-      this.mDataList.clear();
-      this.mPayloadSize = 0;
+        this.mDataList.clear();
+        this.mPayloadSize = 0;
     }
 
     public void toByteArray(byte[] pArrayOfByte, int paramInt) {
-      ByteBuffer paramArrayOfByte = ByteBuffer.wrap(pArrayOfByte, paramInt, this.mPayloadSize);
-      paramArrayOfByte.order(BYTE_ORDER);
-      int i = this.mDataList.size();
-      paramInt = 0;
-      while(paramInt < i) {
-        ((IVariableData)this.mDataList.get(paramInt)).writeTo(paramArrayOfByte);
-        paramInt += 1;
-      }
+        ByteBuffer paramArrayOfByte = ByteBuffer.wrap(pArrayOfByte, paramInt, this.mPayloadSize);
+        paramArrayOfByte.order(BYTE_ORDER);
+        int i = this.mDataList.size();
+        paramInt = 0;
+        while(paramInt < i) {
+            ((IVariableData)this.mDataList.get(paramInt)).writeTo(paramArrayOfByte);
+            paramInt += 1;
+        }
     }
 
     public byte[] toByteArray() {
-      byte[] arrayOfByte = new byte[this.mPayloadSize];
-      toByteArray(arrayOfByte, 0);
-      return arrayOfByte;
+        byte[] arrayOfByte = new byte[this.mPayloadSize];
+        toByteArray(arrayOfByte, 0);
+        return arrayOfByte;
     }
 
     public String toString() {
-      return "VariableDataComposer : Payload(" + this.mPayloadSize + ")";
+        return "VariableDataComposer : Payload(" + this.mPayloadSize + ")";
     }
 
     public void writeBoolean(boolean paramBoolean) {
-      addData(new BooleanData(paramBoolean));
+        addData(new BooleanData(paramBoolean));
     }
 
     public void writeByte(byte paramByte) {
-      addData(new ByteData(paramByte));
+        addData(new ByteData(paramByte));
     }
 
     public void writeBytes(byte[] paramArrayOfByte) {
-      addData(new ByteArrayData(paramArrayOfByte));
+        addData(new ByteArrayData(paramArrayOfByte));
     }
 
     public void writeBytes(byte[] paramArrayOfByte, int paramInt1, int paramInt2) {
-      addData(new ByteArrayData(paramArrayOfByte, paramInt1, paramInt2));
+        addData(new ByteArrayData(paramArrayOfByte, paramInt1, paramInt2));
     }
 
     public void writeDouble(double paramDouble) {
-      addData(new DoubleData(paramDouble));
+        addData(new DoubleData(paramDouble));
     }
 
     public void writeFloat(float paramFloat) {
-      addData(new FloatData(paramFloat));
+        addData(new FloatData(paramFloat));
     }
 
     public void writeImage(Bitmap paramBitmap) {
-      throw new UnsupportedOperationException("Not impelemented!");
+        throw new UnsupportedOperationException("Not impelemented!");
     }
 
     public void writeInt(int paramInt) {
-      addData(new IntData(paramInt));
+        addData(new IntData(paramInt));
     }
 
     public void writeLong(long paramLong) {
-      addData(new LongData(paramLong));
+        addData(new LongData(paramLong));
     }
 
     public void writeShort(short paramShort) {
-      addData(new ShortData(paramShort));
+        addData(new ShortData(paramShort));
     }
 
     public void writeString(String paramString) {
-      writeBytes(paramString.getBytes(DEFAULT_CHARSET));
+        writeBytes(paramString.getBytes(DEFAULT_CHARSET));
     }
 
     private static class BooleanData implements OpenFitVariableDataComposer.IVariableData {
-      private final boolean mValue;
+        private final boolean mValue;
 
-      BooleanData(boolean paramBoolean) {
-        this.mValue = paramBoolean;
-      }
-
-      public int getByteSize() {
-        return 1;
-      }
-
-      public void writeTo(ByteBuffer paramByteBuffer) {
-        if(this.mValue) {
-            paramByteBuffer.put((byte)1);
+        BooleanData(boolean paramBoolean) {
+            this.mValue = paramBoolean;
         }
-        else {
-            paramByteBuffer.put((byte)0);
+
+        public int getByteSize() {
+            return 1;
         }
-      }
+
+        public void writeTo(ByteBuffer paramByteBuffer) {
+            if(this.mValue) {
+                paramByteBuffer.put((byte)1);
+            }
+            else {
+                paramByteBuffer.put((byte)0);
+            }
+        }
     }
 
     private static class ByteArrayData implements OpenFitVariableDataComposer.IVariableData {
-      private final byte[] mCopied;
+        private final byte[] mCopied;
 
-      ByteArrayData(byte[] paramArrayOfByte) {
-        this.mCopied = Arrays.copyOf(paramArrayOfByte, paramArrayOfByte.length);
-      }
-
-      ByteArrayData(byte[] paramArrayOfByte, int paramInt1, int paramInt2) {
-        if(paramArrayOfByte.length < paramInt1 + paramInt2) {
-          throw new IndexOutOfBoundsException();
+        ByteArrayData(byte[] paramArrayOfByte) {
+            this.mCopied = Arrays.copyOf(paramArrayOfByte, paramArrayOfByte.length);
         }
-        this.mCopied = Arrays.copyOfRange(paramArrayOfByte, paramInt1, paramInt1 + paramInt2);
-      }
 
-      public int getByteSize() {
-        return this.mCopied.length;
-      }
+        ByteArrayData(byte[] paramArrayOfByte, int paramInt1, int paramInt2) {
+            if(paramArrayOfByte.length < paramInt1 + paramInt2) {
+                throw new IndexOutOfBoundsException();
+            }
+            this.mCopied = Arrays.copyOfRange(paramArrayOfByte, paramInt1, paramInt1 + paramInt2);
+        }
 
-      public void writeTo(ByteBuffer paramByteBuffer) {
-        paramByteBuffer.put(this.mCopied);
-      }
+        public int getByteSize() {
+            return this.mCopied.length;
+        }
+
+        public void writeTo(ByteBuffer paramByteBuffer) {
+            paramByteBuffer.put(this.mCopied);
+        }
     }
 
     private static class ByteData implements OpenFitVariableDataComposer.IVariableData {
-      final byte mByte;
+        final byte mByte;
 
-      ByteData(byte paramByte) {
-        this.mByte = paramByte;
-      }
+        ByteData(byte paramByte) {
+            this.mByte = paramByte;
+        }
 
-      public int getByteSize() {
-        return 1;
-      }
+        public int getByteSize() {
+            return 1;
+        }
 
-      public void writeTo(ByteBuffer paramByteBuffer) {
-        paramByteBuffer.put(this.mByte);
-      }
+        public void writeTo(ByteBuffer paramByteBuffer) {
+            paramByteBuffer.put(this.mByte);
+        }
     }
 
     private static class DoubleData implements OpenFitVariableDataComposer.IVariableData {
-      private final double mValue;
+        private final double mValue;
 
-      DoubleData(double paramDouble) {
-        this.mValue = paramDouble;
-      }
+        DoubleData(double paramDouble) {
+            this.mValue = paramDouble;
+        }
 
-      public int getByteSize() {
-        return 8;
-      }
+        public int getByteSize() {
+            return 8;
+        }
 
-      public void writeTo(ByteBuffer paramByteBuffer) {
-        paramByteBuffer.putDouble(this.mValue);
-      }
+        public void writeTo(ByteBuffer paramByteBuffer) {
+            paramByteBuffer.putDouble(this.mValue);
+        }
     }
 
     private static class FloatData implements OpenFitVariableDataComposer.IVariableData {
-      private final float mValue;
+        private final float mValue;
 
-      FloatData(float paramFloat) {
-        this.mValue = paramFloat;
-      }
+        FloatData(float paramFloat) {
+            this.mValue = paramFloat;
+        }
 
-      public int getByteSize() {
-        return 4;
-      }
+        public int getByteSize() {
+            return 4;
+        }
 
-      public void writeTo(ByteBuffer paramByteBuffer) {
-        paramByteBuffer.putFloat(this.mValue);
-      }
+        public void writeTo(ByteBuffer paramByteBuffer) {
+            paramByteBuffer.putFloat(this.mValue);
+        }
     }
 
     public static abstract interface IVariableData {
-      public abstract int getByteSize();
-      public abstract void writeTo(ByteBuffer paramByteBuffer);
+        public abstract int getByteSize();
+        public abstract void writeTo(ByteBuffer paramByteBuffer);
     }
 
     private static class IntData implements OpenFitVariableDataComposer.IVariableData {
-      private final int mValue;
+        private final int mValue;
 
-      IntData(int paramInt) {
-        this.mValue = paramInt;
-      }
+        IntData(int paramInt) {
+            this.mValue = paramInt;
+        }
 
-      public int getByteSize() {
-        return 4;
-      }
+        public int getByteSize() {
+            return 4;
+        }
 
-      public void writeTo(ByteBuffer paramByteBuffer) {
-        paramByteBuffer.putInt(this.mValue);
-      }
+        public void writeTo(ByteBuffer paramByteBuffer) {
+            paramByteBuffer.putInt(this.mValue);
+        }
     }
 
     private static class LongData implements OpenFitVariableDataComposer.IVariableData {
-      private final long mValue;
+        private final long mValue;
 
-      LongData(long paramLong) {
-        this.mValue = paramLong;
-      }
+        LongData(long paramLong) {
+            this.mValue = paramLong;
+        }
 
-      public int getByteSize() {
-        return 8;
-      }
+        public int getByteSize() {
+            return 8;
+        }
 
-      public void writeTo(ByteBuffer paramByteBuffer) {
-        paramByteBuffer.putLong(this.mValue);
-      }
+        public void writeTo(ByteBuffer paramByteBuffer) {
+            paramByteBuffer.putLong(this.mValue);
+        }
     }
 
     private static class ShortData implements OpenFitVariableDataComposer.IVariableData {
-      private final short mValue;
+        private final short mValue;
 
-      ShortData(short paramShort) {
-        this.mValue = paramShort;
-      }
+        ShortData(short paramShort) {
+            this.mValue = paramShort;
+        }
 
-      public int getByteSize() {
-        return 2;
-      }
+        public int getByteSize() {
+            return 2;
+        }
 
-      public void writeTo(ByteBuffer paramByteBuffer) {
-        paramByteBuffer.putShort(this.mValue);
-      }
+        public void writeTo(ByteBuffer paramByteBuffer) {
+            paramByteBuffer.putShort(this.mValue);
+        }
     }
 }

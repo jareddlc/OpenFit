@@ -1,14 +1,5 @@
 package com.jareddlc.openfit.protocol;
 
-import android.util.Log;
-import com.jareddlc.openfit.util.OpenFitDataType;
-import com.jareddlc.openfit.util.OpenFitVariableDataComposer;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
-public class OpenFitNotificationGeneralProtocol {
-    private static final String LOG_TAG = "OpenFit:OpenFitNotificationGeneralProtocol";
     /*
     private final boolean bShowDeviceOnDevice;
     private byte[] dataByteArray;
@@ -101,4 +92,3 @@ public class OpenFitNotificationGeneralProtocol {
     }
 
     */
-}

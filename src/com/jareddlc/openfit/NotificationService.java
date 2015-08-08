@@ -2,7 +2,6 @@ package com.jareddlc.openfit;
 
 import java.util.ArrayList;
 
-import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -31,48 +30,54 @@ public class NotificationService extends NotificationListenerService {
         super.onCreate();
     }
 
-    @SuppressLint("NewApi")
     @Override
     public void onNotificationPosted(StatusBarNotification sbn) {
         String packageName = sbn.getPackageName();
-        String ticker = "";
+        String ticker = null;
+        String message = null;
+        String submessage = null;
+        String summary = null;
+        String info = null;
         try {
             ticker = (String) sbn.getNotification().tickerText;
         }
         catch(Exception e) {
-            
+            // nothing
         }
         String tag = sbn.getTag();
         long time = sbn.getPostTime();
         int id = sbn.getId();
-        
+
         // API v19
         Notification notification = sbn.getNotification();
         Bundle extras = notification.extras;
         //String category = notification.category; API v21
         String title = extras.getString("android.title");
-        //CharSequence m = extras.getCharSequence("android.text");
-        String message = extras.getCharSequence("android.text").toString();
-        /*try {
-            message = (String) m.toString();
+        if(extras.getCharSequence("android.text") != null) {  
+            message = extras.getCharSequence("android.text").toString(); 
         }
-        catch(Exception e) {
-            Log.d(LOG_TAG, "Could not get string message");
-        }*/
+        if(extras.getCharSequence("android.subText") != null) {  
+            submessage = extras.getCharSequence("android.subText").toString();
+        }
+        if(extras.getCharSequence("android.summaryText") != null) {  
+            summary = extras.getCharSequence("android.summaryText").toString();
+        }
+        if(extras.getCharSequence("android.infoText") != null) {  
+            info = extras.getCharSequence("android.infoText").toString();
+        }
+
         Log.d(LOG_TAG, "Captured notification message: " + message + " from source:" + packageName);
 
-        if((2 & sbn.getNotification().flags) != 2) {
-            Log.d(LOG_TAG, "Flag != 2");
-        }
-        else {
-            Log.d(LOG_TAG, "Flag else");
-        }
         if(listeningListPackageNames.contains(packageName)) {
             Log.d(LOG_TAG, "ticker: " + ticker);
             Log.d(LOG_TAG, "title: " + title);
+            Log.d(LOG_TAG, "message: " + message);
             Log.d(LOG_TAG, "tag: " + tag);
             Log.d(LOG_TAG, "time: " + time);
             Log.d(LOG_TAG, "id: " + id);
+            Log.d(LOG_TAG, "submessage: " + submessage);
+            Log.d(LOG_TAG, "summary: " + summary);
+            Log.d(LOG_TAG, "info: " + info);
             //Log.d(LOG_TAG, "category: " + category);
 
             Intent msg = new Intent("notification");
@@ -82,6 +87,9 @@ public class NotificationService extends NotificationListenerService {
             msg.putExtra("message", message);
             msg.putExtra("time", time);
             msg.putExtra("id", id);
+            if(submessage != null) {
+                msg.putExtra("submessage", submessage);
+            }
 
             //LocalBroadcastManager.getInstance(context).sendBroadcast(msg);
             context.sendBroadcast(msg);

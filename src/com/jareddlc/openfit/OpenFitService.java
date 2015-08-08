@@ -3,8 +3,7 @@ package com.jareddlc.openfit;
 import java.util.Arrays;
 import java.util.Calendar;
 
-
-
+import android.annotation.SuppressLint;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -29,6 +28,7 @@ import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
+@SuppressLint("HandlerLeak")
 public class OpenFitService extends Service {
     private static final String LOG_TAG = "OpenFit:OpenFitService";
 
@@ -41,7 +41,6 @@ public class OpenFitService extends Service {
     private int NotificationId = 1;
     private boolean smsEnabled = false;
     private boolean phoneEnabled = false;
-    private boolean isConnected = false;
     private boolean isReconnect = false;
     private boolean reconnecting = false;
     private SmsListener smsListener;
@@ -81,7 +80,7 @@ public class OpenFitService extends Service {
         unregisterReceiver(stopServiceReceiver);
         super.onDestroy();
     }
-    
+
     public void sendServiceStarted() {
         Intent i = new Intent("bluetoothUI");
         i.putExtra("message", "OpenFitService");
@@ -194,13 +193,11 @@ public class OpenFitService extends Service {
                     handleBluetoothData(byteArray);
                 }
                 if(bluetoothMessage != null && bluetoothMessage.equals("isConnectedRfcomm")) {
-                    isConnected = true;
                     if(reconnecting) {
                         reconnectBluetoothStop();
                     }
                 }
                 if(bluetoothMessage != null && bluetoothMessage.equals("isDisconnectedRfComm")) {
-                    isConnected = false;
                     if(isReconnect) {
                         reconnectBluetoothService();
                     }
@@ -279,7 +276,7 @@ public class OpenFitService extends Service {
         else {
             if(telephony != null) {
                 telephony.listen(dailerListener, PhoneStateListener.LISTEN_NONE);
-                dailerListener.destroy(); 
+                dailerListener.destroy();
             }
         }
     }
@@ -307,7 +304,7 @@ public class OpenFitService extends Service {
     public void createNotification() {
         Intent stopService =  new Intent("stopOpenFitService");
         PendingIntent pIntent = PendingIntent.getBroadcast(this, 0, stopService, PendingIntent.FLAG_UPDATE_CURRENT);
-        
+
         NotificationCompat.Builder nBuilder = new NotificationCompat.Builder(this);
         nBuilder.setSmallIcon(R.drawable.open_fit_notification);
         nBuilder.setContentTitle("Open Fit");
@@ -329,10 +326,6 @@ public class OpenFitService extends Service {
 
     public void setTime(boolean is24Hour) {
         bluetoothLeService.write(OpenFitApi.getCurrentTimeInfo(is24Hour));
-        //bluetoothLeService.write(OpenFitApi.getOpenFitWelcomeNotification());
-        //long idTimestamp = (long)(System.currentTimeMillis() / 1000L);
-        //byte[] bytes = OpenFitApi.getOpenNotification("Gmail", "number", "Hello OpenFit", "Far far away,", idTimestamp);
-        //bluetoothLeService.write(bytes);
     }
 
     public void sendAppNotification(String packageName, String sender, String title, String message, int id) {
@@ -349,15 +342,12 @@ public class OpenFitService extends Service {
 
     public void sendDialerNotification(String number) {
         long id = (long)(System.currentTimeMillis() / 1000L);
-        String title = "Phone Call";
-        String sender = "Phone Call";
-        String message = "Receiving phone call from: " + number;
+        String sender = "OpenFit Call";
         String name = getContactName(number);
         if(name != null) {
             sender = name;
-            message = "Receiving phone call from: " + name;
         }
-        byte[] bytes = OpenFitApi.getOpenNotification(sender, number, title, message, id);
+        byte[] bytes = OpenFitApi.getOpenIncomingCall(sender, number, id);
         bluetoothLeService.write(bytes);
     }
 
@@ -445,7 +435,7 @@ public class OpenFitService extends Service {
             //long time = intent.getLongExtra("time", 0);
             final int id = intent.getIntExtra("id", 0);
             final String appName = getAppName(packageName);
-            
+
             if(packageName.equals("com.google.android.gm")) {
                 Log.d(LOG_TAG, "Received email:" + appName + " title:" + title + " ticker:" + ticker + " message:" + message);
                 sendEmailNotification(appName, title, ticker, message, id);

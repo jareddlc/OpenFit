@@ -61,7 +61,7 @@ public class OpenFitApi {
         oVariableDataComposer.writeByte((byte)1);
         return oVariableDataComposer.toByteArray();
     }
-    
+
     public static byte[] getCurrentTimeInfo(boolean is24Hour) {
         //011E0000000141CB3555F8FFFFFF000000000101010201A01DFC5490D43556100E0000
         //01
@@ -123,7 +123,7 @@ public class OpenFitApi {
         //03
         //71000000 = size of msg
         //04 = DATA_TYPE_MESSAGE
-        //0400000000000000 = size?
+        //0400000000000000 = id
         //10 = sender name size + 2
         //FF
         //FE
@@ -162,7 +162,7 @@ public class OpenFitApi {
         //03
         //71000000 = size of msg
         //04 = DATA_TYPE_MESSAGE
-        //0400000000000000 = size?
+        //0400000000000000 = id
         //10 = sender name size + 2
         //FF
         //FE
@@ -237,11 +237,45 @@ public class OpenFitApi {
         return oDatacomposer.toByteArray();
     }
 
+    public static byte[] getOpenIncomingCall(String sender, String number, long id) {
+        //09
+        //30000000 = size of msg
+        //00 = DATA_TYPE_INCOMING_CALL
+        //fb73770c4f010000 = id
+        //00 = call flag
+        //0a = size + 2
+        //ff
+        //fe
+        //48006f006d006500 = sender
+        //16 = size + 2
+        //ff
+        //fe
+        //0000000000000000000000000000000000000000 = phone number
+        //5fc0c555
+        if(sender == null || sender.isEmpty()) {
+            sender = "OpenFit";
+        }
+        if(number == null || number.isEmpty()) {
+            number = "OpenFit";
+        }
+
+        List<OpenFitDataTypeAndString> mDataList = new ArrayList<OpenFitDataTypeAndString>();
+        mDataList.add(new OpenFitDataTypeAndString(OpenFitDataType.BYTE, sender));
+        mDataList.add(new OpenFitDataTypeAndString(OpenFitDataType.BYTE, number));
+
+        byte[] msg = OpenFitNotificationProtocol.createIncomingCallProtocol(OpenFitNotificationProtocol.DATA_TYPE_INCOMING_CALL, id, mDataList, System.currentTimeMillis());
+        OpenFitVariableDataComposer oDatacomposer = new OpenFitVariableDataComposer();
+        oDatacomposer.writeByte((byte)9);
+        oDatacomposer.writeInt(msg.length);
+        oDatacomposer.writeBytes(msg);
+        return oDatacomposer.toByteArray();
+    }
+
     public static String trimTitle(String s) {
         s = s.substring(0, Math.min(s.length(), 50));
         return s;
     }
-    
+
     public static String trimMessage(String s) {
         s = s.substring(0, Math.min(s.length(), 250));
         return s;
@@ -289,5 +323,3 @@ public class OpenFitApi {
       return iarray;
     }
 }
-
-

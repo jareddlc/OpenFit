@@ -1,21 +1,17 @@
 package com.jareddlc.openfit.protocol;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import com.jareddlc.openfit.OpenFitApi;
 import com.jareddlc.openfit.util.OpenFitDataType;
 import com.jareddlc.openfit.util.OpenFitDataTypeAndString;
 import com.jareddlc.openfit.util.OpenFitVariableDataComposer;
 
-import android.util.Log;
-
 public class OpenFitNotificationProtocol {
-    private static final String LOG_TAG = "OpenFit:OpenFitNotificationMessageProtocol";
 
     public static byte DATA_TYPE_INCOMING_CALL = 0;
     public static byte DATA_TYPE_MISSCALL = 1;
+    public static byte DATA_TYPE_CALL_ENDED = 2;
     public static byte DATA_TYPE_EMAIL = 3;
     public static byte DATA_TYPE_MESSAGE = 4;
     public static byte DATA_TYPE_ALARM = 5;
@@ -32,50 +28,42 @@ public class OpenFitNotificationProtocol {
     public static byte DATA_TYPE_RESERVED = 49;
 
     public static Boolean SUPPORT_QUICK_REPLY = false;
+    public static Boolean SHOW_ON_DEVICE = false;
     public static Boolean HAS_IMAGE = false;
+    public static Boolean INCOMING_CALL_FLAG = true;
 
-    public void createMessageProtocol(int paramInt) {
-        long mTime = 0;
-        long mMsgId = 0;
-        boolean bShowDeviceOnDevice = false;
-        byte mByteArray[];
-        final List mDataList = new ArrayList();
-        Log.d(LOG_TAG, "new  createMessageProtocol");
-        int i = DATA_TYPE_MESSAGE;
+    public byte[] createMessageProtocol(int msgType, long msgId, List<OpenFitDataTypeAndString> msgData, long timeStamp) {
         OpenFitVariableDataComposer oDatacomposer = new OpenFitVariableDataComposer();;
-        oDatacomposer.writeByte((byte)i);
-        oDatacomposer.writeLong(mMsgId);
+        oDatacomposer.writeByte((byte)msgType);
+        oDatacomposer.writeLong(msgId);
         StringBuilder oStringBuilder = new StringBuilder();
-        i = 0;
-        Iterator oIterator = mDataList.iterator();
+
+        Iterator<OpenFitDataTypeAndString> oIterator = msgData.iterator();
         while(oIterator.hasNext()) {
             OpenFitDataTypeAndString localDataTypeAndString = (OpenFitDataTypeAndString)oIterator.next();
             byte[] oByte = OpenFitVariableDataComposer.convertToByteArray(localDataTypeAndString.getData());
+            
             if(localDataTypeAndString.getDataType() == OpenFitDataType.BYTE) {
                 oDatacomposer.writeByte((byte)oByte.length);
             }
-
-            oStringBuilder.append(oByte.length).append(" ");
-            oDatacomposer.writeBytes(oByte);
-            Log.d(LOG_TAG, "mDataList[" + i + "]           : " + OpenFitApi.byteArrayToHexString(oByte));
-            i += 1;
-
             if(localDataTypeAndString.getDataType() == OpenFitDataType.SHORT) {
                 oDatacomposer.writeShort((short)oByte.length);
             }
+            oStringBuilder.append(oByte.length).append(" ");
+            oDatacomposer.writeBytes(oByte);
         }
-        oDatacomposer.writeBoolean(bShowDeviceOnDevice);
-        oDatacomposer.writeByte((byte)paramInt);
-        OpenFitVariableDataComposer.writeTimeInfo(oDatacomposer, mTime);
-        mByteArray = oDatacomposer.toByteArray();
+        oDatacomposer.writeBoolean(SHOW_ON_DEVICE);
+        oDatacomposer.writeByte((byte)0);
+        OpenFitVariableDataComposer.writeTimeInfo(oDatacomposer, timeStamp);
+        return oDatacomposer.toByteArray();
     }
 
-    public static byte[] createNotificationProtocol(int msgType, long msgId, List msgData, long timeStamp) {
+    public static byte[] createNotificationProtocol(int msgType, long msgId, List<OpenFitDataTypeAndString> msgData, long timeStamp) {
         OpenFitVariableDataComposer oDatacomposer = new OpenFitVariableDataComposer();
         oDatacomposer.writeByte((byte)msgType);
         oDatacomposer.writeLong(msgId);
         StringBuilder oStringBuilder = new StringBuilder();
-        Iterator oIterator = msgData.iterator();
+        Iterator<OpenFitDataTypeAndString> oIterator = msgData.iterator();
 
         while(oIterator.hasNext()) {
             OpenFitDataTypeAndString oDataString = (OpenFitDataTypeAndString)oIterator.next();
@@ -94,13 +82,13 @@ public class OpenFitNotificationProtocol {
         OpenFitVariableDataComposer.writeTimeInfo(oDatacomposer, timeStamp);
         return oDatacomposer.toByteArray();
     }
-    
-    public static byte[] createEmailProtocol(int msgType, long msgId, List msgData, long timeStamp) {
+
+    public static byte[] createEmailProtocol(int msgType, long msgId, List<OpenFitDataTypeAndString> msgData, long timeStamp) {
         OpenFitVariableDataComposer oDatacomposer = new OpenFitVariableDataComposer();
         oDatacomposer.writeByte((byte)msgType);
         oDatacomposer.writeLong(msgId);
         StringBuilder oStringBuilder = new StringBuilder();
-        Iterator oIterator = msgData.iterator();
+        Iterator<OpenFitDataTypeAndString> oIterator = msgData.iterator();
 
         while(oIterator.hasNext()) {
             OpenFitDataTypeAndString oDataString = (OpenFitDataTypeAndString)oIterator.next();
@@ -119,6 +107,37 @@ public class OpenFitNotificationProtocol {
         oDatacomposer.writeByte((byte)0);
         oDatacomposer.writeBoolean(SUPPORT_QUICK_REPLY);
         oDatacomposer.writeBoolean(HAS_IMAGE);
+        OpenFitVariableDataComposer.writeTimeInfo(oDatacomposer, timeStamp);
+        return oDatacomposer.toByteArray();
+    }
+
+    public static byte[] createIncomingCallProtocol(int msgType, long msgId, List<OpenFitDataTypeAndString> msgData, long timeStamp) {
+        OpenFitVariableDataComposer oDatacomposer = new OpenFitVariableDataComposer();
+        oDatacomposer.writeByte((byte)msgType);
+        oDatacomposer.writeLong(msgId);
+        if(INCOMING_CALL_FLAG) {
+            oDatacomposer.writeByte((byte)0);
+        }
+        else {
+            oDatacomposer.writeByte((byte)1);
+        }
+        StringBuilder oStringBuilder = new StringBuilder();
+        Iterator<OpenFitDataTypeAndString> oIterator = msgData.iterator();
+
+        while(oIterator.hasNext()) {
+            OpenFitDataTypeAndString oDataString = (OpenFitDataTypeAndString)oIterator.next();
+            byte[] oByte = OpenFitVariableDataComposer.convertToByteArray(oDataString.getData());
+
+            if(oDataString.getDataType() == OpenFitDataType.BYTE) {
+                oDatacomposer.writeByte((byte)oByte.length);
+            }
+            if(oDataString.getDataType() == OpenFitDataType.SHORT) {
+                oDatacomposer.writeShort((short)oByte.length);
+            }
+            oStringBuilder.append(oByte.length).append(" ");
+            oDatacomposer.writeBytes(oByte);
+        }
+
         OpenFitVariableDataComposer.writeTimeInfo(oDatacomposer, timeStamp);
         return oDatacomposer.toByteArray();
     }

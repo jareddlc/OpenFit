@@ -479,6 +479,7 @@ public class BluetoothLeService extends Service {
         }
     }
 
+    @SuppressWarnings("deprecation")
     public void scanLeDevice() {
         Log.d(LOG_TAG, "scanLeDevice");
         if(isEnabled) {

@@ -62,6 +62,46 @@ public class OpenFitApi {
         return oVariableDataComposer.toByteArray();
     }
 
+    public static byte[] getMediaPrev() {
+        //06020000000005
+        OpenFitVariableDataComposer oVariableDataComposer = new OpenFitVariableDataComposer();
+        oVariableDataComposer.writeByte((byte)6);
+        oVariableDataComposer.writeByte((byte)2);
+        oVariableDataComposer.writeInt(0);
+        oVariableDataComposer.writeByte((byte)5);
+        return oVariableDataComposer.toByteArray();
+    }
+
+    public static byte[] getMediaNext() {
+        //06020000000004
+        OpenFitVariableDataComposer oVariableDataComposer = new OpenFitVariableDataComposer();
+        oVariableDataComposer.writeByte((byte)6);
+        oVariableDataComposer.writeByte((byte)2);
+        oVariableDataComposer.writeInt(0);
+        oVariableDataComposer.writeByte((byte)4);
+        return oVariableDataComposer.toByteArray();
+    }
+
+    public static byte[] getMediaPlay() {
+        //06020000000001
+        OpenFitVariableDataComposer oVariableDataComposer = new OpenFitVariableDataComposer();
+        oVariableDataComposer.writeByte((byte)6);
+        oVariableDataComposer.writeByte((byte)2);
+        oVariableDataComposer.writeInt(0);
+        oVariableDataComposer.writeByte((byte)1);
+        return oVariableDataComposer.toByteArray();
+    }
+
+    public static byte[] getMediaVolume() {
+        //060100000003
+        OpenFitVariableDataComposer oVariableDataComposer = new OpenFitVariableDataComposer();
+        oVariableDataComposer.writeByte((byte)6);
+        oVariableDataComposer.writeByte((byte)1);
+        oVariableDataComposer.writeInt(0);
+        oVariableDataComposer.writeByte((byte)3);
+        return oVariableDataComposer.toByteArray();
+    }
+
     public static byte[] getCurrentTimeInfo(boolean is24Hour) {
         //011E0000000141CB3555F8FFFFFF000000000101010201A01DFC5490D43556100E0000
         //01
@@ -266,6 +306,24 @@ public class OpenFitApi {
         byte[] msg = OpenFitNotificationProtocol.createIncomingCallProtocol(OpenFitNotificationProtocol.DATA_TYPE_INCOMING_CALL, id, mDataList, System.currentTimeMillis());
         OpenFitVariableDataComposer oDatacomposer = new OpenFitVariableDataComposer();
         oDatacomposer.writeByte((byte)9);
+        oDatacomposer.writeInt(msg.length);
+        oDatacomposer.writeBytes(msg);
+        return oDatacomposer.toByteArray();
+    }
+
+    public static byte[] getOpenMediaTrack(String track) {
+        //06
+        //26000000
+        //02
+        //24 = size + 2
+        //ff
+        //fe
+        //44006100660074002000500075006e006b0020002d00200046007200650073006800 = track name
+
+        byte[] msg = OpenFitNotificationProtocol.createMediaTrackProtocol(OpenFitNotificationProtocol.DATA_TYPE_MEDIATRACK, track);
+
+        OpenFitVariableDataComposer oDatacomposer = new OpenFitVariableDataComposer();
+        oDatacomposer.writeByte((byte)6);
         oDatacomposer.writeInt(msg.length);
         oDatacomposer.writeBytes(msg);
         return oDatacomposer.toByteArray();

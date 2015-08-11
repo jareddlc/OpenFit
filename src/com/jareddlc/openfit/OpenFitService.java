@@ -64,6 +64,8 @@ public class OpenFitService extends Service {
         this.registerReceiver(smsReceiver, new IntentFilter("sms"));
         this.registerReceiver(mmsReceiver, new IntentFilter("mms"));
         this.registerReceiver(phoneReceiver, new IntentFilter("phone"));
+        this.registerReceiver(mediaReceiver, MediaController.getIntentFilter());
+
         pManager = this.getPackageManager();
 
         // start service
@@ -235,7 +237,7 @@ public class OpenFitService extends Service {
             if(message.equals("time")) {
                 String s = intent.getStringExtra("data");
                 boolean value = Boolean.parseBoolean(s);
-                setTime(value);
+                sendTime(value);
             }
             if(message.equals("phone")) {
                 String s = intent.getStringExtra("data");
@@ -251,12 +253,25 @@ public class OpenFitService extends Service {
     }
 
     public void handleBluetoothData(byte[] data) {
+        Log.d(LOG_TAG, "Service received: " + OpenFitApi.byteArrayToHexString(data));
         if(Arrays.equals(data, OpenFitApi.getReady())) {
             Log.d(LOG_TAG, "Recieved ready message");
             bluetoothLeService.write(OpenFitApi.getUpdate());
             bluetoothLeService.write(OpenFitApi.getUpdateFollowUp());
             bluetoothLeService.write(OpenFitApi.getFotaCommand());
             //bluetoothLeService.write(OpenFitApi.getCurrentTimeInfo(false));
+        }
+        if(Arrays.equals(data, OpenFitApi.getMediaPrev())) {
+            sendMediaPrev();
+        }
+        if(Arrays.equals(data, OpenFitApi.getMediaNext())) {
+            sendMediaNext();
+        }
+        if(Arrays.equals(data, OpenFitApi.getMediaPlay())) {
+            sendMediaPlay();
+        }
+        if(Arrays.equals(data, OpenFitApi.getMediaVolume())) {
+            Log.d(LOG_TAG, "volume pressed");
         }
     }
 
@@ -324,8 +339,36 @@ public class OpenFitService extends Service {
         nManager.cancel(NotificationId);
     }
 
-    public void setTime(boolean is24Hour) {
-        bluetoothLeService.write(OpenFitApi.getCurrentTimeInfo(is24Hour));
+    public void sendTime(boolean is24Hour) {
+        byte[] bytes = OpenFitApi.getCurrentTimeInfo(is24Hour);
+        bluetoothLeService.write(bytes);
+        //sendOrderedBroadcast(MediaController.nextTrackDown(), null);
+        //sendOrderedBroadcast(MediaController.nextTrackUp(), null);
+    }
+
+    public void sendMediaTrack(String track) {
+        byte[] bytes = OpenFitApi.getOpenMediaTrack(track);
+        if(bluetoothLeService != null) {
+            bluetoothLeService.write(bytes);
+        }
+    }
+
+    public void sendMediaPrev() {
+        Log.d(LOG_TAG, "Media Prev");
+        sendOrderedBroadcast(MediaController.prevTrackDown(), null);
+        sendOrderedBroadcast(MediaController.prevTrackUp(), null);
+    }
+
+    public void sendMediaNext() {
+        Log.d(LOG_TAG, "Media Next");
+        sendOrderedBroadcast(MediaController.nextTrackDown(), null);
+        sendOrderedBroadcast(MediaController.nextTrackUp(), null);
+    }
+
+    public void sendMediaPlay() {
+        Log.d(LOG_TAG, "Media Play/Pause");
+        sendOrderedBroadcast(MediaController.playTrackDown(), null);
+        sendOrderedBroadcast(MediaController.playTrackUp(), null);
     }
 
     public void sendAppNotification(String packageName, String sender, String title, String message, int id) {
@@ -402,6 +445,7 @@ public class OpenFitService extends Service {
             unregisterReceiver(smsReceiver);
             unregisterReceiver(mmsReceiver);
             unregisterReceiver(phoneReceiver);
+            unregisterReceiver(mediaReceiver);
             unbindService(mServiceConnection);
             if(smsEnabled) {
                 unregisterReceiver(smsListener);
@@ -473,6 +517,19 @@ public class OpenFitService extends Service {
             String sender = intent.getStringExtra("sender");
             Log.d(LOG_TAG, "Recieved PHONE: "+sender);
             sendDialerNotification(sender);
+        }
+    };
+
+    private BroadcastReceiver mediaReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String artist = MediaController.getArtist(intent);
+            String album = MediaController.getAlbum(intent);
+            String track = MediaController.getTrack(intent);
+            Log.d(LOG_TAG, artist + ":" + album + ":" + track);
+            String mediaTrack = artist + " - " + track;
+            Log.d(LOG_TAG, "sending: " + mediaTrack);
+            sendMediaTrack(mediaTrack);
         }
     };
 

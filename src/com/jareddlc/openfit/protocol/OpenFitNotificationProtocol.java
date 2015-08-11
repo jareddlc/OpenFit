@@ -26,6 +26,7 @@ public class OpenFitNotificationProtocol {
     public static byte DATA_TYPE_CMAS = 35;
     public static byte DATA_TYPE_EAS = 36;
     public static byte DATA_TYPE_RESERVED = 49;
+    public static byte DATA_TYPE_MEDIATRACK = 2;
 
     public static Boolean SUPPORT_QUICK_REPLY = false;
     public static Boolean SHOW_ON_DEVICE = false;
@@ -139,6 +140,14 @@ public class OpenFitNotificationProtocol {
         }
 
         OpenFitVariableDataComposer.writeTimeInfo(oDatacomposer, timeStamp);
+        return oDatacomposer.toByteArray();
+    }
+
+    public static byte[] createMediaTrackProtocol(int msgType, String msgData) {
+        OpenFitVariableDataComposer oDatacomposer = new OpenFitVariableDataComposer();
+        oDatacomposer.writeByte((byte)msgType);
+        OpenFitVariableDataComposer.writeStringWithOneByteLength(oDatacomposer, msgData);
+
         return oDatacomposer.toByteArray();
     }
 }

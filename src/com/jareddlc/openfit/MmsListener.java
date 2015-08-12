@@ -18,6 +18,7 @@ public class MmsListener extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context cntxt, Intent intent) {
+        Log.d(LOG_TAG, "MMS: Intent received");
         if(intent.getAction().equals("android.provider.Telephony.WAP_PUSH_RECEIVED")) {
             Bundle bundle = intent.getExtras();
             try {

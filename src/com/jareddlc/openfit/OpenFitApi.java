@@ -311,6 +311,26 @@ public class OpenFitApi {
         return oDatacomposer.toByteArray();
     }
 
+    public static byte[] getOpenRejectCall() {
+        //090600000003013FE1CA55
+        OpenFitVariableDataComposer oVariableDataComposer = new OpenFitVariableDataComposer();
+        oVariableDataComposer.writeByte((byte)9);
+        oVariableDataComposer.writeInt(6);
+        oVariableDataComposer.writeByte((byte)3);
+        oVariableDataComposer.writeByte((byte)1);
+
+        return oVariableDataComposer.toByteArray();
+    }
+    
+    public static byte[] getOpenIncomingCallEnd() {
+        //090100000002
+        OpenFitVariableDataComposer oVariableDataComposer = new OpenFitVariableDataComposer();
+        oVariableDataComposer.writeByte((byte)9);
+        oVariableDataComposer.writeInt(1);
+        oVariableDataComposer.writeByte((byte)2);
+        return oVariableDataComposer.toByteArray();
+    }
+
     public static byte[] getOpenMediaTrack(String track) {
         //06
         //26000000

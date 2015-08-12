@@ -1,5 +1,6 @@
 package com.jareddlc.openfit;
 
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Calendar;
 
@@ -64,6 +65,7 @@ public class OpenFitService extends Service {
         this.registerReceiver(smsReceiver, new IntentFilter("sms"));
         this.registerReceiver(mmsReceiver, new IntentFilter("mms"));
         this.registerReceiver(phoneReceiver, new IntentFilter("phone"));
+        this.registerReceiver(phoneIdleReceiver, new IntentFilter("phone:idle"));
         this.registerReceiver(mediaReceiver, MediaController.getIntentFilter());
 
         pManager = this.getPackageManager();
@@ -273,6 +275,9 @@ public class OpenFitService extends Service {
         if(Arrays.equals(data, OpenFitApi.getMediaVolume())) {
             Log.d(LOG_TAG, "volume pressed");
         }
+        if(OpenFitApi.byteArrayToHexString(data).contains(OpenFitApi.byteArrayToHexString(OpenFitApi.getOpenRejectCall()))) {
+            endCall();
+        }
     }
 
     public void startNotificationListenerService() {
@@ -342,8 +347,6 @@ public class OpenFitService extends Service {
     public void sendTime(boolean is24Hour) {
         byte[] bytes = OpenFitApi.getCurrentTimeInfo(is24Hour);
         bluetoothLeService.write(bytes);
-        //sendOrderedBroadcast(MediaController.nextTrackDown(), null);
-        //sendOrderedBroadcast(MediaController.nextTrackUp(), null);
     }
 
     public void sendMediaTrack(String track) {
@@ -392,6 +395,31 @@ public class OpenFitService extends Service {
         }
         byte[] bytes = OpenFitApi.getOpenIncomingCall(sender, number, id);
         bluetoothLeService.write(bytes);
+    }
+
+    public void sendDialerEndNotification() {
+        byte[] bytes = OpenFitApi.getOpenIncomingCallEnd();
+        bluetoothLeService.write(bytes);
+    }
+
+    public void endCall() {
+        Log.d(LOG_TAG, "Ending call");
+        Class<?> telephonyClass = null;
+        Method method = null;
+        Method endCall = null;
+        try {
+            telephonyClass = Class.forName(telephony.getClass().getName());
+            method = telephonyClass.getDeclaredMethod("getITelephony");
+            method.setAccessible(true);
+            Object iTelephony = null;
+            iTelephony = method.invoke(telephony);
+            endCall = iTelephony.getClass().getDeclaredMethod("endCall");
+            endCall.invoke(iTelephony);
+        } 
+        catch(Exception e) {
+            Log.d(LOG_TAG, "Failed ending call");
+            e.printStackTrace();
+        }
     }
 
     public void sendSmsNotification(String number, String message) {
@@ -517,6 +545,15 @@ public class OpenFitService extends Service {
             String sender = intent.getStringExtra("sender");
             Log.d(LOG_TAG, "Recieved PHONE: "+sender);
             sendDialerNotification(sender);
+        }
+    };
+
+    private BroadcastReceiver phoneIdleReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String sender = intent.getStringExtra("sender");
+            Log.d(LOG_TAG, "Recieved Idle: "+sender);
+            sendDialerEndNotification();
         }
     };
 

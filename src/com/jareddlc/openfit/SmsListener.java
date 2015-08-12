@@ -25,6 +25,7 @@ public class SmsListener extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context cntxt, Intent intent) {
+        Log.d(LOG_TAG, "SMS: Intent received");
         Bundle bundle = intent.getExtras();
         if(bundle != null) {
             try {

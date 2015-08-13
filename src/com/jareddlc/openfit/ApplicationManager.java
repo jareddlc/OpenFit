@@ -30,6 +30,7 @@ public class ApplicationManager {
     ArrayList<String> listeningListPackageNames = new ArrayList<String>();
 
     public ApplicationManager() {
+        Log.d(LOG_TAG, "Creating ApplicationManager");
     }
 
     public ListAdapter getListeningAdapter(Context context) {

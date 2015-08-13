@@ -561,9 +561,8 @@ public class OpenFitService extends Service {
         @Override
         public void onReceive(Context context, Intent intent) {
             String artist = MediaController.getArtist(intent);
-            String album = MediaController.getAlbum(intent);
+            //String album = MediaController.getAlbum(intent);
             String track = MediaController.getTrack(intent);
-            Log.d(LOG_TAG, artist + ":" + album + ":" + track);
             String mediaTrack = artist + " - " + track;
             Log.d(LOG_TAG, "sending: " + mediaTrack);
             sendMediaTrack(mediaTrack);

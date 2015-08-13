@@ -82,6 +82,9 @@ public class OpenFitActivity extends Activity {
             Log.d(LOG_TAG, "adding preferences from resource");
             this.addPreferencesFromResource(R.xml.preferences);
 
+            // load saved preferences
+            oPrefs = new OpenFitSavedPreferences(getActivity());
+
             // setup UI
             this.setupUIListeners();
 
@@ -95,9 +98,6 @@ public class OpenFitActivity extends Activity {
             this.getActivity().registerReceiver(bluetoothUIReceiver, new IntentFilter("bluetoothUI"));
             this.getActivity().registerReceiver(stopServiceReceiver, new IntentFilter("stopOpenFitService"));
             this.getActivity().registerReceiver(notificationServiceReceiver, new IntentFilter("NotificationService"));
-
-            // load saved preferences
-            oPrefs = new OpenFitSavedPreferences(getActivity());
         }
 
         @Override
@@ -105,6 +105,7 @@ public class OpenFitActivity extends Activity {
             Log.d(LOG_TAG, "onResume");
             this.clearListeningApps(oPrefs);
             this.restorePreferences(oPrefs);
+            //this.restoreListeningApps(oPrefs);
             super.onResume();
         }
 
@@ -161,6 +162,7 @@ public class OpenFitActivity extends Activity {
                     return true;
                 }
             });
+            preference_list_devices.setEnabled(false);
 
             preference_checkbox_connect = (CheckBoxPreference) getPreferenceManager().findPreference("preference_checkbox_connect");
             preference_checkbox_connect.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
@@ -285,9 +287,9 @@ public class OpenFitActivity extends Activity {
                 }
                 if(message.equals("bluetoothDevicesList")) {
                     Log.d(LOG_TAG, "Bluetooth device list");
-                    Toast.makeText(getActivity(), "Device list updated", Toast.LENGTH_SHORT).show();
                     preference_list_devices.setEntries(intent.getCharSequenceArrayExtra("bluetoothEntries"));
                     preference_list_devices.setEntryValues(intent.getCharSequenceArrayExtra("bluetoothEntryValues"));
+                    preference_list_devices.setEnabled(true);
                 }
             }
         }

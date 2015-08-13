@@ -39,6 +39,7 @@ public class OpenFitSavedPreferences {
         preference_checkbox_phone = preferences.getBoolean("preference_checkbox_phone", PREFS_DEFAULT_BOOL);
         preference_checkbox_sms = preferences.getBoolean("preference_checkbox_sms", PREFS_DEFAULT_BOOL);
         preference_checkbox_time = preferences.getBoolean("preference_checkbox_time", PREFS_DEFAULT_BOOL);
+        set_packageNames = preferences.getStringSet("set_packageNames", set_packageNames);
     }
 
     public void saveBoolean(String key, boolean value) {

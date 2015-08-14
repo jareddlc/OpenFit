@@ -17,6 +17,7 @@ public class OpenFitData {
 
     public static byte DATA_TYPE_INCOMING_CALL = 0;
     public static byte DATA_TYPE_MISSCALL = 1;
+    public static byte DATA_TYPE_CALL_ENDED = 2;
     public static byte DATA_TYPE_EMAIL = 3;
     public static byte DATA_TYPE_MESSAGE = 4;
     public static byte DATA_TYPE_ALARM = 5;
@@ -31,33 +32,23 @@ public class OpenFitData {
     public static byte DATA_TYPE_CMAS = 35;
     public static byte DATA_TYPE_EAS = 36;
     public static byte DATA_TYPE_RESERVED = 49;
+    public static byte DATA_TYPE_MEDIATRACK = 2;
 
-    // Status Data Type
-    public static final byte ALL_INFO = 2;
-    public static final byte AUTO_LOCK = 3;
-    public static final byte BATTERY_STATUS = 11;
-    public static final byte CLOCK_TYPE_ORDER = 16;
-    public static final byte DISPLAY_TYPE = 24;
-    public static final byte DOUBLE_PRESS_LAUNCH_APP_TYPE = 21;
-    public static final byte FONT_SIZE = 9;
-    public static final byte FOTA = 14;
-    public static final byte HOME_BG_COLOR = 7;
-    public static final byte HOME_BG_GALLERY = 15;
-    public static final byte HOME_BG_WALLPAPER = 8;
-    public static final byte HOME_LAYOUT_ORDER = 18;
-    public static final byte LANGUAGE = 10;
-    public static final byte LANGUAGE_RESOURCE = 20;
-    public static final byte LANGUAGE_RESOURCE_REQUEST = 19;
-    public static final byte OPEN_SOURCE_GUIDE_TYPE = 22;
-    public static final byte REQUEST_ALL_INFO = 1;
-    public static final byte SCREEN_TIMEOUT = 6;
-    public static final byte SHAKE_TO_CONTROL = 17;
-    public static final byte SMART_RELAY = 4;
-    public static final byte SMART_RELAY_CURRENT_DISPLAY = 12;
-    public static final byte SOS = 13;
-    public static final byte WAKEUP_BY_GESTURE = 5;
-    public static final byte WINGTIP_DEVICE_INFO = 23;
-    public static final byte WINGTIP_VERSION = 0;
+    // Media Controller
+    public static final byte FORWARD = 4;
+    public static final byte FORWARD_RELEASE = 6;
+    public static final byte OPEN = 0;
+    public static final byte PAUSE = 2;
+    public static final byte PLAY = 1;
+    public static final byte REWIND = 5;
+    public static final byte REWIND_RELEASE = 7;
+    public static final byte STOP = 3;
+
+    public static final byte CONTROL = 0;
+    public static final byte INFO = 2;
+    public static final byte REQUEST_START = 3;
+    public static final byte REQUEST_STOP = 4;
+    public static final byte VOLUME = 1;
 
     // Weather
     /*WEATHER_TYPE_CLEAR = new EWeatherType("WEATHER_TYPE_CLEAR", 0);
@@ -84,6 +75,11 @@ public class OpenFitData {
     WEATHER_TYPE_WINDY = new EWeatherType("WEATHER_TYPE_WINDY", 21);
     WEATHER_TYPE_RESERVED = new EWeatherType("WEATHER_TYPE_RESERVED", 22);*/
 
+    // Battery
+    public static final byte CHARGING_AC = 2;
+    public static final byte CHARGING_USB = 1;
+    //public static final byte DISCHARGE;
+
     // Unknown Data Type
     public static final byte OPENFIT_DATA = 100;
 
@@ -98,40 +94,7 @@ public class OpenFitData {
     public static final int SIZE_OF_LONG = 8;
     public static final int SIZE_OF_SHORT = 2;
 
-    // Font Type
-    public static final byte TYPE_FONT_LARGE = 2;
-    public static final byte TYPE_FONT_NORMAL = 1;
-    public static final byte TYPE_FONT_SMALL = 0;
-
-    // HOME BG Type
-    public static final int TYPE_HOME_BG_TY_COLOR = 0;
-    public static final int TYPE_HOME_BG_IMAGE = 2;
-    public static final int TYPE_HOME_BG_WALLPAPER = 1;
-
-    // Unknown Data
-    public static final int DISCONNECTED_BY_ACL_DISCONNECTED = 2;
-    public static final int DISCONNECTED_BY_SOCKET_CLOSED = 1;
-    public static final int DISCONNECTED_BY_TIMEOUT = 3;
-
-    public static final int MSG_ID_CONNECTED = 2;
-    public static final int MSG_ID_DATA_RECEIVED = 5;
-    public static final int MSG_ID_DISCONNECTED = 3;
-    public static final int MSG_ID_ETC_DATA_RECEIVED = 6;
-
-    public static final byte LAUNCHER_APP_TYPE_CLOCK = 1;
-    public static final byte LAUNCHER_APP_TYPE_CUIP = 0;
-    public static final byte LAUNCHER_APP_TYPE_EXERCISE = 6;
-    public static final byte LAUNCHER_APP_TYPE_FIND_MY_DEIVCE = 4;
-    public static final byte LAUNCHER_APP_TYPE_HEARTRATE = 7;
-    public static final byte LAUNCHER_APP_TYPE_MAX = 12;
-    public static final byte LAUNCHER_APP_TYPE_MEDIA_CONTROLLER = 3;
-    public static final byte LAUNCHER_APP_TYPE_NOTIFICATIONS = 2;
-    public static final byte LAUNCHER_APP_TYPE_PEDOMETER = 5;
-    public static final byte LAUNCHER_APP_TYPE_SETTINGS = 10;
-    public static final byte LAUNCHER_APP_TYPE_SLEEP = 11;
-    public static final byte LAUNCHER_APP_TYPE_STOP_WATCH = 9;
-    public static final byte LAUNCHER_APP_TYPE_TIMER = 8;
-
+    // Protocol specific
     public static final byte TEXT_DATE_FORMAT_TYPE = 1; // 0,1,2
     public static final byte NUMBER_DATE_FORMAT_TYPE = 2; // 0,1,2
     public static final boolean IS_TIME_DISPLAY_24 = false; // 0,1

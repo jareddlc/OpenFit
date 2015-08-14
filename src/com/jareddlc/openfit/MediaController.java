@@ -89,6 +89,30 @@ public class MediaController {
         i.putExtra(Intent.EXTRA_KEY_EVENT, new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE));
         return i;
     }
+
+    public static Intent increaseVolumeDown() {
+        Intent i = new Intent(Intent.ACTION_MEDIA_BUTTON);
+        i.putExtra(Intent.EXTRA_KEY_EVENT, new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_VOLUME_UP));
+        return i;
+    }
+
+    public static Intent increaseVolumeUp() {
+        Intent i = new Intent(Intent.ACTION_MEDIA_BUTTON);
+        i.putExtra(Intent.EXTRA_KEY_EVENT, new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_VOLUME_UP));
+        return i;
+    }
+    
+    public static Intent decreaseVolumeDown() {
+        Intent i = new Intent(Intent.ACTION_MEDIA_BUTTON);
+        i.putExtra(Intent.EXTRA_KEY_EVENT, new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_VOLUME_DOWN));
+        return i;
+    }
+
+    public static Intent decreaseVolumeUp() {
+        Intent i = new Intent(Intent.ACTION_MEDIA_BUTTON);
+        i.putExtra(Intent.EXTRA_KEY_EVENT, new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_VOLUME_DOWN));
+        return i;
+    }
 }
 
 /*

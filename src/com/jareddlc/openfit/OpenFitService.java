@@ -211,7 +211,7 @@ public class OpenFitService extends Service {
     }
 
     public void handleBluetoothMessage(String message, Intent intent) {
-        if(message != null && !message.isEmpty()) {
+        if(message != null && !message.isEmpty() && bluetoothLeService != null) {
             if(message.equals("enable")) {
                 bluetoothLeService.enableBluetooth();
             }
@@ -272,8 +272,14 @@ public class OpenFitService extends Service {
         if(Arrays.equals(data, OpenFitApi.getMediaPlay())) {
             sendMediaPlay();
         }
-        if(Arrays.equals(data, OpenFitApi.getMediaVolume())) {
-            Log.d(LOG_TAG, "volume pressed");
+        if(OpenFitApi.byteArrayToHexString(data).contains(OpenFitApi.byteArrayToHexString(OpenFitApi.getMediaVolume()))) {
+            byte vol = data[data.length - 1];
+            sendMediaVolume(vol);
+        }
+        if(Arrays.equals(data, OpenFitApi.getMediaReqStart())) {
+            sendMediaRes();
+        }
+        if(Arrays.equals(data, OpenFitApi.getMediaReqStop())) {
         }
         if(OpenFitApi.byteArrayToHexString(data).contains(OpenFitApi.byteArrayToHexString(OpenFitApi.getOpenRejectCall()))) {
             endCall();
@@ -374,6 +380,18 @@ public class OpenFitService extends Service {
         sendOrderedBroadcast(MediaController.playTrackUp(), null);
     }
 
+    public void sendMediaVolume(byte vol) {
+        Log.d(LOG_TAG, "Media Volume: " + vol);
+        byte[] bytes = OpenFitApi.getMediaSetVolume(vol);
+        bluetoothLeService.write(bytes);
+    }
+
+    public void sendMediaRes() {
+        Log.d(LOG_TAG, "Media Response");
+        byte[] bytes = OpenFitApi.getMediaResStart();
+        bluetoothLeService.write(bytes);
+    }
+
     public void sendAppNotification(String packageName, String sender, String title, String message, int id) {
         long idTimestamp = (long)(System.currentTimeMillis() / 1000L);
         byte[] bytes = OpenFitApi.getOpenNotification(packageName, sender, title, message, idTimestamp);
@@ -467,7 +485,9 @@ public class OpenFitService extends Service {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d(LOG_TAG, "Stopping Service");
+            reconnecting = false;
             clearNotification();
+            reconnectBluetoothStop();
             unregisterReceiver(bluetoothReceiver);
             unregisterReceiver(notificationReceiver);
             unregisterReceiver(smsReceiver);
@@ -483,7 +503,6 @@ public class OpenFitService extends Service {
                 telephony.listen(dailerListener, PhoneStateListener.LISTEN_NONE);
                 dailerListener.destroy();
             }
-            reconnectBluetoothStop();
             stopSelf();
         }
     };

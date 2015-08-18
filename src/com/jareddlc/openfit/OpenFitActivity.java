@@ -141,13 +141,6 @@ public class OpenFitActivity extends Activity {
             });
 
             preference_list_devices = (ListPreference) getPreferenceManager().findPreference("preference_list_devices");
-            /*preference_list_devices.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                @Override
-                public boolean onPreferenceClick(Preference preference) {
-                    sendIntent("bluetooth", "setEntries");
-                    return true;
-                }
-            });*/
             preference_list_devices.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
@@ -162,7 +155,6 @@ public class OpenFitActivity extends Activity {
                     return true;
                 }
             });
-            //preference_list_devices.setEnabled(false);
 
             preference_checkbox_connect = (CheckBoxPreference) getPreferenceManager().findPreference("preference_checkbox_connect");
             preference_checkbox_connect.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
@@ -282,7 +274,6 @@ public class OpenFitActivity extends Activity {
                     Log.d(LOG_TAG, "Bluetooth scanning done");
                     preference_list_devices.setEnabled(true);
                     preference_scan.setSummary(R.string.preference_scan_summary);
-                    //sendIntent("bluetooth", "setEntries");
                     Toast.makeText(getActivity(), "Scanning complete. Please select device", Toast.LENGTH_SHORT).show();
                 }
                 if(message.equals("bluetoothDevicesList")) {
@@ -307,7 +298,6 @@ public class OpenFitActivity extends Activity {
                     else {
                         Toast.makeText(getActivity(), "Error setting devices list", Toast.LENGTH_SHORT).show();
                     }
-                    //preference_list_devices.setEnabled(true);
                 }
             }
         }

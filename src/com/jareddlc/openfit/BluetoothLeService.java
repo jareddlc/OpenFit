@@ -428,7 +428,7 @@ public class BluetoothLeService extends Service {
                         deviceName = "No Device Name";
                     }
                     if(deviceAddr == null) {
-                        deviceAddr = "xx-xx-xx-xx-xx-xx-xx-xx";
+                        deviceAddr = "00:00:00:00:00:00";
                     }
                     entries.add(deviceName);
                     values.add(deviceAddr);

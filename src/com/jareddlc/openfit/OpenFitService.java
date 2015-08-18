@@ -101,9 +101,11 @@ public class OpenFitService extends Service {
 
     public void reconnectBluetoothService() {
         Log.d(LOG_TAG, "starting reconnect thread");
-        reconnecting = true;
-        reconnectThread = new ReconnectBluetoothThread();
-        reconnectThread.start();
+        if(isReconnect) {
+            reconnectThread = new ReconnectBluetoothThread();
+            reconnectThread.start();
+            reconnecting = true;
+        }
     }
 
     public void reconnectBluetoothStop() {
@@ -112,6 +114,7 @@ public class OpenFitService extends Service {
         if(reconnectThread != null) {
             reconnectThread.close();
             reconnectThread = null;
+            Log.d(LOG_TAG, "stopped reconnect thread");
         }
     }
 
@@ -496,8 +499,7 @@ public class OpenFitService extends Service {
         public void onReceive(Context context, Intent intent) {
             Log.d(LOG_TAG, "Stopping Service");
             reconnecting = false;
-            clearNotification();
-            reconnectBluetoothStop();
+            isReconnect = false;
             unregisterReceiver(bluetoothReceiver);
             unregisterReceiver(notificationReceiver);
             unregisterReceiver(smsReceiver);
@@ -515,6 +517,8 @@ public class OpenFitService extends Service {
                 telephony.listen(dailerListener, PhoneStateListener.LISTEN_NONE);
                 dailerListener.destroy();
             }
+            clearNotification();
+            reconnectBluetoothStop();
             stopSelf();
         }
     };

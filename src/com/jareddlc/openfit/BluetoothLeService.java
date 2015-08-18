@@ -422,17 +422,33 @@ public class BluetoothLeService extends Service {
                 // loop through paired devices
                 for(BluetoothDevice device : pairedDevices) {
                     Log.d(LOG_TAG, "Paired Device: "+device.getName()+":"+device.getAddress());
-                    entries.add(device.getName());
-                    values.add(device.getAddress());
+                    String deviceName = device.getName();
+                    String deviceAddr = device.getAddress();
+                    if(deviceName == null) {
+                        deviceName = "No Device Name";
+                    }
+                    if(deviceAddr == null) {
+                        deviceAddr = "xx-xx-xx-xx-xx-xx-xx-xx";
+                    }
+                    entries.add(deviceName);
+                    values.add(deviceAddr);
                 }
                 // loop trough scanned devices
                 if(scannedDevices.size() > 0) {
                     for(BluetoothDevice device : scannedDevices) {
                         // make sure we dont add duplicates
                         if(!entries.contains(device.getName())) {
-                            Log.d(LOG_TAG, "Scanned Device: "+device.getName()+":"+device.getAddress());
-                            entries.add(device.getName());
-                            values.add(device.getAddress());
+                            String deviceName = device.getName();
+                            String deviceAddr = device.getAddress();
+                            if(deviceName == null) {
+                                deviceName = "No Device Name";
+                            }
+                            if(deviceAddr == null) {
+                                deviceAddr = "00:00:00:00:00:00";
+                            }
+                            Log.d(LOG_TAG, "Scanned Device: "+deviceName+":"+deviceAddr);
+                            entries.add(deviceName);
+                            values.add(deviceAddr);
                         }
                     }
                 }

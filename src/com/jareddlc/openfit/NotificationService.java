@@ -38,6 +38,7 @@ public class NotificationService extends NotificationListenerService {
         String submessage = null;
         String summary = null;
         String info = null;
+        String title = null;
         try {
             ticker = (String) sbn.getNotification().tickerText;
         }
@@ -52,17 +53,20 @@ public class NotificationService extends NotificationListenerService {
         Notification notification = sbn.getNotification();
         Bundle extras = notification.extras;
         //String category = notification.category; API v21
-        String title = extras.getString("android.title");
-        if(extras.getCharSequence("android.text") != null) {  
-            message = extras.getCharSequence("android.text").toString(); 
+
+        if(extras.getCharSequence("android.title") != null) {
+            title = extras.getString("android.title");
         }
-        if(extras.getCharSequence("android.subText") != null) {  
+        if(extras.getCharSequence("android.text") != null) {
+            message = extras.getCharSequence("android.text").toString();
+        }
+        if(extras.getCharSequence("android.subText") != null) {
             submessage = extras.getCharSequence("android.subText").toString();
         }
-        if(extras.getCharSequence("android.summaryText") != null) {  
+        if(extras.getCharSequence("android.summaryText") != null) {
             summary = extras.getCharSequence("android.summaryText").toString();
         }
-        if(extras.getCharSequence("android.infoText") != null) {  
+        if(extras.getCharSequence("android.infoText") != null) {
             info = extras.getCharSequence("android.infoText").toString();
         }
 

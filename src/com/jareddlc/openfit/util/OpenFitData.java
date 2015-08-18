@@ -34,6 +34,37 @@ public class OpenFitData {
     public static byte DATA_TYPE_RESERVED = 49;
     public static byte DATA_TYPE_MEDIATRACK = 2;
 
+    public static byte NOTIFICATION_TYPE_INCOMING_CALL = 0;
+    public static byte NOTIFICATION_TYPE_MISSED_CALL = 1;
+    public static byte NOTIFICATION_TYPE_EMAIL = 2;
+    public static byte NOTIFICATION_TYPE_MESSAGE = 3;
+    public static byte NOTIFICATION_TYPE_ALARM = 4;
+    public static byte NOTIFICATION_TYPE_SPLANNER = 5;
+    public static byte NOTIFICATION_TYPE_WEATHER = 6;
+    public static byte NOTIFICATION_TYPE_DOSAGE = 7;
+    public static byte NOTIFICATION_TYPE_CHATON = 8;
+    public static byte NOTIFICATION_TYPE_MYSINGLE = 9;
+    public static byte NOTIFICATION_TYPE_BABY_CRYING_DETECTOR = 10;
+    public static byte NOTIFICATION_TYPE_VOICE_MAIL = 11;
+    public static byte NOTIFICATION_TYPE_GENERAL = 12;
+    public static byte NOTIFICATION_ENABLED = 13;
+    public static byte NOTIFICATION_TYPE_WATERINTAKE = 14;
+    public static byte NOTIFICATION_OTHER_APP = 15;
+    public static byte NOTIFICATION_LIMIT = 16;
+    public static byte NOTIFICATION_PREVIEWMESSAGE = 17;
+    public static byte NOTIFICATION_SCREENOFF = 18;
+    public static byte NOTIFICATION_MORE_NOTIFICATION = 19;
+    public static byte NOTIFICATION_TYPE_Docomo_Mailer = 20;
+    public static byte NOTIFICATION_TYPE_AreaMail = 21;
+    public static byte NOTIFICATION_TYPE_auEmail = 22;
+    public static byte NOTIFICATION_TYPE_auSMS = 23;
+    public static byte NOTIFICATION_TYPE_auDisaster = 24;
+    public static byte NOTIFICATION_TYPE_Disaster_App = 25;
+    public static byte NOTIFICATION_INIT_MODE = 26;
+    public static byte NOTIFICATION_TYPE_RESERVED = 27;
+    public static byte NOTIFICATION_TYPE_SMARTRELAY = 28;
+    public static byte NOTIFICATION_TYPE_VZW_CMAS = 29;
+
     // Media Controller
     public static final byte FORWARD = 4;
     public static final byte FORWARD_RELEASE = 6;

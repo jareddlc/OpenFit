@@ -66,6 +66,7 @@ public class OpenFitService extends Service {
         this.registerReceiver(mmsReceiver, new IntentFilter("mms"));
         this.registerReceiver(phoneReceiver, new IntentFilter("phone"));
         this.registerReceiver(phoneIdleReceiver, new IntentFilter("phone:idle"));
+        this.registerReceiver(phoneOffhookReceiver, new IntentFilter("phone:offhook"));
         this.registerReceiver(mediaReceiver, MediaController.getIntentFilter());
 
         pManager = this.getPackageManager();
@@ -281,6 +282,9 @@ public class OpenFitService extends Service {
         }
         if(Arrays.equals(data, OpenFitApi.getMediaReqStop())) {
         }
+        if(Arrays.equals(data, OpenFitApi.getFitnessSyncRes())) {
+            sendFitnessHeartBeat();
+        }
         if(OpenFitApi.byteArrayToHexString(data).contains(OpenFitApi.byteArrayToHexString(OpenFitApi.getOpenRejectCall()))) {
             endCall();
         }
@@ -352,6 +356,12 @@ public class OpenFitService extends Service {
 
     public void sendTime(boolean is24Hour) {
         byte[] bytes = OpenFitApi.getCurrentTimeInfo(is24Hour);
+        bluetoothLeService.write(bytes);
+    }
+
+    public void sendFitnessHeartBeat() {
+        Log.d(LOG_TAG, "sendFitnessHeartBeat");
+        byte[] bytes = OpenFitApi.getFitnessHeartBeat();
         bluetoothLeService.write(bytes);
     }
 
@@ -493,6 +503,8 @@ public class OpenFitService extends Service {
             unregisterReceiver(smsReceiver);
             unregisterReceiver(mmsReceiver);
             unregisterReceiver(phoneReceiver);
+            unregisterReceiver(phoneIdleReceiver);
+            unregisterReceiver(phoneOffhookReceiver);
             unregisterReceiver(mediaReceiver);
             unbindService(mServiceConnection);
             if(smsEnabled) {
@@ -572,6 +584,15 @@ public class OpenFitService extends Service {
         public void onReceive(Context context, Intent intent) {
             String sender = intent.getStringExtra("sender");
             Log.d(LOG_TAG, "Recieved Idle: "+sender);
+            sendDialerEndNotification();
+        }
+    };
+
+    private BroadcastReceiver phoneOffhookReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String sender = intent.getStringExtra("sender");
+            Log.d(LOG_TAG, "Recieved Offhook: "+sender);
             sendDialerEndNotification();
         }
     };

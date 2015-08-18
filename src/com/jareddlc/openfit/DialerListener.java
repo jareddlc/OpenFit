@@ -25,12 +25,15 @@ public class DialerListener extends PhoneStateListener {
         switch(state) {
             case TelephonyManager.CALL_STATE_IDLE:
                 Log.d(LOG_TAG, "Phone: Idle - "+incomingNumber);
-                Intent msgs = new Intent("phone:idle");
-                msgs.putExtra("sender", incomingNumber);
-                context.sendBroadcast(msgs);
+                Intent msgi = new Intent("phone:idle");
+                msgi.putExtra("sender", incomingNumber);
+                context.sendBroadcast(msgi);
                 break;
             case TelephonyManager.CALL_STATE_OFFHOOK:
                 Log.d(LOG_TAG, "Phone: Offhook - "+incomingNumber);
+                Intent msgo = new Intent("phone:offhook");
+                msgo.putExtra("sender", incomingNumber);
+                context.sendBroadcast(msgo);
                 break;
             case TelephonyManager.CALL_STATE_RINGING:
                 Log.d(LOG_TAG, "Phone: Ringing - "+incomingNumber);

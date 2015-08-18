@@ -77,7 +77,7 @@ public class OpenFitActivity extends Activity {
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            
+
             // Load the preferences from an XML resource
             Log.d(LOG_TAG, "adding preferences from resource");
             this.addPreferencesFromResource(R.xml.preferences);
@@ -104,8 +104,8 @@ public class OpenFitActivity extends Activity {
         public void onResume() {
             Log.d(LOG_TAG, "onResume");
             this.clearListeningApps(oPrefs);
-            this.restorePreferences(oPrefs);
-            //this.restoreListeningApps(oPrefs);
+            //this.restorePreferences(oPrefs);
+            this.restoreListeningApps(oPrefs);
             super.onResume();
         }
 
@@ -141,13 +141,13 @@ public class OpenFitActivity extends Activity {
             });
 
             preference_list_devices = (ListPreference) getPreferenceManager().findPreference("preference_list_devices");
-            preference_list_devices.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            /*preference_list_devices.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
                     sendIntent("bluetooth", "setEntries");
                     return true;
                 }
-            });
+            });*/
             preference_list_devices.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
@@ -162,7 +162,7 @@ public class OpenFitActivity extends Activity {
                     return true;
                 }
             });
-            preference_list_devices.setEnabled(false);
+            //preference_list_devices.setEnabled(false);
 
             preference_checkbox_connect = (CheckBoxPreference) getPreferenceManager().findPreference("preference_checkbox_connect");
             preference_checkbox_connect.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
@@ -251,45 +251,63 @@ public class OpenFitActivity extends Activity {
                 }
                 if(message.equals("isConnected")) {
                     Log.d(LOG_TAG, "Bluetooth Connected");
-                    Toast.makeText(getActivity(), "Bluetooth Connected", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), "Gear Fit Connected", Toast.LENGTH_SHORT).show();
                     preference_checkbox_connect.setChecked(true);
                 }
                 if(message.equals("isDisconnected")) {
                     Log.d(LOG_TAG, "Bluetooth Disconnected");
-                    Toast.makeText(getActivity(), "Bluetooth Disconnected", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), "Gear Fit Disconnected", Toast.LENGTH_SHORT).show();
                     preference_checkbox_connect.setChecked(false);
                 }
                 if(message.equals("isConnectedFailed")) {
                     Log.d(LOG_TAG, "Bluetooth Connected Failed");
-                    Toast.makeText(getActivity(), "Bluetooth Connected failed", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), "Gear Fit Connected failed", Toast.LENGTH_SHORT).show();
                     preference_checkbox_connect.setChecked(false);
                 }
                 if(message.equals("isConnectedRfcomm")) {
                     Log.d(LOG_TAG, "Bluetooth RFcomm Connected");
-                    Toast.makeText(getActivity(), "Bluetooth Connected", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), "Gear Fit Connected", Toast.LENGTH_SHORT).show();
                     preference_checkbox_connect.setChecked(true);
                 }
                 if(message.equals("isDisconnectedRfComm")) {
                     Log.d(LOG_TAG, "Bluetooth Disconnected");
-                    Toast.makeText(getActivity(), "Bluetooth Disconnected", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), "Gear Fit Disconnected", Toast.LENGTH_SHORT).show();
                     preference_checkbox_connect.setChecked(false);
                 }
                 if(message.equals("isConnectedRfcommFailed")) {
                     Log.d(LOG_TAG, "Bluetooth RFcomm Failed");
-                    Toast.makeText(getActivity(), "Bluetooth Rfcomm Failed", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), "Gear Fit Rfcomm Failed", Toast.LENGTH_SHORT).show();
                 }
                 if(message.equals("scanStopped")) {
                     Log.d(LOG_TAG, "Bluetooth scanning done");
                     preference_list_devices.setEnabled(true);
                     preference_scan.setSummary(R.string.preference_scan_summary);
-                    sendIntent("bluetooth", "setEntries");
+                    //sendIntent("bluetooth", "setEntries");
                     Toast.makeText(getActivity(), "Scanning complete. Please select device", Toast.LENGTH_SHORT).show();
                 }
                 if(message.equals("bluetoothDevicesList")) {
                     Log.d(LOG_TAG, "Bluetooth device list");
-                    preference_list_devices.setEntries(intent.getCharSequenceArrayExtra("bluetoothEntries"));
-                    preference_list_devices.setEntryValues(intent.getCharSequenceArrayExtra("bluetoothEntryValues"));
-                    preference_list_devices.setEnabled(true);
+                    CharSequence[] entries = intent.getCharSequenceArrayExtra("bluetoothEntries");
+                    CharSequence[] entryValues = intent.getCharSequenceArrayExtra("bluetoothEntryValues");
+
+                    /*for(int i = 0; i < entries.length; i++) {
+                        Toast.makeText(getActivity(), "Entries "+i+": " +entries[i], Toast.LENGTH_SHORT).show();
+                        Log.d(LOG_TAG, "entries" + entries[i]);
+                    }
+                    for(int i = 0; i < entryValues.length; i++) {
+                        Toast.makeText(getActivity(), "Values "+i+": " +entryValues[i], Toast.LENGTH_SHORT).show();
+                        Log.d(LOG_TAG, "entryValues" + entryValues[i]);
+                    }*/
+
+
+                    if(entries != null && entryValues != null) {
+                        preference_list_devices.setEntries(entries);
+                        preference_list_devices.setEntryValues(entryValues);
+                    }
+                    else {
+                        Toast.makeText(getActivity(), "Error setting devices list", Toast.LENGTH_SHORT).show();
+                    }
+                    //preference_list_devices.setEnabled(true);
                 }
             }
         }
@@ -327,7 +345,7 @@ public class OpenFitActivity extends Activity {
         }
 
         public void restoreDevicesList(OpenFitSavedPreferences oPrefs) {
-            Log.d(LOG_TAG, "Resotoring devices list");
+            Log.d(LOG_TAG, "Resotoring devices list: " + oPrefs.preference_list_devices_value);
             if(oPrefs.preference_list_devices_value != "DEFAULT") {
                 String mDeviceAddress = oPrefs.preference_list_devices_value;
                 String mDeviceName = oPrefs.preference_list_devices_entry;

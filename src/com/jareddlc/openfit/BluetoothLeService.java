@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-import android.annotation.SuppressLint;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -24,8 +23,6 @@ import android.bluetooth.BluetoothProfile;
 import android.bluetooth.BluetoothAdapter.LeScanCallback;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
-import android.bluetooth.le.ScanCallback;
-import android.bluetooth.le.ScanResult;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
@@ -491,7 +488,6 @@ public class BluetoothLeService extends Service {
         }
     }
 
-    @SuppressLint("NewApi")
     @SuppressWarnings("deprecation")
     public void scanLeDevice() {
         Log.d(LOG_TAG, "scanLeDevice");
@@ -595,8 +591,7 @@ public class BluetoothLeService extends Service {
         }
     };
 
-    @SuppressLint("NewApi")
-    private ScanCallback mScanCallback = new ScanCallback() {
+    /*private ScanCallback mScanCallback = new ScanCallback() {
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
             BluetoothDevice device = result.getDevice();
@@ -611,7 +606,7 @@ public class BluetoothLeService extends Service {
             }
             Log.d(LOG_TAG, device.getName()+" : "+device.getAddress()+" : "+device.getType()+" : "+device.getBondState());
         }
-    };
+    };*/
 
     private class EnableBluetoothThread extends Thread {
         public void run() {

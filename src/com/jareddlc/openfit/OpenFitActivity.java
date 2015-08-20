@@ -104,8 +104,8 @@ public class OpenFitActivity extends Activity {
         public void onResume() {
             Log.d(LOG_TAG, "onResume");
             this.clearListeningApps(oPrefs);
-            //this.restorePreferences(oPrefs);
-            this.restoreListeningApps(oPrefs);
+            this.restorePreferences(oPrefs);
+            //this.restoreListeningApps(oPrefs);
             super.onResume();
         }
 
@@ -161,6 +161,9 @@ public class OpenFitActivity extends Activity {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
                     if((Boolean)newValue) {
+                        //String mDeviceAddress = oPrefs.preference_list_devices_value;
+                        String mDeviceName = oPrefs.preference_list_devices_entry;
+                        Toast.makeText(getActivity(), "Attempting to connect to: "+mDeviceName, Toast.LENGTH_SHORT).show();
                         sendIntent("bluetooth", "connect");
                         return false;
                     }
@@ -328,6 +331,13 @@ public class OpenFitActivity extends Activity {
             return app;
         }
 
+        public Preference createPlaceHolderPreference() {
+            Preference ph = new Preference(getActivity());
+            ph.setSummary("No applications added. Click the + icon at the top menu to add an application");
+            ph.setKey("preference_apps_placeholder");
+            return ph;
+        }
+
         public void restorePreferences(OpenFitSavedPreferences oPrefs) {
             this.restoreDevicesList(oPrefs);
             this.restoreListeningApps(oPrefs);
@@ -350,6 +360,10 @@ public class OpenFitActivity extends Activity {
             Log.d(LOG_TAG, "Restoring listening apps");
             PreferenceCategory category = (PreferenceCategory) findPreference("preference_category_apps");
             Set<String> listeningPackageNames = oPrefs.getSet();
+            if(listeningPackageNames.size() <= 0) {
+                Preference placeholder = createPlaceHolderPreference();
+                category.addPreference(placeholder);
+            }
             for(String packageName : listeningPackageNames) {
                 boolean value = oPrefs.getBoolean(packageName);
                 String appName = oPrefs.getString(packageName);
@@ -425,6 +439,10 @@ public class OpenFitActivity extends Activity {
                 oPrefs.saveString(packageName, appName);
                 CheckBoxPreference app = createAppPreference(packageName, appName, true);
                 PreferenceCategory category = (PreferenceCategory) findPreference("preference_category_apps");
+                Preference placeholder = category.findPreference("preference_apps_placeholder");
+                if(placeholder != null) {
+                    category.removePreference(placeholder);
+                }
                 category.addPreference(app);
                 sendIntentListeningApps();
             }

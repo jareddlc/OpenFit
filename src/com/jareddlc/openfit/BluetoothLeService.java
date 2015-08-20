@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import android.annotation.SuppressLint;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -23,6 +24,8 @@ import android.bluetooth.BluetoothProfile;
 import android.bluetooth.BluetoothAdapter.LeScanCallback;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
+import android.bluetooth.le.ScanCallback;
+import android.bluetooth.le.ScanResult;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
@@ -421,17 +424,14 @@ public class BluetoothLeService extends Service {
                 List<CharSequence> values = new ArrayList<CharSequence>();
                 // loop through paired devices
                 for(BluetoothDevice device : pairedDevices) {
-                    Log.d(LOG_TAG, "Paired Device: "+device.getName()+":"+device.getAddress());
                     String deviceName = device.getName();
                     String deviceAddr = device.getAddress();
-                    if(deviceName == null) {
-                        deviceName = "No Device Name";
+                    Log.d(LOG_TAG, "Paired Device: "+deviceName+":"+deviceAddr);
+                    
+                    if(deviceName != null && !deviceName.isEmpty() && deviceAddr != null && !deviceAddr.isEmpty()) {
+                        entries.add(deviceName);
+                        values.add(deviceAddr);
                     }
-                    if(deviceAddr == null) {
-                        deviceAddr = "00:00:00:00:00:00";
-                    }
-                    entries.add(deviceName);
-                    values.add(deviceAddr);
                 }
                 // loop trough scanned devices
                 if(scannedDevices.size() > 0) {
@@ -440,15 +440,11 @@ public class BluetoothLeService extends Service {
                         if(!entries.contains(device.getName())) {
                             String deviceName = device.getName();
                             String deviceAddr = device.getAddress();
-                            if(deviceName == null) {
-                                deviceName = "No Device Name";
-                            }
-                            if(deviceAddr == null) {
-                                deviceAddr = "00:00:00:00:00:00";
-                            }
                             Log.d(LOG_TAG, "Scanned Device: "+deviceName+":"+deviceAddr);
-                            entries.add(deviceName);
-                            values.add(deviceAddr);
+                            if(deviceName != null && !deviceName.isEmpty() && deviceAddr != null && !deviceAddr.isEmpty()) {
+                                entries.add(deviceName);
+                                values.add(deviceAddr);
+                            }
                         }
                     }
                 }
@@ -495,18 +491,59 @@ public class BluetoothLeService extends Service {
         }
     }
 
+    @SuppressLint("NewApi")
     @SuppressWarnings("deprecation")
     public void scanLeDevice() {
         Log.d(LOG_TAG, "scanLeDevice");
         if(isEnabled) {
             if(mHandler != null) {
                 if(!isScanning) {
+                    /*if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+                        Log.d(LOG_TAG, "scanning with startLeScan");
+                        mHandler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                isScanning = false;
+                                mBluetoothAdapter.stopLeScan(mLeScanCallback);
+                                Message msg = mHandler.obtainMessage();
+                                Bundle b = new Bundle();
+                                b.putString("bluetooth", "scanStopped");
+                                msg.setData(b);
+                                mHandler.sendMessage(msg);
+                                setEntries();
+                            }
+                        }, SCAN_PERIOD);
+                        isScanning = true;
+                        mBluetoothAdapter.startLeScan(mLeScanCallback);
+                    }
+                    
+                    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        Log.d(LOG_TAG, "scanning with startScan");
+                        mHandler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                isScanning = false;
+                                BluetoothLeScanner mBluetoothLeScanner = mBluetoothAdapter.getBluetoothLeScanner();
+                                mBluetoothLeScanner.stopScan(mScanCallback);
+                                Message msg = mHandler.obtainMessage();
+                                Bundle b = new Bundle();
+                                b.putString("bluetooth", "scanStopped");
+                                msg.setData(b);
+                                mHandler.sendMessage(msg);
+                                setEntries();
+                            }
+                        }, SCAN_PERIOD);
+                        
+                        isScanning = true;
+                        BluetoothLeScanner mBluetoothLeScanner = mBluetoothAdapter.getBluetoothLeScanner();
+                        mBluetoothLeScanner.startScan(mScanCallback);
+                    }*/
                     // Stops scanning after a pre-defined scan period.
                     mHandler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
                             isScanning = false;
-                            mBluetoothAdapter.stopLeScan(mScanCallback);
+                            mBluetoothAdapter.stopLeScan(mLeScanCallback);
                             Message msg = mHandler.obtainMessage();
                             Bundle b = new Bundle();
                             b.putString("bluetooth", "scanStopped");
@@ -518,7 +555,7 @@ public class BluetoothLeService extends Service {
                     
                     Log.d(LOG_TAG, "scanLeDevice starting scan for: "+SCAN_PERIOD+"ms");
                     isScanning = true;
-                    mBluetoothAdapter.startLeScan(mScanCallback);
+                    mBluetoothAdapter.startLeScan(mLeScanCallback);
                 }
                 else {
                     Log.d(LOG_TAG, "scanLeDevice currently scanning");
@@ -543,7 +580,7 @@ public class BluetoothLeService extends Service {
         }
     }
 
-    private LeScanCallback mScanCallback = new LeScanCallback() {
+    private LeScanCallback mLeScanCallback = new LeScanCallback() {
         @Override
         public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
             if(scannedDevices.add(device)) {
@@ -555,6 +592,24 @@ public class BluetoothLeService extends Service {
                 mHandler.sendMessage(msg);
                 setEntries();
             }
+        }
+    };
+
+    @SuppressLint("NewApi")
+    private ScanCallback mScanCallback = new ScanCallback() {
+        @Override
+        public void onScanResult(int callbackType, ScanResult result) {
+            BluetoothDevice device = result.getDevice();
+            if(scannedDevices.add(device)) {
+                Log.d(LOG_TAG, device.getName()+" : "+device.getAddress()+" : "+device.getType()+" : "+device.getBondState());
+                Message msg = mHandler.obtainMessage();
+                Bundle b = new Bundle();
+                b.putString("bluetoothDevice", device.getName()+","+device.getAddress());
+                msg.setData(b);
+                mHandler.sendMessage(msg);
+                setEntries();
+            }
+            Log.d(LOG_TAG, device.getName()+" : "+device.getAddress()+" : "+device.getType()+" : "+device.getBondState());
         }
     };
 

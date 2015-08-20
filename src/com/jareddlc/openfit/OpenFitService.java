@@ -72,7 +72,7 @@ public class OpenFitService extends Service {
         pManager = this.getPackageManager();
 
         // start service
-        this.createNotification();
+        this.createNotification(true);
         this.startBluetoothHandler();
         this.startBluetoothService();
         this.startNotificationListenerService();
@@ -87,6 +87,7 @@ public class OpenFitService extends Service {
     }
 
     public void sendServiceStarted() {
+        Log.d(LOG_TAG, "sendServiceStarted");
         Intent i = new Intent("bluetoothUI");
         i.putExtra("message", "OpenFitService");
         sendBroadcast(i);
@@ -144,11 +145,13 @@ public class OpenFitService extends Service {
                 Intent i = new Intent("bluetoothUI");
                 i.putExtra("message", "isConnected");
                 sendBroadcast(i);
+                createNotification(true);
             }
             else {
                 Intent i = new Intent("bluetoothUI");
                 i.putExtra("message", "isDisconnected");
                 sendBroadcast(i);
+                createNotification(false);
             }
             // Automatically connects to the device upon successful start-up initialization.
             //bluetoothLeService.connect(mDeviceAddress);
@@ -201,11 +204,13 @@ public class OpenFitService extends Service {
                     handleBluetoothData(byteArray);
                 }
                 if(bluetoothMessage != null && bluetoothMessage.equals("isConnectedRfcomm")) {
+                    createNotification(true);
                     if(reconnecting) {
                         reconnectBluetoothStop();
                     }
                 }
                 if(bluetoothMessage != null && bluetoothMessage.equals("isDisconnectedRfComm")) {
+                    createNotification(false);
                     if(isReconnect) {
                         reconnectBluetoothService();
                     }
@@ -281,9 +286,11 @@ public class OpenFitService extends Service {
             sendMediaVolume(vol);
         }
         if(Arrays.equals(data, OpenFitApi.getMediaReqStart())) {
-            sendMediaRes();
+            sendMediaTrack();
         }
         if(Arrays.equals(data, OpenFitApi.getMediaReqStop())) {
+            //sendMediaRes();
+            sendMediaTrack();
         }
         if(Arrays.equals(data, OpenFitApi.getFitnessSyncRes())) {
             sendFitnessHeartBeat();
@@ -334,18 +341,35 @@ public class OpenFitService extends Service {
         }
     }
 
-    public void createNotification() {
+    public void createNotification(boolean connected) {
         Intent stopService =  new Intent("stopOpenFitService");
         PendingIntent pIntent = PendingIntent.getBroadcast(this, 0, stopService, PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationCompat.Builder nBuilder = new NotificationCompat.Builder(this);
         nBuilder.setSmallIcon(R.drawable.open_fit_notification);
         nBuilder.setContentTitle("Open Fit");
-        nBuilder.setContentText("Listening for notifications");
+        if(connected) {
+            nBuilder.setContentText("Connected to Gear Fit");
+        }
+        else {
+            nBuilder.setContentText("Disconnected to Gear Fit");
+        }
         //nBuilder.setContentIntent(pIntent);
         nBuilder.setAutoCancel(true);
         nBuilder.setOngoing(true);
         nBuilder.addAction(android.R.drawable.ic_menu_close_clear_cancel, "Stop", pIntent);
+        if(connected) {
+            Intent cIntent = new Intent("bluetooth");
+            cIntent.putExtra("message", "disconnect");
+            PendingIntent pConnect = PendingIntent.getBroadcast(this, 0, cIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            nBuilder.addAction(android.R.drawable.ic_menu_send, "Disconnect", pConnect);
+        }
+        else {
+            Intent cIntent = new Intent("bluetooth");
+            cIntent.putExtra("message", "connect");
+            PendingIntent pConnect = PendingIntent.getBroadcast(this, 0, cIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            nBuilder.addAction(android.R.drawable.ic_menu_send, "Connect", pConnect);
+        }
 
         // Sets an ID for the notification
         NotificationManager nManager = (NotificationManager) this.getSystemService(NOTIFICATION_SERVICE);
@@ -368,8 +392,8 @@ public class OpenFitService extends Service {
         bluetoothLeService.write(bytes);
     }
 
-    public void sendMediaTrack(String track) {
-        byte[] bytes = OpenFitApi.getOpenMediaTrack(track);
+    public void sendMediaTrack() {
+        byte[] bytes = OpenFitApi.getOpenMediaTrack(MediaController.getTrack());
         if(bluetoothLeService != null) {
             bluetoothLeService.write(bytes);
         }
@@ -609,7 +633,8 @@ public class OpenFitService extends Service {
             String track = MediaController.getTrack(intent);
             String mediaTrack = artist + " - " + track;
             Log.d(LOG_TAG, "sending: " + mediaTrack);
-            sendMediaTrack(mediaTrack);
+            MediaController.setTrack(mediaTrack);
+            sendMediaTrack();
         }
     };
 

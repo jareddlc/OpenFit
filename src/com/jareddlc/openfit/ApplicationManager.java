@@ -37,6 +37,7 @@ public class ApplicationManager {
         ArrayList<String> aName = new ArrayList<String>();
         ArrayList<String> pName = new ArrayList<String>();
         ArrayList<Drawable> iDraw = new ArrayList<Drawable>();
+        Collections.sort(listeningListPackageNames);
 
         for(int i = 0; i < listeningListPackageNames.size(); i++) {
             //Log.d(LOG_TAG, "installed:" + listeningListPackageNames.get(i));

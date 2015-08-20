@@ -55,10 +55,11 @@ public class OpenFitSavedPreferences {
     }
     
     public void saveSet(String value) {
-        Log.d(LOG_TAG, "Saving Set: " + value);
+        Log.d(LOG_TAG, "Adding to Set: " + value);
         set_packageNames.add(value);
         editor.putStringSet("set_packageNames", set_packageNames);
         editor.commit();
+        getSet();
     }
 
     public boolean getBoolean(String key) {
@@ -77,6 +78,7 @@ public class OpenFitSavedPreferences {
         Set<String> packageNames = new LinkedHashSet<String>();
         packageNames = preferences.getStringSet("set_packageNames", packageNames);
         Log.d(LOG_TAG, "Getting Set: " + packageNames);
+        Log.d(LOG_TAG, "Set size: " + packageNames.size());
         return packageNames;
     }
 

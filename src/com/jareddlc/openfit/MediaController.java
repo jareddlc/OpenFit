@@ -12,6 +12,7 @@ public class MediaController {
     public static final String ACTION_VIDEO_META_CHANGED = "com.sec.android.videoplayer.metachanged";
     public static final String ACTION_VIDEO_STATUS_INFO = "com.sec.android.videoplayer.playerstatus";
     public static final String CONTEXT_AWARE_MUSIC_INFO = "android.intent.action.CONTEXT_AWARE_MUSIC_INFO";
+    public static String CURRENT_TRACK = null;
 
     public static IntentFilter getIntentFilter() {
         IntentFilter media = new IntentFilter();
@@ -28,6 +29,14 @@ public class MediaController {
         media.addAction("com.samsung.sec.android.MusicPlayer.metachanged");
         media.addAction("com.andrew.apollo.metachanged");
         return media;
+    }
+    
+    public static void setTrack(String track) {
+        CURRENT_TRACK = track;
+    }
+
+    public static String getTrack() {
+        return CURRENT_TRACK;
     }
 
     public static String getArtist(Intent intent) {

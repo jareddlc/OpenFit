@@ -1,4 +1,4 @@
-package com.jareddlc.openfit;
+package com.solderbyte.openfit;
 
 import android.content.Context;
 import android.content.Intent;

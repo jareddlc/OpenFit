@@ -1,4 +1,4 @@
-package com.jareddlc.openfit;
+package com.solderbyte.openfit;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -32,13 +32,13 @@ public class OpenFitSavedPreferences {
     public void load(Context context) {
         preferences = PreferenceManager.getDefaultSharedPreferences(context);
         editor = preferences.edit();
-        //Editor editor = preferences.edit();
+
         Log.d(LOG_TAG, "Loading saved preferences");
-        preference_list_devices_value = preferences.getString("preference_list_devices_value", PREFS_DEFAULT);
-        preference_list_devices_entry = preferences.getString("preference_list_devices_entry", PREFS_DEFAULT);
-        preference_checkbox_phone = preferences.getBoolean("preference_checkbox_phone", PREFS_DEFAULT_BOOL);
-        preference_checkbox_sms = preferences.getBoolean("preference_checkbox_sms", PREFS_DEFAULT_BOOL);
-        preference_checkbox_time = preferences.getBoolean("preference_checkbox_time", PREFS_DEFAULT_BOOL);
+        preference_list_devices_value = preferences.getString("preference_list_devices_value"+":string", PREFS_DEFAULT);
+        preference_list_devices_entry = preferences.getString("preference_list_devices_entry"+":string", PREFS_DEFAULT);
+        preference_checkbox_phone = preferences.getBoolean("preference_checkbox_phone"+":boolean", PREFS_DEFAULT_BOOL);
+        preference_checkbox_sms = preferences.getBoolean("preference_checkbox_sms"+":boolean", PREFS_DEFAULT_BOOL);
+        preference_checkbox_time = preferences.getBoolean("preference_checkbox_time"+":boolean", PREFS_DEFAULT_BOOL);
         set_packageNames = preferences.getStringSet("set_packageNames", set_packageNames);
     }
 
@@ -59,7 +59,6 @@ public class OpenFitSavedPreferences {
         set_packageNames.add(value);
         editor.putStringSet("set_packageNames", set_packageNames);
         editor.commit();
-        getSet();
     }
 
     public boolean getBoolean(String key) {

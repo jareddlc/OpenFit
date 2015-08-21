@@ -1,3 +1,4 @@
+package com.solderbyte.openfit.protocol;
 
 /*
     020400000005000000 heart rate 82BPM

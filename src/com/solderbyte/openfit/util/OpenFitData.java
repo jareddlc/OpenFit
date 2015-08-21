@@ -1,4 +1,4 @@
-package com.jareddlc.openfit.util;
+package com.solderbyte.openfit.util;
 
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;

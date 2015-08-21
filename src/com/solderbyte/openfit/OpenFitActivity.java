@@ -1,6 +1,9 @@
-package com.jareddlc.openfit;
+package com.solderbyte.openfit;
 
 import java.util.Set;
+
+import com.solderbyte.openfit.R;
+
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;

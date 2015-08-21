@@ -1,4 +1,4 @@
-package com.jareddlc.openfit;
+package com.solderbyte.openfit;
 
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -12,7 +12,8 @@ public class MediaController {
     public static final String ACTION_VIDEO_META_CHANGED = "com.sec.android.videoplayer.metachanged";
     public static final String ACTION_VIDEO_STATUS_INFO = "com.sec.android.videoplayer.playerstatus";
     public static final String CONTEXT_AWARE_MUSIC_INFO = "android.intent.action.CONTEXT_AWARE_MUSIC_INFO";
-    public static String CURRENT_TRACK = null;
+    public static String CURRENT_TRACK = "Open Fit Track";
+    public static byte CURRENT_VOLUME = 15;
 
     public static IntentFilter getIntentFilter() {
         IntentFilter media = new IntentFilter();
@@ -30,13 +31,21 @@ public class MediaController {
         media.addAction("com.andrew.apollo.metachanged");
         return media;
     }
-    
+
     public static void setTrack(String track) {
         CURRENT_TRACK = track;
     }
 
     public static String getTrack() {
         return CURRENT_TRACK;
+    }
+
+    public static void setVolume(byte vol) {
+        CURRENT_VOLUME = vol;
+    }
+
+    public static byte getVolume() {
+        return CURRENT_VOLUME;
     }
 
     public static String getArtist(Intent intent) {

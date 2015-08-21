@@ -1,4 +1,4 @@
-package com.jareddlc.openfit.util;
+package com.solderbyte.openfit.util;
 
 import android.util.Log;
 import java.lang.reflect.Field;

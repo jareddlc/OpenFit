@@ -1,4 +1,4 @@
-package com.jareddlc.openfit;
+package com.solderbyte.openfit;
 
 import android.app.AlertDialog;
 import android.app.Dialog;

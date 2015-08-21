@@ -1,4 +1,4 @@
-package com.jareddlc.openfit;
+package com.solderbyte.openfit;
 
 import java.util.ArrayList;
 import java.util.Collections;

@@ -1,4 +1,4 @@
-package com.jareddlc.openfit.util;
+package com.solderbyte.openfit.util;
 
 public class OpenFitDataTypeAndString {
     String mData;

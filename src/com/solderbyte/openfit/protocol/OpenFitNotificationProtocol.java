@@ -1,11 +1,11 @@
-package com.jareddlc.openfit.protocol;
+package com.solderbyte.openfit.protocol;
 
 import java.util.Iterator;
 import java.util.List;
 
-import com.jareddlc.openfit.util.OpenFitDataType;
-import com.jareddlc.openfit.util.OpenFitDataTypeAndString;
-import com.jareddlc.openfit.util.OpenFitVariableDataComposer;
+import com.solderbyte.openfit.util.OpenFitDataType;
+import com.solderbyte.openfit.util.OpenFitDataTypeAndString;
+import com.solderbyte.openfit.util.OpenFitVariableDataComposer;
 
 public class OpenFitNotificationProtocol {
 

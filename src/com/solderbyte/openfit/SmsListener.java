@@ -1,4 +1,4 @@
-package com.jareddlc.openfit;
+package com.solderbyte.openfit;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

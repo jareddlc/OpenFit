@@ -1,4 +1,4 @@
-package com.jareddlc.openfit;
+package com.solderbyte.openfit;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -397,13 +397,15 @@ public class BluetoothLeService extends Service {
         if(pairedDevices != null) {
             for(BluetoothDevice device : pairedDevices) {
                 if(device.getAddress().equals(mDeviceMac)) {
-                    Log.d(LOG_TAG, "Set device: "+device.getName()+":"+device.getAddress());
+                    Log.d(LOG_TAG, "Set paired device: "+device.getName()+":"+device.getAddress());
                     mBluetoothDevice = device;
                 }
             }
-            if(scannedDevices.size() > 0) {
-                for(BluetoothDevice device : scannedDevices) {
-                    Log.d(LOG_TAG, "Set device: "+device.getName()+":"+device.getAddress());
+        }
+        else if(scannedDevices.size() > 0) {
+            for(BluetoothDevice device : scannedDevices) {
+                if(device.getAddress().equals(mDeviceMac)) {
+                    Log.d(LOG_TAG, "Set scanned device: "+device.getName()+":"+device.getAddress());
                     mBluetoothDevice = device;
                 }
             }
@@ -415,53 +417,53 @@ public class BluetoothLeService extends Service {
 
     public void setEntries() {
         if(isEnabled) {
+            List<CharSequence> entries = new ArrayList<CharSequence>();
+            List<CharSequence> values = new ArrayList<CharSequence>();
             pairedDevices = mBluetoothAdapter.getBondedDevices();
+            // loop through paired devices
             if(pairedDevices.size() > 0) {
-                List<CharSequence> entries = new ArrayList<CharSequence>();
-                List<CharSequence> values = new ArrayList<CharSequence>();
-                // loop through paired devices
                 for(BluetoothDevice device : pairedDevices) {
                     String deviceName = device.getName();
                     String deviceAddr = device.getAddress();
                     Log.d(LOG_TAG, "Paired Device: "+deviceName+":"+deviceAddr);
-                    
                     if(deviceName != null && !deviceName.isEmpty() && deviceAddr != null && !deviceAddr.isEmpty()) {
                         entries.add(deviceName);
                         values.add(deviceAddr);
                     }
                 }
-                // loop trough scanned devices
-                if(scannedDevices.size() > 0) {
-                    for(BluetoothDevice device : scannedDevices) {
-                        // make sure we dont add duplicates
-                        if(!entries.contains(device.getName())) {
-                            String deviceName = device.getName();
-                            String deviceAddr = device.getAddress();
-                            Log.d(LOG_TAG, "Scanned Device: "+deviceName+":"+deviceAddr);
-                            if(deviceName != null && !deviceName.isEmpty() && deviceAddr != null && !deviceAddr.isEmpty()) {
-                                entries.add(deviceName);
-                                values.add(deviceAddr);
-                            }
-                        }
-                    }
-                }
-                else {
-                    Log.d(LOG_TAG, "No scannedDevices");
-                }
-                pairedEntries = entries.toArray(new CharSequence[entries.size()]);
-                pairedEntryValues = values.toArray(new CharSequence[values.size()]);
-
-                Message msg = mHandler.obtainMessage();
-                Bundle b = new Bundle();
-                b.putString("bluetoothDevicesList", "bluetoothDevicesList");
-                b.putCharSequenceArray("bluetoothEntries", pairedEntries);
-                b.putCharSequenceArray("bluetoothEntryValues", pairedEntryValues);
-                msg.setData(b);
-                mHandler.sendMessage(msg);
             }
             else {
                 Log.d(LOG_TAG, "No pairedDevices");
             }
+            // loop trough scanned devices
+            if(scannedDevices.size() > 0) {
+                for(BluetoothDevice device : scannedDevices) {
+                    // make sure we dont add duplicates
+                    if(!entries.contains(device.getName())) {
+                        String deviceName = device.getName();
+                        String deviceAddr = device.getAddress();
+                        Log.d(LOG_TAG, "Scanned Device: "+deviceName+":"+deviceAddr);
+                        if(deviceName != null && !deviceName.isEmpty() && deviceAddr != null && !deviceAddr.isEmpty()) {
+                            entries.add(deviceName);
+                            values.add(deviceAddr);
+                        }
+                    }
+                }
+            }
+            else {
+                Log.d(LOG_TAG, "No scannedDevices");
+            }
+            
+            pairedEntries = entries.toArray(new CharSequence[entries.size()]);
+            pairedEntryValues = values.toArray(new CharSequence[values.size()]);
+
+            Message msg = mHandler.obtainMessage();
+            Bundle b = new Bundle();
+            b.putString("bluetoothDevicesList", "bluetoothDevicesList");
+            b.putCharSequenceArray("bluetoothEntries", pairedEntries);
+            b.putCharSequenceArray("bluetoothEntryValues", pairedEntryValues);
+            msg.setData(b);
+            mHandler.sendMessage(msg);
         }
         else {
             Log.d(LOG_TAG, "setEntries called without BT enabled");

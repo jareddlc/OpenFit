@@ -1,8 +1,10 @@
-package com.jareddlc.openfit;
+package com.solderbyte.openfit;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Calendar;
+
+import com.solderbyte.openfit.R;
 
 import android.annotation.SuppressLint;
 import android.app.NotificationManager;
@@ -57,7 +59,7 @@ public class OpenFitService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(LOG_TAG, "onStartCommand" + intent);
+        Log.d(LOG_TAG, "onStartCommand: " + intent);
         // register receivers
         this.registerReceiver(stopServiceReceiver, new IntentFilter("stopOpenFitService"));
         this.registerReceiver(bluetoothReceiver, new IntentFilter("bluetooth"));
@@ -286,11 +288,9 @@ public class OpenFitService extends Service {
             sendMediaVolume(vol);
         }
         if(Arrays.equals(data, OpenFitApi.getMediaReqStart())) {
-            sendMediaTrack();
+            sendMediaRes();
         }
         if(Arrays.equals(data, OpenFitApi.getMediaReqStop())) {
-            //sendMediaRes();
-            sendMediaTrack();
         }
         if(Arrays.equals(data, OpenFitApi.getFitnessSyncRes())) {
             sendFitnessHeartBeat();
@@ -357,7 +357,7 @@ public class OpenFitService extends Service {
         //nBuilder.setContentIntent(pIntent);
         nBuilder.setAutoCancel(true);
         nBuilder.setOngoing(true);
-        nBuilder.addAction(android.R.drawable.ic_menu_close_clear_cancel, "Stop", pIntent);
+        nBuilder.addAction(android.R.drawable.ic_menu_close_clear_cancel, "Shut Down", pIntent);
         if(connected) {
             Intent cIntent = new Intent("bluetooth");
             cIntent.putExtra("message", "disconnect");
@@ -419,14 +419,15 @@ public class OpenFitService extends Service {
 
     public void sendMediaVolume(byte vol) {
         Log.d(LOG_TAG, "Media Volume: " + vol);
+        MediaController.setVolume(vol);
         byte[] bytes = OpenFitApi.getMediaSetVolume(vol);
         bluetoothLeService.write(bytes);
     }
 
     public void sendMediaRes() {
-        Log.d(LOG_TAG, "Media Response");
-        byte[] bytes = OpenFitApi.getMediaResStart();
-        bluetoothLeService.write(bytes);
+        Log.d(LOG_TAG, "Media Request");
+        sendMediaTrack();
+        sendMediaVolume(MediaController.getVolume());
     }
 
     public void sendAppNotification(String packageName, String sender, String title, String message, int id) {

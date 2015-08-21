@@ -1,4 +1,4 @@
-package com.jareddlc.openfit;
+package com.solderbyte.openfit;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -6,12 +6,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
-import com.jareddlc.openfit.util.OpenFitData;
-import com.jareddlc.openfit.protocol.OpenFitNotificationProtocol;
-import com.jareddlc.openfit.util.OpenFitDataType;
-import com.jareddlc.openfit.util.OpenFitDataTypeAndString;
-import com.jareddlc.openfit.util.OpenFitTimeZoneUtil;
-import com.jareddlc.openfit.util.OpenFitVariableDataComposer;
+import com.solderbyte.openfit.protocol.OpenFitNotificationProtocol;
+import com.solderbyte.openfit.util.OpenFitData;
+import com.solderbyte.openfit.util.OpenFitDataType;
+import com.solderbyte.openfit.util.OpenFitDataTypeAndString;
+import com.solderbyte.openfit.util.OpenFitTimeZoneUtil;
+import com.solderbyte.openfit.util.OpenFitVariableDataComposer;
 
 public class OpenFitApi {
 
@@ -113,7 +113,7 @@ public class OpenFitApi {
     }
 
     public static byte[] getMediaVolume() {
-        //06020000000108
+        //060200000001XX
         OpenFitVariableDataComposer oVariableDataComposer = new OpenFitVariableDataComposer();
         oVariableDataComposer.writeByte((byte)6);
         oVariableDataComposer.writeInt(2);
@@ -122,6 +122,7 @@ public class OpenFitApi {
     }
 
     public static byte[] getMediaSetVolume(byte vol) {
+        //060200000001XX
         OpenFitVariableDataComposer oVariableDataComposer = new OpenFitVariableDataComposer();
         oVariableDataComposer.writeByte((byte)6);
         oVariableDataComposer.writeInt(2);
@@ -147,15 +148,9 @@ public class OpenFitApi {
         oVariableDataComposer.writeByte((byte)OpenFitData.REQUEST_STOP);
         return oVariableDataComposer.toByteArray();
     }
+    //06020000000006
+    //06020000000007
 
-    public static byte[] getMediaResStart() {
-        //060100000004
-        OpenFitVariableDataComposer oVariableDataComposer = new OpenFitVariableDataComposer();
-        oVariableDataComposer.writeByte((byte)6);
-        oVariableDataComposer.writeInt(1);
-        oVariableDataComposer.writeByte((byte)OpenFitData.INFO);
-        return oVariableDataComposer.toByteArray();
-    }
 
     public static byte[] getFitnessSync() {
         //02

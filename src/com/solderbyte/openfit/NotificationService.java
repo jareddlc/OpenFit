@@ -122,9 +122,9 @@ public class NotificationService extends NotificationListenerService {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d(LOG_TAG, "Stopping Service");
-            stopSelf();
             unregisterReceiver(appsReceiver);
             unregisterReceiver(stopServiceReceiver);
+            stopSelf();
         }
     };
 

@@ -82,7 +82,7 @@ public class OpenFitActivity extends Activity {
             super.onCreate(savedInstanceState);
 
             // Load the preferences from an XML resource
-            Log.d(LOG_TAG, "adding preferences from resource");
+            Log.d(LOG_TAG, "Loading preferences from XML resource");
             this.addPreferencesFromResource(R.xml.preferences);
 
             // load saved preferences
@@ -421,11 +421,12 @@ public class OpenFitActivity extends Activity {
 
         @Override
         public void onDestroy() {
-            LocalBroadcastManager.getInstance(this.getActivity()).unregisterReceiver(addApplicationReceiver);
-            LocalBroadcastManager.getInstance(this.getActivity()).unregisterReceiver(delApplicationReceiver);
+            Log.d(LOG_TAG, "onDestroy");
             this.getActivity().unregisterReceiver(bluetoothUIReceiver);
             this.getActivity().unregisterReceiver(stopServiceReceiver);
             this.getActivity().unregisterReceiver(notificationServiceReceiver);
+            LocalBroadcastManager.getInstance(this.getActivity()).unregisterReceiver(addApplicationReceiver);
+            LocalBroadcastManager.getInstance(this.getActivity()).unregisterReceiver(delApplicationReceiver);
             super.onDestroy();
         }
 
@@ -473,8 +474,16 @@ public class OpenFitActivity extends Activity {
             @Override
             public void onReceive(Context context, Intent intent) {
                 final String message = intent.getStringExtra("message");
-                Log.d(LOG_TAG, "Recieved bluetoothUI: " + message);
+                Log.d(LOG_TAG, "Recieved data to update UI: " + message);
                 handleBluetoothMessage(message, intent);
+            }
+        };
+
+        private BroadcastReceiver notificationServiceReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Log.d(LOG_TAG, "Received Notification Service");
+                sendIntentListeningApps();
             }
         };
 
@@ -483,13 +492,6 @@ public class OpenFitActivity extends Activity {
             public void onReceive(Context context, Intent intent) {
                 Log.d(LOG_TAG, "Stopping Activity");
                 getActivity().finish();
-            }
-        };
-        private BroadcastReceiver notificationServiceReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                Log.d(LOG_TAG, "Received Notification Service");
-                sendIntentListeningApps();
             }
         };
     }

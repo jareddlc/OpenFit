@@ -76,8 +76,7 @@ public class OpenFitSavedPreferences {
     public Set<String> getSet() {
         Set<String> packageNames = new LinkedHashSet<String>();
         packageNames = preferences.getStringSet("set_packageNames", packageNames);
-        Log.d(LOG_TAG, "Getting Set: " + packageNames);
-        Log.d(LOG_TAG, "Set size: " + packageNames.size());
+        Log.d(LOG_TAG, "Getting Set["+packageNames.size()+"]: " + packageNames);
         return packageNames;
     }
 

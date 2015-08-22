@@ -7,6 +7,7 @@ import java.util.Calendar;
 import com.solderbyte.openfit.R;
 
 import android.annotation.SuppressLint;
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -41,15 +42,17 @@ public class OpenFitService extends Service {
     private PackageManager pManager;
     private static ReconnectBluetoothThread reconnectThread;
 
-    private int NotificationId = 1;
+    private int notificationId = 1;
     private boolean smsEnabled = false;
     private boolean phoneEnabled = false;
     private boolean isReconnect = false;
     private boolean reconnecting = false;
+    private boolean shuttingDown = false;
     private SmsListener smsListener;
     private MmsListener mmsListener;
     private TelephonyManager telephony;
     private DialerListener dailerListener;
+    private Notification notification;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -74,10 +77,11 @@ public class OpenFitService extends Service {
         pManager = this.getPackageManager();
 
         // start service
-        this.createNotification(true);
+        this.createNotification(false);
         this.startBluetoothHandler();
         this.startBluetoothService();
         this.startNotificationListenerService();
+        //this.startForeground(notificationId, notification);
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -131,9 +135,9 @@ public class OpenFitService extends Service {
             }
             bluetoothLeService.setHandler(mHandler);
             sendServiceStarted();
-
+            sendBluetoothStatus();
             // update bluetooth ui
-            if(BluetoothLeService.isEnabled) {
+            /*if(BluetoothLeService.isEnabled) {
                 Intent i = new Intent("bluetoothUI");
                 i.putExtra("message", "isEnabled");
                 sendBroadcast(i);
@@ -154,7 +158,7 @@ public class OpenFitService extends Service {
                 i.putExtra("message", "isDisconnected");
                 sendBroadcast(i);
                 createNotification(false);
-            }
+            }*/
             // Automatically connects to the device upon successful start-up initialization.
             //bluetoothLeService.connect(mDeviceAddress);
         }
@@ -168,7 +172,7 @@ public class OpenFitService extends Service {
 
     public void startBluetoothHandler() {
         // setup message handler
-        Log.d(LOG_TAG, "Setting up message handler");
+        Log.d(LOG_TAG, "Setting up bluetooth Service handler");
         mHandler = new Handler() {
             @Override
             public void handleMessage(Message msg) {
@@ -206,22 +210,26 @@ public class OpenFitService extends Service {
                     handleBluetoothData(byteArray);
                 }
                 if(bluetoothMessage != null && bluetoothMessage.equals("isConnectedRfcomm")) {
-                    createNotification(true);
                     if(reconnecting) {
                         reconnectBluetoothStop();
                     }
+                    if(!shuttingDown) {
+                        createNotification(true);
+                    }
                 }
                 if(bluetoothMessage != null && bluetoothMessage.equals("isDisconnectedRfComm")) {
-                    createNotification(false);
                     if(isReconnect) {
                         reconnectBluetoothService();
+                    }
+                    if(!shuttingDown) {
+                        createNotification(false);
                     }
                 }
             }
         };
     }
 
-    public void handleBluetoothMessage(String message, Intent intent) {
+    public void handleUIMessage(String message, Intent intent) {
         if(message != null && !message.isEmpty() && bluetoothLeService != null) {
             if(message.equals("enable")) {
                 bluetoothLeService.enableBluetooth();
@@ -307,6 +315,7 @@ public class OpenFitService extends Service {
     }
 
     public void startDailerListener() {
+        Log.d(LOG_TAG, "Starting Phone Listeners");
         if(phoneEnabled) {
             dailerListener = new DialerListener(this);
             telephony = (TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE);
@@ -322,28 +331,34 @@ public class OpenFitService extends Service {
     }
 
     public void startSmsListener() {
+        Log.d(LOG_TAG, "Starting SMS/MMS Listeners");
         // register listeners
         if(smsEnabled) {
-            smsListener = new SmsListener(this);
-            IntentFilter smsFilter = new IntentFilter("android.provider.Telephony.SMS_RECEIVED");
-            this.registerReceiver(smsListener, smsFilter);
-            mmsListener = new MmsListener(this);
-            IntentFilter mmsFilter = new IntentFilter("android.provider.Telephony.WAP_PUSH_RECEIVED");
-            this.registerReceiver(mmsListener, mmsFilter);
-            Log.d(LOG_TAG, "sms listening");
-            Log.d(LOG_TAG, "mms listening");
+            if(smsListener == null) {
+                smsListener = new SmsListener(this);
+                IntentFilter smsFilter = new IntentFilter("android.provider.Telephony.SMS_RECEIVED");
+                this.registerReceiver(smsListener, smsFilter);
+                mmsListener = new MmsListener(this);
+                IntentFilter mmsFilter = new IntentFilter("android.provider.Telephony.WAP_PUSH_RECEIVED");
+                this.registerReceiver(mmsListener, mmsFilter);
+            }
         }
         else {
             if(smsListener != null) {
                 this.unregisterReceiver(smsListener);
+                smsListener = null;
                 this.unregisterReceiver(mmsListener);
+                mmsListener = null;
             }
         }
     }
 
     public void createNotification(boolean connected) {
+        Log.d(LOG_TAG, "Creating Notification: " + connected);
         Intent stopService =  new Intent("stopOpenFitService");
-        PendingIntent pIntent = PendingIntent.getBroadcast(this, 0, stopService, PendingIntent.FLAG_UPDATE_CURRENT);
+        //Intent startActivity = new Intent(this, OpenFitActivity.class);
+        //PendingIntent startIntent = PendingIntent.getActivity(this, 0,startActivity, PendingIntent.FLAG_NO_CREATE);
+        PendingIntent stopIntent = PendingIntent.getBroadcast(this, 0, stopService, PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationCompat.Builder nBuilder = new NotificationCompat.Builder(this);
         nBuilder.setSmallIcon(R.drawable.open_fit_notification);
@@ -354,10 +369,10 @@ public class OpenFitService extends Service {
         else {
             nBuilder.setContentText("Disconnected to Gear Fit");
         }
-        //nBuilder.setContentIntent(pIntent);
+        //nBuilder.setContentIntent(startIntent);
         nBuilder.setAutoCancel(true);
         nBuilder.setOngoing(true);
-        nBuilder.addAction(android.R.drawable.ic_menu_close_clear_cancel, "Shut Down", pIntent);
+        nBuilder.addAction(android.R.drawable.ic_menu_close_clear_cancel, "Shut Down", stopIntent);
         if(connected) {
             Intent cIntent = new Intent("bluetooth");
             cIntent.putExtra("message", "disconnect");
@@ -373,12 +388,39 @@ public class OpenFitService extends Service {
 
         // Sets an ID for the notification
         NotificationManager nManager = (NotificationManager) this.getSystemService(NOTIFICATION_SERVICE);
-        nManager.notify(NotificationId, nBuilder.build());
+        notification = nBuilder.build();
+        nManager.notify(notificationId, notification);
     }
 
     public void clearNotification() {
         NotificationManager nManager = (NotificationManager) this.getSystemService(NOTIFICATION_SERVICE);
-        nManager.cancel(NotificationId);
+        nManager.cancel(notificationId);
+    }
+
+    public void sendBluetoothStatus() {
+     // update bluetooth ui
+        if(BluetoothLeService.isEnabled) {
+            Intent i = new Intent("bluetoothUI");
+            i.putExtra("message", "isEnabled");
+            sendBroadcast(i);
+        }
+        else {
+            Intent i = new Intent("bluetoothUI");
+            i.putExtra("message", "isEnabledFailed");
+            sendBroadcast(i);
+        }
+        if(BluetoothLeService.isConnected) {
+            Intent i = new Intent("bluetoothUI");
+            i.putExtra("message", "isConnected");
+            sendBroadcast(i);
+            createNotification(true);
+        }
+        else {
+            Intent i = new Intent("bluetoothUI");
+            i.putExtra("message", "isDisconnected");
+            sendBroadcast(i);
+            createNotification(false);
+        }
     }
 
     public void sendTime(boolean is24Hour) {
@@ -525,6 +567,17 @@ public class OpenFitService extends Service {
             Log.d(LOG_TAG, "Stopping Service");
             reconnecting = false;
             isReconnect = false;
+            shuttingDown = true;
+            mHandler = null;
+            Log.d(LOG_TAG, "Stopping" + smsEnabled +" : " + phoneEnabled);
+            if(smsEnabled) {
+                unregisterReceiver(smsListener);
+                unregisterReceiver(mmsListener);
+            }
+            if(phoneEnabled) {
+                telephony.listen(dailerListener, PhoneStateListener.LISTEN_NONE);
+                dailerListener.destroy();
+            }
             unregisterReceiver(bluetoothReceiver);
             unregisterReceiver(notificationReceiver);
             unregisterReceiver(smsReceiver);
@@ -534,16 +587,9 @@ public class OpenFitService extends Service {
             unregisterReceiver(phoneOffhookReceiver);
             unregisterReceiver(mediaReceiver);
             unbindService(mServiceConnection);
-            if(smsEnabled) {
-                unregisterReceiver(smsListener);
-                unregisterReceiver(mmsListener);
-            }
-            if(phoneEnabled) {
-                telephony.listen(dailerListener, PhoneStateListener.LISTEN_NONE);
-                dailerListener.destroy();
-            }
             clearNotification();
             reconnectBluetoothStop();
+            Log.d(LOG_TAG, "stopSelf");
             stopSelf();
         }
     };
@@ -552,8 +598,8 @@ public class OpenFitService extends Service {
         @Override
         public void onReceive(Context context, Intent intent) {
             final String message = intent.getStringExtra("message");
-            handleBluetoothMessage(message, intent);
-            Log.d(LOG_TAG, "Received bluetooth command: " + message);
+            handleUIMessage(message, intent);
+            Log.d(LOG_TAG, "Received UI Command: " + message);
         }
     };
 

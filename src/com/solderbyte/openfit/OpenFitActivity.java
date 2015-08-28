@@ -56,11 +56,12 @@ public class OpenFitActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // load the PreferenceFragment
-        Log.d(LOG_TAG, "Loading PreferenceFragment");
-        this.getFragmentManager().beginTransaction().replace(android.R.id.content, new OpenFitFragment()).commit();
         appManager = new ApplicationManager();
         appManager.getInstalledAdapter(getBaseContext());
+        // load the PreferenceFragment
+        Log.d(LOG_TAG, "Loading PreferenceFragment");
+        
+        this.getFragmentManager().beginTransaction().replace(android.R.id.content, new OpenFitFragment()).commit();
     }
 
     public static class OpenFitFragment extends PreferenceFragment {
@@ -387,6 +388,7 @@ public class OpenFitActivity extends Activity {
             String phone = Boolean.toString(oPrefs.preference_checkbox_phone);
             sendIntent("bluetooth", "sms", sms);
             sendIntent("bluetooth", "phone", phone);
+            sendIntent("bluetooth", "status");
         }
 
         public void clearListeningApps(OpenFitSavedPreferences oPrefs) {

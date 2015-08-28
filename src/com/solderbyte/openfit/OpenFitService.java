@@ -42,12 +42,12 @@ public class OpenFitService extends Service {
     private PackageManager pManager;
     private static ReconnectBluetoothThread reconnectThread;
 
-    private int notificationId = 1;
+    private int notificationId = 28518;
     private boolean smsEnabled = false;
     private boolean phoneEnabled = false;
     private boolean isReconnect = false;
     private boolean reconnecting = false;
-    private boolean shuttingDown = false;
+    private boolean isStopping = false;
     private SmsListener smsListener;
     private MmsListener mmsListener;
     private TelephonyManager telephony;
@@ -73,15 +73,17 @@ public class OpenFitService extends Service {
         this.registerReceiver(phoneIdleReceiver, new IntentFilter("phone:idle"));
         this.registerReceiver(phoneOffhookReceiver, new IntentFilter("phone:offhook"));
         this.registerReceiver(mediaReceiver, MediaController.getIntentFilter());
+        //this.registerReceiver(alarmReceiver, Alarm.getIntentFilter());
 
         pManager = this.getPackageManager();
+        MediaController.init(this);
 
         // start service
         this.createNotification(false);
         this.startBluetoothHandler();
         this.startBluetoothService();
         this.startNotificationListenerService();
-        //this.startForeground(notificationId, notification);
+        this.startForeground(notificationId, notification);
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -136,29 +138,7 @@ public class OpenFitService extends Service {
             bluetoothLeService.setHandler(mHandler);
             sendServiceStarted();
             sendBluetoothStatus();
-            // update bluetooth ui
-            /*if(BluetoothLeService.isEnabled) {
-                Intent i = new Intent("bluetoothUI");
-                i.putExtra("message", "isEnabled");
-                sendBroadcast(i);
-            }
-            else {
-                Intent i = new Intent("bluetoothUI");
-                i.putExtra("message", "isEnabledFailed");
-                sendBroadcast(i);
-            }
-            if(BluetoothLeService.isConnected) {
-                Intent i = new Intent("bluetoothUI");
-                i.putExtra("message", "isConnected");
-                sendBroadcast(i);
-                createNotification(true);
-            }
-            else {
-                Intent i = new Intent("bluetoothUI");
-                i.putExtra("message", "isDisconnected");
-                sendBroadcast(i);
-                createNotification(false);
-            }*/
+
             // Automatically connects to the device upon successful start-up initialization.
             //bluetoothLeService.connect(mDeviceAddress);
         }
@@ -213,7 +193,7 @@ public class OpenFitService extends Service {
                     if(reconnecting) {
                         reconnectBluetoothStop();
                     }
-                    if(!shuttingDown) {
+                    if(!isStopping) {
                         createNotification(true);
                     }
                 }
@@ -221,7 +201,7 @@ public class OpenFitService extends Service {
                     if(isReconnect) {
                         reconnectBluetoothService();
                     }
-                    if(!shuttingDown) {
+                    if(!isStopping) {
                         createNotification(false);
                     }
                 }
@@ -270,6 +250,9 @@ public class OpenFitService extends Service {
                 smsEnabled = Boolean.parseBoolean(s);
                 startSmsListener();
             }
+            if(message.equals("status")) {
+                sendBluetoothStatus();
+            }
         }
     }
 
@@ -293,7 +276,7 @@ public class OpenFitService extends Service {
         }
         if(OpenFitApi.byteArrayToHexString(data).contains(OpenFitApi.byteArrayToHexString(OpenFitApi.getMediaVolume()))) {
             byte vol = data[data.length - 1];
-            sendMediaVolume(vol);
+            sendMediaVolume(vol, false);
         }
         if(Arrays.equals(data, OpenFitApi.getMediaReqStart())) {
             sendMediaRes();
@@ -459,8 +442,20 @@ public class OpenFitService extends Service {
         sendOrderedBroadcast(MediaController.playTrackUp(), null);
     }
 
-    public void sendMediaVolume(byte vol) {
+    public void sendMediaVolume(byte vol, boolean req) {
         Log.d(LOG_TAG, "Media Volume: " + vol);
+        byte offset = (byte) (MediaController.getActualVolume() - MediaController.getVolume());
+        if(offset != 0) {
+            vol = (byte) (vol + offset);
+            if(!req) {
+                if(offset > 0) {
+                    vol += 1;
+                }
+                else {
+                    vol -= 1;
+                }
+            }
+        }
         MediaController.setVolume(vol);
         byte[] bytes = OpenFitApi.getMediaSetVolume(vol);
         bluetoothLeService.write(bytes);
@@ -469,7 +464,7 @@ public class OpenFitService extends Service {
     public void sendMediaRes() {
         Log.d(LOG_TAG, "Media Request");
         sendMediaTrack();
-        sendMediaVolume(MediaController.getVolume());
+        sendMediaVolume(MediaController.getVolume(), true);
     }
 
     public void sendAppNotification(String packageName, String sender, String title, String message, int id) {
@@ -561,13 +556,25 @@ public class OpenFitService extends Service {
         return contactName;
     }
 
+    /*public void sendAlarmStart() {
+        long id = (long)(System.currentTimeMillis() / 1000L);
+        byte[] bytes = OpenFitApi.getOpenAlarm(id);
+        bluetoothLeService.write(bytes);
+    }
+
+    public void sendAlarmStop() {
+        long id = (long)(System.currentTimeMillis() / 1000L);
+        byte[] bytes = OpenFitApi.getOpenAlarm(id);
+        bluetoothLeService.write(bytes);
+    }*/
+
     private BroadcastReceiver stopServiceReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d(LOG_TAG, "Stopping Service");
             reconnecting = false;
             isReconnect = false;
-            shuttingDown = true;
+            isStopping = true;
             mHandler = null;
             Log.d(LOG_TAG, "Stopping" + smsEnabled +" : " + phoneEnabled);
             if(smsEnabled) {
@@ -586,10 +593,12 @@ public class OpenFitService extends Service {
             unregisterReceiver(phoneIdleReceiver);
             unregisterReceiver(phoneOffhookReceiver);
             unregisterReceiver(mediaReceiver);
+            //unregisterReceiver(alarmReceiver);
             unbindService(mServiceConnection);
             clearNotification();
             reconnectBluetoothStop();
             Log.d(LOG_TAG, "stopSelf");
+            stopForeground(true);
             stopSelf();
         }
     };
@@ -679,11 +688,25 @@ public class OpenFitService extends Service {
             //String album = MediaController.getAlbum(intent);
             String track = MediaController.getTrack(intent);
             String mediaTrack = artist + " - " + track;
-            Log.d(LOG_TAG, "sending: " + mediaTrack);
+            Log.d(LOG_TAG, "Media sending: " + mediaTrack);
             MediaController.setTrack(mediaTrack);
             sendMediaTrack();
         }
     };
+
+    /*private BroadcastReceiver alarmReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = Alarm.getAction(intent);
+            Log.d(LOG_TAG, "Alarm Action: " + action);
+            if(action.equals("START")) {
+                sendAlarmStart();
+            }
+            else if(action.equals("STOP")) {
+                sendAlarmStop();
+            }
+        }
+    };*/
 
     private class ReconnectBluetoothThread extends Thread {
         public void run() {

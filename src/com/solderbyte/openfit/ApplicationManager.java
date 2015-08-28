@@ -23,9 +23,9 @@ public class ApplicationManager {
     private CharSequence[] listeningAppNames = new CharSequence[0];
     ArrayList<Drawable> listeningPackageIcons = new ArrayList<Drawable>();
 
-    private Drawable dailerIcon;
-    private Drawable smsIcon;
-    private Drawable clockIcon;
+    private Drawable dailerIcon = null;
+    private Drawable smsIcon = null;
+    private Drawable clockIcon = null;
 
     ArrayList<String> listeningListPackageNames = new ArrayList<String>();
 

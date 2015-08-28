@@ -33,6 +33,7 @@ public class OpenFitData {
     public static byte DATA_TYPE_EAS = 36;
     public static byte DATA_TYPE_RESERVED = 49;
     public static byte DATA_TYPE_MEDIATRACK = 2;
+    public static byte DATA_TYPE_ALARMCLOCK = 1;
 
     public static byte NOTIFICATION_TYPE_INCOMING_CALL = 0;
     public static byte NOTIFICATION_TYPE_MISSED_CALL = 1;

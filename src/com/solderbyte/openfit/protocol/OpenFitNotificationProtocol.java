@@ -131,4 +131,34 @@ public class OpenFitNotificationProtocol {
 
         return oDatacomposer.toByteArray();
     }
+
+    public static byte[] createAlarmProtocol(int msgType, long msgId, List<OpenFitDataTypeAndString> msgData, long timeStamp) {
+        OpenFitVariableDataComposer oDatacomposer = new OpenFitVariableDataComposer();
+        oDatacomposer.writeByte((byte)msgType);
+        oDatacomposer.writeLong(msgId);
+        StringBuilder oStringBuilder = new StringBuilder();
+        Iterator<OpenFitDataTypeAndString> oIterator = msgData.iterator();
+
+        while(oIterator.hasNext()) {
+            OpenFitDataTypeAndString oDataString = (OpenFitDataTypeAndString)oIterator.next();
+            byte[] oByte = OpenFitVariableDataComposer.convertToByteArray(oDataString.getData());
+
+            if(oDataString.getDataType() == OpenFitDataType.BYTE) {
+                oDatacomposer.writeByte((byte)oByte.length);
+            }
+            if(oDataString.getDataType() == OpenFitDataType.SHORT) {
+                oDatacomposer.writeShort((short)oByte.length);
+            }
+            oStringBuilder.append(oByte.length).append(" ");
+            oDatacomposer.writeBytes(oByte);
+        }
+        //OpenFitVariableDataComposer.writeTimeInfo(oDatacomposer, timeStamp);
+        oDatacomposer.writeByte((byte)193);
+        oDatacomposer.writeByte((byte)4);
+        oDatacomposer.writeByte((byte)0);
+        oDatacomposer.writeByte((byte)0);
+        // snooze or dissmiss
+        oDatacomposer.writeInt(1);
+        return oDatacomposer.toByteArray();
+    }
 }

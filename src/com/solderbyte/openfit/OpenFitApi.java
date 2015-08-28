@@ -464,6 +464,36 @@ public class OpenFitApi {
         return oDatacomposer.toByteArray();
     }
 
+    public static byte[] getOpenAlarm(long id) {
+        //0a
+        //1e000000 = size of mg
+        //01 = msg type
+        //0100000000000000 = msg id
+        //0c = size of string
+        //ff
+        //fe
+        //41006c00610072006d00 = string
+        //c1040000 = little endian odd time stamp
+        //00000000 = snooze = false
+        List<OpenFitDataTypeAndString> mDataList = new ArrayList<OpenFitDataTypeAndString>();
+        mDataList.add(new OpenFitDataTypeAndString(OpenFitDataType.BYTE, "Alarm"));
+
+        byte[] msg = OpenFitNotificationProtocol.createAlarmProtocol(OpenFitData.DATA_TYPE_ALARMCLOCK, id, mDataList, System.currentTimeMillis());
+
+        OpenFitVariableDataComposer oDatacomposer = new OpenFitVariableDataComposer();
+        oDatacomposer.writeByte((byte)10);
+        oDatacomposer.writeInt(msg.length);
+        oDatacomposer.writeBytes(msg);
+        return oDatacomposer.toByteArray();
+        //0a0100000000 clear from phone
+        //0A020000000300 clear from gear
+        //0A020000000301 snooze from gear
+    }
+    
+    public static byte[] getTest() {
+        return hexStringToByteArray("0a1e0000000101000000000000000cfffe41006c00610072006d00c104000000000000");
+    }
+
     public static String trimTitle(String s) {
         s = s.substring(0, Math.min(s.length(), 50));
         return s;

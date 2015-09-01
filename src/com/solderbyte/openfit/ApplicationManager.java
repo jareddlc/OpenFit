@@ -14,11 +14,11 @@ import android.widget.ListAdapter;
 
 public class ApplicationManager {
     private static final String LOG_TAG = "OpenFit:ApplicationManager";
-    
+
     private CharSequence[] installedPackageNames = new CharSequence[0];
     private CharSequence[] installedAppNames = new CharSequence[0];
     ArrayList<Drawable> installedPackageIcons = new ArrayList<Drawable>();
-    
+
     private CharSequence[] listeningPackageNames = new CharSequence[0];
     private CharSequence[] listeningAppNames = new CharSequence[0];
     ArrayList<Drawable> listeningPackageIcons = new ArrayList<Drawable>();
@@ -28,6 +28,11 @@ public class ApplicationManager {
     private Drawable clockIcon = null;
 
     ArrayList<String> listeningListPackageNames = new ArrayList<String>();
+
+    private CharSequence[] whitelist = new CharSequence[] {
+        "com.google.android",
+        "com.android.deskclock"
+    };
 
     public ApplicationManager() {
         Log.d(LOG_TAG, "Creating ApplicationManager");
@@ -80,7 +85,7 @@ public class ApplicationManager {
 
         for(ApplicationInfo packageInfo : packages) {
             // filter out system apps
-            if((packageInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 1 || packageInfo.packageName.contains("com.google.android")) {
+            if((packageInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 1 || checkWhitelist(packageInfo.packageName)) {
                 String appName = (String) pm.getApplicationLabel(packageInfo);
                 //Log.d(LOG_TAG, "Installed package :" + packageInfo.packageName);
                 //Log.d(LOG_TAG, "Installed package :" + appName);
@@ -113,6 +118,16 @@ public class ApplicationManager {
         }
 
         return adapter;
+    }
+
+    public boolean checkWhitelist(String packageName) {
+        boolean found = false;
+        for(int i = 0; i < whitelist.length; i++) {
+            if(packageName.contains(whitelist[i])) {
+                found = true;
+            }
+        }
+        return found;
     }
     
     public CharSequence[] getListeningPackageNames() {

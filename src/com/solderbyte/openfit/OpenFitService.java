@@ -73,7 +73,7 @@ public class OpenFitService extends Service {
         this.registerReceiver(phoneIdleReceiver, new IntentFilter("phone:idle"));
         this.registerReceiver(phoneOffhookReceiver, new IntentFilter("phone:offhook"));
         this.registerReceiver(mediaReceiver, MediaController.getIntentFilter());
-        //this.registerReceiver(alarmReceiver, Alarm.getIntentFilter());
+        this.registerReceiver(alarmReceiver, Alarm.getIntentFilter());
 
         pManager = this.getPackageManager();
         MediaController.init(this);
@@ -281,7 +281,11 @@ public class OpenFitService extends Service {
         if(Arrays.equals(data, OpenFitApi.getMediaReqStart())) {
             sendMediaRes();
         }
-        if(Arrays.equals(data, OpenFitApi.getMediaReqStop())) {
+        if(Arrays.equals(data, OpenFitApi.getOpenAlarmCleared())) {
+            //DismissAlarm();
+        }
+        if(Arrays.equals(data, OpenFitApi.getOpenAlarmSnoozed())) {
+            //snoozeAlarm();
         }
         if(Arrays.equals(data, OpenFitApi.getFitnessSyncRes())) {
             sendFitnessHeartBeat();
@@ -556,16 +560,28 @@ public class OpenFitService extends Service {
         return contactName;
     }
 
-    /*public void sendAlarmStart() {
+    public void sendAlarmStart() {
         long id = (long)(System.currentTimeMillis() / 1000L);
         byte[] bytes = OpenFitApi.getOpenAlarm(id);
         bluetoothLeService.write(bytes);
     }
 
     public void sendAlarmStop() {
-        long id = (long)(System.currentTimeMillis() / 1000L);
-        byte[] bytes = OpenFitApi.getOpenAlarm(id);
+        byte[] bytes = OpenFitApi.getOpenAlarmClear();
         bluetoothLeService.write(bytes);
+    }
+
+    // Does not work
+    /*public void snoozeAlarm() {
+        Log.d(LOG_TAG, "Snoozing alarm");
+        Intent intent = Alarm.snoozeAlarm();
+        sendBroadcast(intent);
+    }
+
+    public void DismissAlarm() {
+        Log.d(LOG_TAG, "Dismissing alarm");
+        Intent intent = Alarm.dismissAlarm();
+        sendBroadcast(intent);
     }*/
 
     private BroadcastReceiver stopServiceReceiver = new BroadcastReceiver() {
@@ -593,7 +609,7 @@ public class OpenFitService extends Service {
             unregisterReceiver(phoneIdleReceiver);
             unregisterReceiver(phoneOffhookReceiver);
             unregisterReceiver(mediaReceiver);
-            //unregisterReceiver(alarmReceiver);
+            unregisterReceiver(alarmReceiver);
             unbindService(mServiceConnection);
             clearNotification();
             reconnectBluetoothStop();
@@ -694,7 +710,7 @@ public class OpenFitService extends Service {
         }
     };
 
-    /*private BroadcastReceiver alarmReceiver = new BroadcastReceiver() {
+    private BroadcastReceiver alarmReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = Alarm.getAction(intent);
@@ -702,11 +718,14 @@ public class OpenFitService extends Service {
             if(action.equals("START")) {
                 sendAlarmStart();
             }
+            else if(action.equals("SNOOZE")) {
+                sendAlarmStop();
+            }
             else if(action.equals("STOP")) {
                 sendAlarmStop();
             }
         }
-    };*/
+    };
 
     private class ReconnectBluetoothThread extends Thread {
         public void run() {

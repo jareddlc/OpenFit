@@ -153,12 +153,10 @@ public class OpenFitNotificationProtocol {
             oDatacomposer.writeBytes(oByte);
         }
         //OpenFitVariableDataComposer.writeTimeInfo(oDatacomposer, timeStamp);
-        oDatacomposer.writeByte((byte)193);
-        oDatacomposer.writeByte((byte)4);
-        oDatacomposer.writeByte((byte)0);
-        oDatacomposer.writeByte((byte)0);
+
+        oDatacomposer.writeInt((int) timeStamp);
         // snooze or dissmiss
-        oDatacomposer.writeInt(1);
+        oDatacomposer.writeInt(0);
         return oDatacomposer.toByteArray();
     }
 }

@@ -21,7 +21,7 @@ public class Alarm {
             action = "START";
         }
         else if(action.equals("com.android.deskclock.ALARM_SNOOZE")) {
-            action = "STOP";
+            action = "SNOOZE";
         }
         else if(action.equals("com.android.deskclock.ALARM_DISMISS")) {
             action = "STOP";
@@ -34,5 +34,17 @@ public class Alarm {
         }
 
         return action;
+    }
+
+    public static Intent snoozeAlarm() {
+        Intent intent = new Intent();
+        intent.setAction("com.android.deskclock.ALARM_SNOOZE");
+        return intent;
+    }
+
+    public static Intent dismissAlarm() {
+        Intent intent = new Intent();
+        intent.setAction("com.android.deskclock.ALARM_DISMISS");
+        return intent;
     }
 }

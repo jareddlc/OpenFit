@@ -477,21 +477,52 @@ public class OpenFitApi {
         //00000000 = snooze = false
         List<OpenFitDataTypeAndString> mDataList = new ArrayList<OpenFitDataTypeAndString>();
         mDataList.add(new OpenFitDataTypeAndString(OpenFitDataType.BYTE, "Alarm"));
+        
+        Calendar c = Calendar.getInstance();
+        int hour = c.get(Calendar.HOUR);
+        int minute = c.get(Calendar.MINUTE);
+        String timeString = Integer.toString(hour)+Integer.toString(minute);
+        int time = Integer.parseInt(timeString);
 
-        byte[] msg = OpenFitNotificationProtocol.createAlarmProtocol(OpenFitData.DATA_TYPE_ALARMCLOCK, id, mDataList, System.currentTimeMillis());
+        byte[] msg = OpenFitNotificationProtocol.createAlarmProtocol(OpenFitData.DATA_TYPE_ALARMCLOCK, id, mDataList, time);
 
         OpenFitVariableDataComposer oDatacomposer = new OpenFitVariableDataComposer();
         oDatacomposer.writeByte((byte)10);
         oDatacomposer.writeInt(msg.length);
         oDatacomposer.writeBytes(msg);
         return oDatacomposer.toByteArray();
-        //0a0100000000 clear from phone
-        //0A020000000300 clear from gear
-        //0A020000000301 snooze from gear
     }
-    
-    public static byte[] getTest() {
-        return hexStringToByteArray("0a1e0000000101000000000000000cfffe41006c00610072006d00c104000000000000");
+
+    public static byte[] getOpenAlarmClear() {
+        //0a0100000000 clear from phone
+        OpenFitVariableDataComposer oDatacomposer = new OpenFitVariableDataComposer();
+        oDatacomposer.writeByte((byte)10);
+        oDatacomposer.writeInt(1);
+        oDatacomposer.writeByte((byte)0);
+
+        return oDatacomposer.toByteArray();
+    }
+
+    public static byte[] getOpenAlarmCleared() {
+        //0A020000000300 clear from gear
+        OpenFitVariableDataComposer oDatacomposer = new OpenFitVariableDataComposer();
+        oDatacomposer.writeByte((byte)10);
+        oDatacomposer.writeInt(2);
+        oDatacomposer.writeByte((byte)3);
+        oDatacomposer.writeByte((byte)0);
+
+        return oDatacomposer.toByteArray();
+    }
+
+    public static byte[] getOpenAlarmSnoozed() {
+        //0A020000000301 snooze from gear
+        OpenFitVariableDataComposer oDatacomposer = new OpenFitVariableDataComposer();
+        oDatacomposer.writeByte((byte)10);
+        oDatacomposer.writeInt(2);
+        oDatacomposer.writeByte((byte)3);
+        oDatacomposer.writeByte((byte)1);
+
+        return oDatacomposer.toByteArray();
     }
 
     public static String trimTitle(String s) {

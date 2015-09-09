@@ -75,6 +75,7 @@ public class OpenFitActivity extends Activity {
         private static CheckBoxPreference preference_checkbox_phone;
         private static CheckBoxPreference preference_checkbox_sms;
         private static CheckBoxPreference preference_checkbox_time;
+        private static CheckBoxPreference preference_checkbox_weather;
         private static ListPreference preference_list_devices;
         private static Preference preference_scan;
 
@@ -194,7 +195,6 @@ public class OpenFitActivity extends Activity {
                     }
                 }
             });
-            preference_checkbox_phone.setIcon(appManager.getDailerIcon());
 
             preference_checkbox_sms = (CheckBoxPreference) getPreferenceManager().findPreference("preference_checkbox_sms");
             preference_checkbox_sms.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
@@ -212,7 +212,6 @@ public class OpenFitActivity extends Activity {
                     }
                 }
             });
-            preference_checkbox_sms.setIcon(appManager.getSmsIcon());
 
             preference_checkbox_time = (CheckBoxPreference) getPreferenceManager().findPreference("preference_checkbox_time");
             preference_checkbox_time.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
@@ -230,7 +229,23 @@ public class OpenFitActivity extends Activity {
                     }
                 }
             });
-            preference_checkbox_time.setIcon(appManager.getClockIcon());
+
+            preference_checkbox_weather = (CheckBoxPreference) getPreferenceManager().findPreference("preference_checkbox_weather");
+            preference_checkbox_weather.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    if((Boolean)newValue) {
+                        sendIntent("bluetooth", "weather", "true");
+                        oPrefs.saveBoolean("preference_checkbox_weather", true);
+                        return true;
+                    }
+                    else {
+                        sendIntent("bluetooth", "weather", "false");
+                        oPrefs.saveBoolean("preference_checkbox_weather", false);
+                        return true;
+                    }
+                }
+            });
         }
 
         public void handleBluetoothMessage(String message, Intent intent) {
@@ -384,10 +399,13 @@ public class OpenFitActivity extends Activity {
             preference_checkbox_phone.setChecked(oPrefs.preference_checkbox_phone);
             preference_checkbox_sms.setChecked(oPrefs.preference_checkbox_sms);
             preference_checkbox_time.setChecked(oPrefs.preference_checkbox_time);
+            preference_checkbox_weather.setChecked(oPrefs.preference_checkbox_weather);
             String sms = Boolean.toString(oPrefs.preference_checkbox_sms);
             String phone = Boolean.toString(oPrefs.preference_checkbox_phone);
+            String weather = Boolean.toString(oPrefs.preference_checkbox_weather);
             sendIntent("bluetooth", "sms", sms);
             sendIntent("bluetooth", "phone", phone);
+            sendIntent("bluetooth", "weather", weather);
             sendIntent("bluetooth", "status");
         }
 

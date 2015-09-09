@@ -23,10 +23,6 @@ public class ApplicationManager {
     private CharSequence[] listeningAppNames = new CharSequence[0];
     ArrayList<Drawable> listeningPackageIcons = new ArrayList<Drawable>();
 
-    private Drawable dailerIcon = null;
-    private Drawable smsIcon = null;
-    private Drawable clockIcon = null;
-
     ArrayList<String> listeningListPackageNames = new ArrayList<String>();
 
     private CharSequence[] whitelist = new CharSequence[] {
@@ -107,16 +103,6 @@ public class ApplicationManager {
         installedPackageIcons = iDraw;
         ListAdapter adapter = new ArrayAdapterWithIcon(context, aName, iDraw);
 
-        try {
-            Log.d(LOG_TAG, "Grabbed dailer/sms icon");
-            dailerIcon = pm.getApplicationIcon("com.android.dialer");
-            smsIcon = pm.getApplicationIcon("com.android.mms");
-            clockIcon = pm.getApplicationIcon("com.android.deskclock");
-        } 
-        catch (NameNotFoundException e) {
-            Log.d(LOG_TAG, "Cannot find dailer/sms icon");
-        }
-
         return adapter;
     }
 
@@ -172,18 +158,6 @@ public class ApplicationManager {
 
     public void clearInstalledApp() {
         listeningListPackageNames = new ArrayList<String>();
-    }
-
-    public Drawable getDailerIcon() {
-        return dailerIcon;
-    }
-
-    public Drawable getSmsIcon() {
-        return smsIcon;
-    }
-
-    public Drawable getClockIcon() {
-        return clockIcon;
     }
 }
 

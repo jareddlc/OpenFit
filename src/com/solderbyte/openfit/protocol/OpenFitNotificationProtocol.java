@@ -159,4 +159,18 @@ public class OpenFitNotificationProtocol {
         oDatacomposer.writeInt(0);
         return oDatacomposer.toByteArray();
     }
+    
+    public static byte[] createWeatherProtocol(int msgType, long msgId, String msgData, int icon, long timeStamp) {
+        OpenFitVariableDataComposer oDatacomposer = new OpenFitVariableDataComposer();
+        oDatacomposer.writeByte((byte)msgType);
+        oDatacomposer.writeLong(msgId);
+
+        byte[] oByte = OpenFitVariableDataComposer.convertToByteArray(msgData);
+
+        oDatacomposer.writeByte((byte)oByte.length);
+        oDatacomposer.writeBytes(oByte);
+        oDatacomposer.writeInt(icon);
+        OpenFitVariableDataComposer.writeTimeInfo(oDatacomposer, timeStamp);
+        return oDatacomposer.toByteArray();
+    }
 }

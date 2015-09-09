@@ -525,6 +525,48 @@ public class OpenFitApi {
         return oDatacomposer.toByteArray();
     }
 
+    public static byte[] getOpenWeather(String weather, String icon, long id) {
+        int i = getOpenWeatherIcon(icon);
+        byte[] msg = OpenFitNotificationProtocol.createWeatherProtocol(OpenFitData.DATA_TYPE_WEATHER, id, weather, i, System.currentTimeMillis());
+        OpenFitVariableDataComposer oDatacomposer = new OpenFitVariableDataComposer();
+        oDatacomposer.writeByte((byte)3);
+        oDatacomposer.writeInt(msg.length);
+        oDatacomposer.writeBytes(msg);
+        return oDatacomposer.toByteArray();
+    }
+
+    public static int getOpenWeatherIcon(String icon) {
+        int i = 0;
+        if(icon.contains("01")) {
+            i = OpenFitData.WEATHER_TYPE_CLEAR;
+        }
+        else if(icon.contains("02")) {
+            i = OpenFitData.WEATHER_TYPE_MOSTLY_CLEAR;
+        }
+        else if(icon.contains("03")) {
+            i = OpenFitData.WEATHER_TYPE_MOSTLY_CLOUDY;
+        }
+        else if(icon.contains("04")) {
+            i = OpenFitData.WEATHER_TYPE_COLD;
+        }
+        else if(icon.contains("09")) {
+            i = OpenFitData.WEATHER_TYPE_HEAVY_RAIN;
+        }
+        else if(icon.contains("10")) {
+            i = OpenFitData.WEATHER_TYPE_RAIN;
+        }
+        else if(icon.contains("11")) {
+            i = OpenFitData.WEATHER_TYPE_THUNDERSTORMS;
+        }
+        else if(icon.contains("13")) {
+            i = OpenFitData.WEATHER_TYPE_SNOW;
+        }
+        else if(icon.contains("50")) {
+            i = OpenFitData.WEATHER_TYPE_FOG;
+        }
+        return i;
+    }
+
     public static String trimTitle(String s) {
         s = s.substring(0, Math.min(s.length(), 50));
         return s;

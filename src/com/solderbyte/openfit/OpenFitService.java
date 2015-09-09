@@ -45,6 +45,7 @@ public class OpenFitService extends Service {
     private int notificationId = 28518;
     private boolean smsEnabled = false;
     private boolean phoneEnabled = false;
+    private boolean weatherEnabled = false;
     private boolean isReconnect = false;
     private boolean reconnecting = false;
     private boolean isStopping = false;
@@ -74,9 +75,14 @@ public class OpenFitService extends Service {
         this.registerReceiver(phoneOffhookReceiver, new IntentFilter("phone:offhook"));
         this.registerReceiver(mediaReceiver, MediaController.getIntentFilter());
         this.registerReceiver(alarmReceiver, Alarm.getIntentFilter());
+        this.registerReceiver(weatherReceiver, new IntentFilter("weather"));
+        this.registerReceiver(cronReceiver, new IntentFilter("cronJob"));
 
         pManager = this.getPackageManager();
         MediaController.init(this);
+        LocationInfo.init(this);
+        Weather.init(this);
+        Cronjob.init(this);
 
         // start service
         this.createNotification(false);
@@ -239,6 +245,11 @@ public class OpenFitService extends Service {
                 String s = intent.getStringExtra("data");
                 boolean value = Boolean.parseBoolean(s);
                 sendTime(value);
+            }
+            if(message.equals("weather")) {
+                String s = intent.getStringExtra("data");
+                weatherEnabled = Boolean.parseBoolean(s);
+                startWeather();
             }
             if(message.equals("phone")) {
                 String s = intent.getStringExtra("data");
@@ -472,14 +483,12 @@ public class OpenFitService extends Service {
     }
 
     public void sendAppNotification(String packageName, String sender, String title, String message, int id) {
-        long idTimestamp = (long)(System.currentTimeMillis() / 1000L);
-        byte[] bytes = OpenFitApi.getOpenNotification(packageName, sender, title, message, idTimestamp);
+        byte[] bytes = OpenFitApi.getOpenNotification(packageName, sender, title, message, id);
         bluetoothLeService.write(bytes);
     }
 
     public void sendEmailNotification(String packageName, String sender, String title, String message, int id) {
-        long idTimestamp = (long)(System.currentTimeMillis() / 1000L);
-        byte[] bytes = OpenFitApi.getOpenEmail(sender, title, message, message, idTimestamp);
+        byte[] bytes = OpenFitApi.getOpenEmail(sender, title, message, message, id);
         bluetoothLeService.write(bytes);
     }
 
@@ -571,6 +580,22 @@ public class OpenFitService extends Service {
         bluetoothLeService.write(bytes);
     }
 
+    public void sendWeatherNotifcation(String weather, String icon) {
+        long id = (long)(System.currentTimeMillis() / 1000L);
+        byte[] bytes = OpenFitApi.getOpenWeather(weather, icon, id);
+        bluetoothLeService.write(bytes);
+    }
+
+    public void startWeather() {
+        Log.d(LOG_TAG, "Starting Weather Cronjob");
+        if(weatherEnabled) {
+            Cronjob.start();
+        }
+        else {
+            Cronjob.stop();
+        }
+    }
+
     // Does not work
     /*public void snoozeAlarm() {
         Log.d(LOG_TAG, "Snoozing alarm");
@@ -610,7 +635,10 @@ public class OpenFitService extends Service {
             unregisterReceiver(phoneOffhookReceiver);
             unregisterReceiver(mediaReceiver);
             unregisterReceiver(alarmReceiver);
+            unregisterReceiver(weatherReceiver);
+            unregisterReceiver(cronReceiver);
             unbindService(mServiceConnection);
+            Cronjob.stop();
             clearNotification();
             reconnectBluetoothStop();
             Log.d(LOG_TAG, "stopSelf");
@@ -723,6 +751,53 @@ public class OpenFitService extends Service {
             }
             else if(action.equals("STOP")) {
                 sendAlarmStop();
+            }
+        }
+    };
+
+    private BroadcastReceiver weatherReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d(LOG_TAG, "Weather updated: ");
+            String name = intent.getStringExtra("name");
+            String weather = intent.getStringExtra("weather");
+            String description = intent.getStringExtra("description");
+            String tempCur = intent.getStringExtra("tempCur");
+            String tempMin = intent.getStringExtra("tempMin");
+            String tempMax = intent.getStringExtra("tempMax");
+            String tempUnit = intent.getStringExtra("tempUnit");
+            String humidity = intent.getStringExtra("humidity");
+            String pressure = intent.getStringExtra("pressure");
+            String icon = intent.getStringExtra("icon");
+
+            Log.d(LOG_TAG, "City Name: " + name);
+            Log.d(LOG_TAG, "Weather: " + weather);
+            Log.d(LOG_TAG, "Description: " + description);
+            Log.d(LOG_TAG, "Temperature Current: " + tempCur);
+            Log.d(LOG_TAG, "Temperature Min: " + tempMin);
+            Log.d(LOG_TAG, "Temperature Max: " + tempMax);
+            Log.d(LOG_TAG, "Temperature Unit: " + tempUnit);
+            Log.d(LOG_TAG, "Humidity: " + humidity);
+            Log.d(LOG_TAG, "Pressure: " + pressure);
+            Log.d(LOG_TAG, "icon: " + icon);
+
+            String weatherInfo = name + ": " + tempCur + tempUnit + "\nMin: " + tempMin + tempUnit + " Max: " + tempMax + tempUnit + "\n" + description;
+
+            sendWeatherNotifcation(weatherInfo, icon);
+        }
+    };
+
+    private BroadcastReceiver cronReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d(LOG_TAG, "#####CronJob#####");
+            if(weatherEnabled) {
+                LocationInfo.updateLastKnownLocation();
+                
+                if(LocationInfo.getCityName() != null && LocationInfo.getStateName() != null) {
+                    String query = LocationInfo.getCityName().replace(" ", "%20") + "," + LocationInfo.getCountryCode();
+                    Weather.getWeather(query);
+                }
             }
         }
     };

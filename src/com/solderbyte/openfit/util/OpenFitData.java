@@ -83,29 +83,29 @@ public class OpenFitData {
     public static final byte VOLUME = 1;
 
     // Weather
-    /*WEATHER_TYPE_CLEAR = new EWeatherType("WEATHER_TYPE_CLEAR", 0);
-    WEATHER_TYPE_COLD = new EWeatherType("WEATHER_TYPE_COLD", 1);
-    WEATHER_TYPE_FLURRIES = new EWeatherType("WEATHER_TYPE_FLURRIES", 2);
-    WEATHER_TYPE_FOG = new EWeatherType("WEATHER_TYPE_FOG", 3);
-    WEATHER_TYPE_HAIL = new EWeatherType("WEATHER_TYPE_HAIL", 4);
-    WEATHER_TYPE_HEAVY_RAIN = new EWeatherType("WEATHER_TYPE_HEAVY_RAIN", 5);
-    WEATHER_TYPE_HOT = new EWeatherType("WEATHER_TYPE_HOT", 6);
-    WEATHER_TYPE_ICE = new EWeatherType("WEATHER_TYPE_ICE", 7);
-    WEATHER_TYPE_MOSTLY_CLEAR = new EWeatherType("WEATHER_TYPE_MOSTLY_CLEAR", 8);
-    WEATHER_TYPE_MOSTLY_CLOUDY = new EWeatherType("WEATHER_TYPE_MOSTLY_CLOUDY", 9);
-    WEATHER_TYPE_MOSTLY_CLOUDY_FLURRIES = new EWeatherType("WEATHER_TYPE_MOSTLY_CLOUDY_FLURRIES", 10);
-    WEATHER_TYPE_MOSTLY_CLOUDY_THUNDER_SHOWER = new EWeatherType("WEATHER_TYPE_MOSTLY_CLOUDY_THUNDER_SHOWER", 11);
-    WEATHER_TYPE_PARTLY_SUNNY = new EWeatherType("WEATHER_TYPE_PARTLY_SUNNY", 12);
-    WEATHER_TYPE_PARTLY_SUNNY_SHOWERS = new EWeatherType("WEATHER_TYPE_PARTLY_SUNNY_SHOWERS", 13);
-    WEATHER_TYPE_RAIN = new EWeatherType("WEATHER_TYPE_RAIN", 14);
-    WEATHER_TYPE_RAIN_SNOW = new EWeatherType("WEATHER_TYPE_RAIN_SNOW", 15);
-    WEATHER_TYPE_SANDSTORM = new EWeatherType("WEATHER_TYPE_SANDSTORM", 16);
-    WEATHER_TYPE_SHOWERS = new EWeatherType("WEATHER_TYPE_SHOWERS", 17);
-    WEATHER_TYPE_SNOW = new EWeatherType("WEATHER_TYPE_SNOW", 18);
-    WEATHER_TYPE_SUNNY = new EWeatherType("WEATHER_TYPE_SUNNY", 19);
-    WEATHER_TYPE_THUNDERSTORMS = new EWeatherType("WEATHER_TYPE_THUNDERSTORMS", 20);
-    WEATHER_TYPE_WINDY = new EWeatherType("WEATHER_TYPE_WINDY", 21);
-    WEATHER_TYPE_RESERVED = new EWeatherType("WEATHER_TYPE_RESERVED", 22);*/
+    public static final int WEATHER_TYPE_CLEAR = 0;
+    public static final int WEATHER_TYPE_COLD = 1;
+    public static final int WEATHER_TYPE_FLURRIES = 2;
+    public static final int WEATHER_TYPE_FOG = 3;
+    public static final int WEATHER_TYPE_HAIL = 4;
+    public static final int WEATHER_TYPE_HEAVY_RAIN = 5;
+    public static final int WEATHER_TYPE_HOT = 6;
+    public static final int WEATHER_TYPE_ICE = 7;
+    public static final int WEATHER_TYPE_MOSTLY_CLEAR = 8;
+    public static final int WEATHER_TYPE_MOSTLY_CLOUDY = 9;
+    public static final int WEATHER_TYPE_MOSTLY_CLOUDY_FLURRIES = 10;
+    public static final int WEATHER_TYPE_MOSTLY_CLOUDY_THUNDER_SHOWER = 11;
+    public static final int WEATHER_TYPE_PARTLY_SUNNY = 12;
+    public static final int WEATHER_TYPE_PARTLY_SUNNY_SHOWERS = 13;
+    public static final int WEATHER_TYPE_RAIN = 14;
+    public static final int WEATHER_TYPE_RAIN_SNOW = 15;
+    public static final int WEATHER_TYPE_SANDSTORM = 16;
+    public static final int WEATHER_TYPE_SHOWERS = 17;
+    public static final int WEATHER_TYPE_SNOW = 18;
+    public static final int WEATHER_TYPE_SUNNY = 19;
+    public static final int WEATHER_TYPE_THUNDERSTORMS = 20;
+    public static final int WEATHER_TYPE_WINDY = 21;
+    public static final int WEATHER_TYPE_RESERVED = 22;
 
     // Battery
     public static final byte CHARGING_AC = 2;

@@ -22,5 +22,8 @@
     <string name="preference_checkbox_time_title">Clock Format</string>
     <string name="preference_checkbox_time_on">24-hour clock</string>
     <string name="preference_checkbox_time_off">12-hour clock</string>
+    <string name="preference_checkbox_weather_title">Weather Updates</string>
+    <string name="preference_checkbox_weather_on">Every hour</string>
+    <string name="preference_checkbox_weather_off">Every hour</string>
     <string name="preference_category_apps_title">Applications</string>
 </resources>

@@ -32,10 +32,11 @@ public class Cronjob {
             cal.set(Calendar.SECOND, 0);
             cal.set(Calendar.MILLISECOND, 0);
 
-            Log.d(LOG_TAG, "Cronjob schedule to start at: " + cal.get(Calendar.HOUR));
-            alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, cal.getTimeInMillis(), AlarmManager.INTERVAL_HOUR, alarmPendingIntent);
+            long startTime = cal.getTimeInMillis() - System.currentTimeMillis();
+            Log.d(LOG_TAG, "Cronjob schedule to start at: " + cal.get(Calendar.HOUR_OF_DAY) + ":" +cal.get(Calendar.MINUTE) + " " + startTime);
+            alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), AlarmManager.INTERVAL_HOUR, alarmPendingIntent);
             isAlarm = true;
-            //alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, 1000, 1000, alarmPendingIntent);
+            //alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, 1000, 1000, alarmPendingIntent);
         }
     }
 

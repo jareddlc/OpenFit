@@ -1,5 +1,7 @@
 package com.solderbyte.openfit.protocol;
 
+import com.solderbyte.openfit.OpenFitApi;
+
 /*
     020400000005000000 heart rate 82BPM
     020400000005000000 heart reate 83BPM
@@ -267,7 +269,24 @@ package com.solderbyte.openfit.protocol;
     find device
     05020000000100 find
     05020000000101 done
+    
+    clock changed
+    01020000000202
+    
+    change clock
+    01020000000a01
+    01020000000201
 
+    clock request weather
+    01010000000C
+    
+    clock change response?
+    013d0000000914fffe4e006900650064006500720072006100640006400600000100c944e0550698080000140500000600000000000000000600000000000000000001020000000200
+    013d0000000914fffe4e006900650064006500720072006100640006400600000100c944e05506980800001405000006000000000000000006000000000000000000
+    013d0000000914fffe4e006900650064006500720072006100640006d41700000000c944e05506201c00007c15000006000000000000000006000000000000000000
+    
+    bytes = OpenFitApi.getOpenWeatherClock();
+    bluetoothLeService.write(bytes);
     
     view msg
     030900000013F87CCD5500000000
@@ -370,56 +389,6 @@ package com.solderbyte.openfit.protocol;
     public static final byte WAKEUP_BY_GESTURE = 5;
     public static final byte WINGTIP_DEVICE_INFO = 23;
     public static final byte WINGTIP_VERSION = 0;
-
-    // Weather
-    WEATHER_TYPE_CLEAR = new EWeatherType("WEATHER_TYPE_CLEAR", 0);
-    WEATHER_TYPE_COLD = new EWeatherType("WEATHER_TYPE_COLD", 1);
-    WEATHER_TYPE_FLURRIES = new EWeatherType("WEATHER_TYPE_FLURRIES", 2);
-    WEATHER_TYPE_FOG = new EWeatherType("WEATHER_TYPE_FOG", 3);
-    WEATHER_TYPE_HAIL = new EWeatherType("WEATHER_TYPE_HAIL", 4);
-    WEATHER_TYPE_HEAVY_RAIN = new EWeatherType("WEATHER_TYPE_HEAVY_RAIN", 5);
-    WEATHER_TYPE_HOT = new EWeatherType("WEATHER_TYPE_HOT", 6);
-    WEATHER_TYPE_ICE = new EWeatherType("WEATHER_TYPE_ICE", 7);
-    WEATHER_TYPE_MOSTLY_CLEAR = new EWeatherType("WEATHER_TYPE_MOSTLY_CLEAR", 8);
-    WEATHER_TYPE_MOSTLY_CLOUDY = new EWeatherType("WEATHER_TYPE_MOSTLY_CLOUDY", 9);
-    WEATHER_TYPE_MOSTLY_CLOUDY_FLURRIES = new EWeatherType("WEATHER_TYPE_MOSTLY_CLOUDY_FLURRIES", 10);
-    WEATHER_TYPE_MOSTLY_CLOUDY_THUNDER_SHOWER = new EWeatherType("WEATHER_TYPE_MOSTLY_CLOUDY_THUNDER_SHOWER", 11);
-    WEATHER_TYPE_PARTLY_SUNNY = new EWeatherType("WEATHER_TYPE_PARTLY_SUNNY", 12);
-    WEATHER_TYPE_PARTLY_SUNNY_SHOWERS = new EWeatherType("WEATHER_TYPE_PARTLY_SUNNY_SHOWERS", 13);
-    WEATHER_TYPE_RAIN = new EWeatherType("WEATHER_TYPE_RAIN", 14);
-    WEATHER_TYPE_RAIN_SNOW = new EWeatherType("WEATHER_TYPE_RAIN_SNOW", 15);
-    WEATHER_TYPE_SANDSTORM = new EWeatherType("WEATHER_TYPE_SANDSTORM", 16);
-    WEATHER_TYPE_SHOWERS = new EWeatherType("WEATHER_TYPE_SHOWERS", 17);
-    WEATHER_TYPE_SNOW = new EWeatherType("WEATHER_TYPE_SNOW", 18);
-    WEATHER_TYPE_SUNNY = new EWeatherType("WEATHER_TYPE_SUNNY", 19);
-    WEATHER_TYPE_THUNDERSTORMS = new EWeatherType("WEATHER_TYPE_THUNDERSTORMS", 20);
-    WEATHER_TYPE_WINDY = new EWeatherType("WEATHER_TYPE_WINDY", 21);
-    WEATHER_TYPE_RESERVED = new EWeatherType("WEATHER_TYPE_RESERVED", 22);
-    
-    public static final byte CLEAR = 18;
-        public static final byte COLD = 16;
-        public static final byte FLURRIES = 10;
-        public static final byte FOG = 5;
-        public static final byte HAIL = 20;
-        public static final byte HEAVY_RAIN = 21;
-        public static final byte HOT = 15;
-        public static final byte ICE = 14;
-        public static final byte MAX_VALUE = 22;
-        public static final byte MOSTLY_CLEAR = 19;
-        public static final byte MOSTLY_CLOUDY = 3;
-        public static final byte MOSTLY_CLOUDY_FLURRIES = 11;
-        public static final byte MOSTLY_CLOUDY_THUNDER_SHOWER = 9;
-        public static final byte PARTLY_SUNNY = 2;
-        public static final byte PARTLY_SUNNY_SHOWERS = 7;
-        public static final byte RAIN = 4;
-        public static final byte RAIN_SNOW = 13;
-        public static final byte SANDSTORM = 22;
-        public static final byte SHOWERS = 6;
-        public static final byte SNOW = 12;
-        public static final byte SUNNY = 1;
-        public static final byte THUNDERSTORMS = 8;
-        public static final byte UNKNOWN = 0;
-        public static final byte WINDY = 17;
 
     // Unknown Data Type
     public static final byte OPENFIT_DATA = 100;

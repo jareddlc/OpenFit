@@ -75,7 +75,7 @@ public class OpenFitActivity extends Activity {
         private static CheckBoxPreference preference_checkbox_phone;
         private static CheckBoxPreference preference_checkbox_sms;
         private static CheckBoxPreference preference_checkbox_time;
-        private static CheckBoxPreference preference_checkbox_weather;
+        private static ListPreference preference_list_weather;
         private static ListPreference preference_list_devices;
         private static Preference preference_scan;
 
@@ -230,20 +230,19 @@ public class OpenFitActivity extends Activity {
                 }
             });
 
-            preference_checkbox_weather = (CheckBoxPreference) getPreferenceManager().findPreference("preference_checkbox_weather");
-            preference_checkbox_weather.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            preference_list_weather = (ListPreference) getPreferenceManager().findPreference("preference_list_weather");
+            preference_list_weather.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    if((Boolean)newValue) {
-                        sendIntent("bluetooth", "weather", "true");
-                        oPrefs.saveBoolean("preference_checkbox_weather", true);
-                        return true;
-                    }
-                    else {
-                        sendIntent("bluetooth", "weather", "false");
-                        oPrefs.saveBoolean("preference_checkbox_weather", false);
-                        return true;
-                    }
+                    String weatherValue = newValue.toString();
+                    CharSequence[] entries = preference_list_weather.getEntries();
+                    int index = preference_list_weather.findIndexOfValue(weatherValue);
+                    String weatherName = entries[index].toString();
+                    preference_list_weather.setSummary(weatherName);
+                    oPrefs.saveString("preference_list_weather_value", weatherValue);
+                    oPrefs.saveString("preference_list_weather_entry", weatherName);
+                    sendIntent("bluetooth", "weather", weatherValue);
+                    return true;
                 }
             });
         }
@@ -399,13 +398,18 @@ public class OpenFitActivity extends Activity {
             preference_checkbox_phone.setChecked(oPrefs.preference_checkbox_phone);
             preference_checkbox_sms.setChecked(oPrefs.preference_checkbox_sms);
             preference_checkbox_time.setChecked(oPrefs.preference_checkbox_time);
-            preference_checkbox_weather.setChecked(oPrefs.preference_checkbox_weather);
+            
+            if(oPrefs.preference_list_weather_value != "DEFAULT") {
+                String weatherValue = oPrefs.preference_list_weather_value;
+                String weatherEntry = oPrefs.preference_list_weather_entry;
+                preference_list_weather.setSummary(weatherEntry);
+                sendIntent("bluetooth", "weather", weatherValue);
+                Log.d(LOG_TAG, "Restored weather: "+weatherEntry+":"+weatherValue);
+            }
             String sms = Boolean.toString(oPrefs.preference_checkbox_sms);
             String phone = Boolean.toString(oPrefs.preference_checkbox_phone);
-            String weather = Boolean.toString(oPrefs.preference_checkbox_weather);
             sendIntent("bluetooth", "sms", sms);
             sendIntent("bluetooth", "phone", phone);
-            sendIntent("bluetooth", "weather", weather);
             sendIntent("bluetooth", "status");
         }
 

@@ -108,4 +108,12 @@ public class Weather {
             }
         });
     }
+
+    public static void setUnits(String unit) {
+        units = unit;
+    }
+
+    public static String getUnits() {
+        return units;
+    }
 }

@@ -247,8 +247,14 @@ public class OpenFitService extends Service {
                 sendTime(value);
             }
             if(message.equals("weather")) {
-                String s = intent.getStringExtra("data");
-                weatherEnabled = Boolean.parseBoolean(s);
+                String unit = intent.getStringExtra("data");
+                if(unit.equals("none")) {
+                    weatherEnabled = false;
+                }
+                else {
+                    Weather.setUnits(unit);
+                    weatherEnabled = true;
+                }
                 startWeather();
             }
             if(message.equals("phone")) {
@@ -760,17 +766,17 @@ public class OpenFitService extends Service {
         public void onReceive(Context context, Intent intent) {
             Log.d(LOG_TAG, "Weather updated: ");
             String name = intent.getStringExtra("name");
-            String weather = intent.getStringExtra("weather");
+            //String weather = intent.getStringExtra("weather");
             String description = intent.getStringExtra("description");
             String tempCur = intent.getStringExtra("tempCur");
-            String tempMin = intent.getStringExtra("tempMin");
-            String tempMax = intent.getStringExtra("tempMax");
+            //String tempMin = intent.getStringExtra("tempMin");
+            //String tempMax = intent.getStringExtra("tempMax");
             String tempUnit = intent.getStringExtra("tempUnit");
-            String humidity = intent.getStringExtra("humidity");
-            String pressure = intent.getStringExtra("pressure");
+            //String humidity = intent.getStringExtra("humidity");
+            //String pressure = intent.getStringExtra("pressure");
             String icon = intent.getStringExtra("icon");
 
-            Log.d(LOG_TAG, "City Name: " + name);
+            /*Log.d(LOG_TAG, "City Name: " + name);
             Log.d(LOG_TAG, "Weather: " + weather);
             Log.d(LOG_TAG, "Description: " + description);
             Log.d(LOG_TAG, "Temperature Current: " + tempCur);
@@ -779,10 +785,10 @@ public class OpenFitService extends Service {
             Log.d(LOG_TAG, "Temperature Unit: " + tempUnit);
             Log.d(LOG_TAG, "Humidity: " + humidity);
             Log.d(LOG_TAG, "Pressure: " + pressure);
-            Log.d(LOG_TAG, "icon: " + icon);
+            Log.d(LOG_TAG, "icon: " + icon);*/
 
-            String weatherInfo = name + ": " + tempCur + tempUnit + "\nMin: " + tempMin + tempUnit + " Max: " + tempMax + tempUnit + "\n" + description;
-
+            String weatherInfo = name + ": " + tempCur + tempUnit + "\nWeather: " + description;
+            Log.d(LOG_TAG, weatherInfo);
             sendWeatherNotifcation(weatherInfo, icon);
         }
     };

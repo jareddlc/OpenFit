@@ -534,11 +534,22 @@ public class OpenFitApi {
         oDatacomposer.writeBytes(msg);
         return oDatacomposer.toByteArray();
     }
+    
+    public static byte[] getOpenWeatherClock() {
+        //01
+        //3d000000
+        //09
+        //14
+        //ff
+        //fe
+        //4e006900650064006500720072006100640006400600000100c944e05506980800001405000006000000000000000006000000000000000000
+        return hexStringToByteArray("013d0000000914fffe4e006900650064006500720072006100640006400600000100c944e05506980800001405000006000000000000000006000000000000000000");
+    }
 
     public static int getOpenWeatherIcon(String icon) {
         int i = 0;
         if(icon.contains("01")) {
-            i = OpenFitData.WEATHER_TYPE_CLEAR;
+            i = OpenFitData.WEATHER_TYPE_SUNNY;
         }
         else if(icon.contains("02")) {
             i = OpenFitData.WEATHER_TYPE_MOSTLY_CLEAR;
@@ -547,13 +558,13 @@ public class OpenFitApi {
             i = OpenFitData.WEATHER_TYPE_MOSTLY_CLOUDY;
         }
         else if(icon.contains("04")) {
-            i = OpenFitData.WEATHER_TYPE_COLD;
+            i = OpenFitData.WEATHER_TYPE_MOSTLY_CLOUDY;
         }
         else if(icon.contains("09")) {
             i = OpenFitData.WEATHER_TYPE_HEAVY_RAIN;
         }
         else if(icon.contains("10")) {
-            i = OpenFitData.WEATHER_TYPE_RAIN;
+            i = OpenFitData.WEATHER_TYPE_PARTLY_SUNNY_SHOWERS;
         }
         else if(icon.contains("11")) {
             i = OpenFitData.WEATHER_TYPE_THUNDERSTORMS;

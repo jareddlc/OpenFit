@@ -46,13 +46,15 @@
             android:summaryOff="@string/preference_checkbox_time_off" 
             android:icon="@drawable/open_clock"
             android:defaultValue="false" />
-        <CheckBoxPreference
-            android:key="preference_checkbox_weather"
-            android:title="@string/preference_checkbox_weather_title"
-            android:summaryOn="@string/preference_checkbox_weather_on"
-            android:summaryOff="@string/preference_checkbox_weather_off" 
+        <ListPreference
+            android:key="preference_list_weather"
+            android:title="@string/preference_list_weather_title"
             android:icon="@drawable/open_weather"
-            android:defaultValue="false" />
+            android:dialogTitle="@string/preference_list_weather_dialog"
+            android:summary="@string/preference_list_weather_summary"
+            android:entries="@array/preference_list_weather_entries"
+            android:entryValues="@array/preference_list_weather_values"
+            android:defaultValue="@string/preference_list_weather_default" />
     </PreferenceCategory>
 
     <PreferenceCategory

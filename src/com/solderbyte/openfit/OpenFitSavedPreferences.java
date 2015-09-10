@@ -23,7 +23,8 @@ public class OpenFitSavedPreferences {
     public boolean preference_checkbox_phone;
     public boolean preference_checkbox_sms;
     public boolean preference_checkbox_time;
-    public boolean preference_checkbox_weather;
+    public String preference_list_weather_value;
+    public String preference_list_weather_entry;
     public Set<String> set_packageNames = new LinkedHashSet<String>();
 
     public OpenFitSavedPreferences(Context context) {
@@ -40,7 +41,8 @@ public class OpenFitSavedPreferences {
         preference_checkbox_phone = preferences.getBoolean("preference_checkbox_phone"+":boolean", PREFS_DEFAULT_BOOL);
         preference_checkbox_sms = preferences.getBoolean("preference_checkbox_sms"+":boolean", PREFS_DEFAULT_BOOL);
         preference_checkbox_time = preferences.getBoolean("preference_checkbox_time"+":boolean", PREFS_DEFAULT_BOOL);
-        preference_checkbox_weather = preferences.getBoolean("preference_checkbox_weather"+":boolean", PREFS_DEFAULT_BOOL);
+        preference_list_weather_value = preferences.getString("preference_list_weather_value"+":string", PREFS_DEFAULT);
+        preference_list_weather_entry = preferences.getString("preference_list_weather_entry"+":string", PREFS_DEFAULT);
         set_packageNames = preferences.getStringSet("set_packageNames", set_packageNames);
     }
 

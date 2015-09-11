@@ -30,6 +30,8 @@ import android.provider.ContactsContract.PhoneLookup;
 import android.support.v4.app.NotificationCompat;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
+import android.media.ToneGenerator;
+import android.media.AudioManager;
 import android.util.Log;
 
 @SuppressLint("HandlerLeak")
@@ -41,6 +43,7 @@ public class OpenFitService extends Service {
     private  Handler mHandler;
     private PackageManager pManager;
     private static ReconnectBluetoothThread reconnectThread;
+    private static FindSoundThread findSoundThread;
 
     private int notificationId = 28518;
     private boolean smsEnabled = false;
@@ -49,6 +52,7 @@ public class OpenFitService extends Service {
     private boolean isReconnect = false;
     private boolean reconnecting = false;
     private boolean isStopping = false;
+    private boolean isFinding = false;
     private SmsListener smsListener;
     private MmsListener mmsListener;
     private TelephonyManager telephony;
@@ -282,6 +286,13 @@ public class OpenFitService extends Service {
             bluetoothLeService.write(OpenFitApi.getFotaCommand());
             //bluetoothLeService.write(OpenFitApi.getCurrentTimeInfo(false));
         }
+
+        if(Arrays.equals(data, OpenFitApi.getFindStart())) {
+            sendFindStart();
+        }
+        if(Arrays.equals(data, OpenFitApi.getFindStop())) {
+            sendFindStop();
+        }
         if(Arrays.equals(data, OpenFitApi.getMediaPrev())) {
             sendMediaPrev();
         }
@@ -381,7 +392,7 @@ public class OpenFitService extends Service {
             Intent cIntent = new Intent("bluetooth");
             cIntent.putExtra("message", "disconnect");
             PendingIntent pConnect = PendingIntent.getBroadcast(this, 0, cIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-            nBuilder.addAction(android.R.drawable.ic_menu_send, "Disconnect", pConnect);
+            nBuilder.addAction(android.R.drawable.ic_menu_close_clear_cancel, "Disconnect", pConnect);
         }
         else {
             Intent cIntent = new Intent("bluetooth");
@@ -443,6 +454,27 @@ public class OpenFitService extends Service {
         if(bluetoothLeService != null) {
             bluetoothLeService.write(bytes);
         }
+    }
+
+    public void sendFindStart() {
+        Log.d(LOG_TAG, "Find Start");
+        // Implement alarm start
+        if(isFinding == false) {
+            findSoundThread = new FindSoundThread();
+            findSoundThread.start();
+            isFinding = true;
+        }
+    }
+
+    public void sendFindStop() {
+        Log.d(LOG_TAG, "Find Stop");
+        // Implement alarm stop
+
+        if(findSoundThread != null) {
+            findSoundThread = null;
+            Log.d(LOG_TAG, "stopped reconnect thread");
+        }
+        isFinding = false;
     }
 
     public void sendMediaPrev() {
@@ -527,7 +559,7 @@ public class OpenFitService extends Service {
             iTelephony = method.invoke(telephony);
             endCall = iTelephony.getClass().getDeclaredMethod("endCall");
             endCall.invoke(iTelephony);
-        } 
+        }
         catch(Exception e) {
             Log.d(LOG_TAG, "Failed ending call");
             e.printStackTrace();
@@ -622,6 +654,7 @@ public class OpenFitService extends Service {
             reconnecting = false;
             isReconnect = false;
             isStopping = true;
+            isFinding = false;
             mHandler = null;
             Log.d(LOG_TAG, "Stopping" + smsEnabled +" : " + phoneEnabled);
             if(smsEnabled) {
@@ -757,6 +790,29 @@ public class OpenFitService extends Service {
             }
             else if(action.equals("STOP")) {
                 sendAlarmStop();
+            }
+        }
+    };
+
+    private class FindSoundThread extends Thread {
+        public void run() {
+            long timeStart = Calendar.getInstance().getTimeInMillis();
+            Log.d(LOG_TAG, "FindSound Start: "+timeStart);
+            ToneGenerator toneG = new ToneGenerator(AudioManager.STREAM_ALARM, ToneGenerator.MAX_VOLUME);
+
+            while(isFinding) {
+                try {
+                    long timeDiff =  Calendar.getInstance().getTimeInMillis() - timeStart;
+                    Log.d(LOG_TAG, "Sound time: " + timeDiff/1000);
+
+                    toneG.startTone(ToneGenerator.TONE_CDMA_ALERT_CALL_GUARD, 200); // 200 ms tone
+                    Thread.sleep(600L);
+                }
+                catch(InterruptedException ie) {
+                    // unexpected interruption while enabling bluetooth
+                    Thread.currentThread().interrupt(); // restore interrupted flag
+                    return;
+                }
             }
         }
     };

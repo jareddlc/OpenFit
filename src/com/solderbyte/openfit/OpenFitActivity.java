@@ -363,7 +363,7 @@ public class OpenFitActivity extends Activity {
         }
 
         public void restoreDevicesList(OpenFitSavedPreferences oPrefs) {
-            Log.d(LOG_TAG, "Resotoring devices list: " + oPrefs.preference_list_devices_value);
+            Log.d(LOG_TAG, "Restoring devices list: " + oPrefs.preference_list_devices_value);
             if(oPrefs.preference_list_devices_value != "DEFAULT") {
                 String mDeviceAddress = oPrefs.preference_list_devices_value;
                 String mDeviceName = oPrefs.preference_list_devices_entry;

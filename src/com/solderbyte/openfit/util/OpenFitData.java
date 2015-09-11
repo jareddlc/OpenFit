@@ -66,6 +66,10 @@ public class OpenFitData {
     public static byte NOTIFICATION_TYPE_SMARTRELAY = 28;
     public static byte NOTIFICATION_TYPE_VZW_CMAS = 29;
 
+    // Find device
+    public static final byte FIND_START = 0;
+    public static final byte FIND_STOP  = 1;
+
     // Media Controller
     public static final byte FORWARD = 4;
     public static final byte FORWARD_RELEASE = 6;

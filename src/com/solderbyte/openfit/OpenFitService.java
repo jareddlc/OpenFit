@@ -376,18 +376,18 @@ public class OpenFitService extends Service {
         //nBuilder.setContentIntent(startIntent);
         nBuilder.setAutoCancel(true);
         nBuilder.setOngoing(true);
-        nBuilder.addAction(android.R.drawable.ic_menu_close_clear_cancel, "Shut Down", stopIntent);
+        nBuilder.addAction(R.drawable.open_off_noti, "Shut Down", stopIntent);
         if(connected) {
             Intent cIntent = new Intent("bluetooth");
             cIntent.putExtra("message", "disconnect");
             PendingIntent pConnect = PendingIntent.getBroadcast(this, 0, cIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-            nBuilder.addAction(android.R.drawable.ic_menu_send, "Disconnect", pConnect);
+            nBuilder.addAction(R.drawable.open_btd, "Disconnect", pConnect);
         }
         else {
             Intent cIntent = new Intent("bluetooth");
             cIntent.putExtra("message", "connect");
             PendingIntent pConnect = PendingIntent.getBroadcast(this, 0, cIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-            nBuilder.addAction(android.R.drawable.ic_menu_send, "Connect", pConnect);
+            nBuilder.addAction(R.drawable.open_btc, "Connect", pConnect);
         }
 
         // Sets an ID for the notification

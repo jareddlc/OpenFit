@@ -1,7 +1,3 @@
-package com.solderbyte.openfit.protocol;
-
-import com.solderbyte.openfit.OpenFitApi;
-
 /*
     020400000005000000 heart rate 82BPM
     020400000005000000 heart reate 83BPM
@@ -187,83 +183,6 @@ import com.solderbyte.openfit.OpenFitApi;
     1027000000000000
     
     
-    int i = AbstractNotificationProtocol.EDataType.DATA_TYPE_READ_ACTION.ordinal();
-    DataComposer datacomposer = DataComposer.newVariableDataComposer();
-    datacomposer.writeByte((byte)i);
-    datacomposer.writeLong(mIndex);
-    dataByteArray = datacomposer.toByteArray();
-    
-    
-    HEALTH_APP_TYPE_NONE = new <init>("HEALTH_APP_TYPE_NONE", 0);
-        HEALTH_APP_TYPE_SLEEP_MONITORING = new <init>("HEALTH_APP_TYPE_SLEEP_MONITORING", 1);
-        HEALTH_APP_TYPE_HEART_RATE = new <init>("HEALTH_APP_TYPE_HEART_RATE", 2);
-        
-          DATA_TYPE_USER_PROFILE = new <init>("DATA_TYPE_USER_PROFILE", 0);
-        DATA_TYPE_PEDOMETER_PROFILE = new <init>("DATA_TYPE_PEDOMETER_PROFILE", 1);
-        DATA_TYPE_COACHING_PROFILE = new <init>("DATA_TYPE_COACHING_PROFILE", 2);
-        DATA_TYPE_PEDO_RESULTRECORD = new <init>("DATA_TYPE_PEDO_RESULTRECORD", 3);
-        DATA_TYPE_PEDO_INFO = new <init>("DATA_TYPE_PEDO_INFO", 4);
-        DATA_TYPE_SLEEP_RESULTRECORD = new <init>("DATA_TYPE_SLEEP_RESULTRECORD", 5);
-        DATA_TYPE_SLEEP_INFO = new <init>("DATA_TYPE_SLEEP_INFO", 6);
-        DATA_TYPE_HEARTRATE_RESULTRECORD = new <init>("DATA_TYPE_HEARTRATE_RESULTRECORD", 7);
-        DATA_TYPE_COACHING_VARS = new <init>("DATA_TYPE_COACHING_VARS", 8);
-        DATA_TYPE_COACHING_EXERCISERESULT = new <init>("DATA_TYPE_COACHING_EXERCISERESULT", 9);
-        DATA_TYPE_COACHING_RUNNINGEXERCISE = new <init>("DATA_TYPE_COACHING_RUNNINGEXERCISE", 10);
-        DATA_TYPE_COACHING_ENERGYEXERCISE = new <init>("DATA_TYPE_COACHING_ENERGYEXERCISE", 11);
-        DATA_TYPE_COACHING_RESULTRECORD = new <init>("DATA_TYPE_COACHING_RESULTRECORD", 12);
-        DATA_TYPE_GPS_INFO = new <init>("DATA_TYPE_GPS_INFO", 13);
-        STRUCT_TYPE_DASHBOARD_PEDO_RESULT = new <init>("STRUCT_TYPE_DASHBOARD_PEDO_RESULT", 14);
-        STRUCT_TYPE_DASHBOARD_COACHING_RESULT = new <init>("STRUCT_TYPE_DASHBOARD_COACHING_RESULT", 15);
-        STRUCT_TYPE_DASHBOARD_HRM_RESULT = new <init>("STRUCT_TYPE_DASHBOARD_HRM_RESULT", 16);
-        STRUCT_TYPE_DASHBOARD_SLEEP_RESULT = new <init>("STRUCT_TYPE_DASHBOARD_SLEEP_RESULT", 17);
-        
-        
-        RUN = new <init>("RUN", 0);
-        WALK = new <init>("WALK", 1);
-        CYCLING = new <init>("CYCLING", 2);
-        HIKING = new <init>("HIKING", 3);
-        
-        PSERVICE_ACCUWEATHER = new <init>("PSERVICE_ACCUWEATHER", 0);
-        PSERVICE_GOOGLE = new <init>("PSERVICE_GOOGLE", 1);
-        PSERVICE_NONE = new <init>("PSERVICE_NONE", 2);
-        PSERVICE_WEATHERNEWS = new <init>("PSERVICE_WEATHERNEWS", 3);
-        
-        DATA_TYPE_HOST_TO_WINGTIP_SYNC_REQUEST = new <init>("DATA_TYPE_HOST_TO_WINGTIP_SYNC_REQUEST", 0);
-        DATA_TYPE_HOST_TO_WINGTUP_SYNC_DONE = new <init>("DATA_TYPE_HOST_TO_WINGTUP_SYNC_DONE", 1);
-        DATA_TYPE_HOST_TO_WINGTIP_SYNC_DATA = new <init>("DATA_TYPE_HOST_TO_WINGTIP_SYNC_DATA", 2);
-        DATA_TYPE_WINGTIP_TO_HOST_SYNC_DONE = new <init>("DATA_TYPE_WINGTIP_TO_HOST_SYNC_DONE", 3);
-        DATA_TYPE_WINGTIP_TO_HOST_SYNC_DATA = new <init>("DATA_TYPE_WINGTIP_TO_HOST_SYNC_DATA", 4);
-        DATA_TYPE_WINGTIP_TO_HOST_SYNC_REQUEST = new <init>("DATA_TYPE_WINGTIP_TO_HOST_SYNC_REQUEST", 5);
-        DATA_TYPE_WINGTIP_TO_HOST_GPS_HIKING_START = new <init>("DATA_TYPE_WINGTIP_TO_HOST_GPS_HIKING_START", 6);
-        DATA_TYPE_WINGTIP_TO_HOST_GPS_CYCLING_START = new <init>("DATA_TYPE_WINGTIP_TO_HOST_GPS_CYCLING_START", 7);
-        DATA_TYPE_WINGTIP_TO_HOST_GPS_WALKING_START = new <init>("DATA_TYPE_WINGTIP_TO_HOST_GPS_WALKING_START", 8);
-        DATA_TYPE_WINGTIP_TO_HOST_GPS_RUNNING_START = new <init>("DATA_TYPE_WINGTIP_TO_HOST_GPS_RUNNING_START", 9);
-        DATA_TYPE_WINGTIP_TO_HOST_GPS_END = new <init>("DATA_TYPE_WINGTIP_TO_HOST_GPS_END", 10);
-        DATA_TYPE_WINGTIP_TO_HOST_GPS_REQUEST = new <init>("DATA_TYPE_WINGTIP_TO_HOST_GPS_REQUEST", 11);
-        DATA_TYPE_HOST_TO_WINGTIP_GPS_READY = new <init>("DATA_TYPE_HOST_TO_WINGTIP_GPS_READY", 12);
-        DATA_TYPE_HOST_TO_WINGTIP_GPS_DATA = new <init>("DATA_TYPE_HOST_TO_WINGTIP_GPS_DATA", 13);
-        DATA_TYPE_WINGTIP_TO_HOST_GPS_SUBSCRIBE = new <init>("DATA_TYPE_WINGTIP_TO_HOST_GPS_SUBSCRIBE", 14);
-        DATA_TYPE_WINGTIP_TO_HOST_GPS_UNSUBSCRIBE = new <init>("DATA_TYPE_WINGTIP_TO_HOST_GPS_UNSUBSCRIBE", 15);
-        DATA_TYPE_HOST_TO_WINGTIP_GPS_GPSON = new <init>("DATA_TYPE_HOST_TO_WINGTIP_GPS_GPSON", 16);
-        DATA_TYPE_HOST_TO_WINGTIP_GPS_GPSOFF = new <init>("DATA_TYPE_HOST_TO_WINGTIP_GPS_GPSOFF", 17);
-        DATA_TYPE_WINGTIP_TO_HOST_GPS_READY = new <init>("DATA_TYPE_WINGTIP_TO_HOST_GPS_READY", 18);
-        DATA_TYPE_WINGTIP_TO_HOST_GPS_EXERCISE_START = new <init>("DATA_TYPE_WINGTIP_TO_HOST_GPS_EXERCISE_START", 19);
-        DATA_TYPE_HOST_TO_WINGTIP_SET_HEALTH_APP = new <init>("DATA_TYPE_HOST_TO_WINGTIP_SET_HEALTH_APP", 20);
-        DATA_TYPE_WINGTIP_TO_HOST_SET_HEALTH_APP_DONE = new <init>("DATA_TYPE_WINGTIP_TO_HOST_SET_HEALTH_APP_DONE", 21);
-        DATA_TYPE_HOST_TO_WINGTIP_GPS_RESULT = new <init>("DATA_TYPE_HOST_TO_WINGTIP_GPS_RESULT", 22);
-        DATA_TYPE_HOST_TO_WINGTIP_DASHBOARD_SYNC_REQUEST = new <init>("DATA_TYPE_HOST_TO_WINGTIP_DASHBOARD_SYNC_REQUEST", 23);
-        DATA_TYPE_HOST_TO_WINGTIP_DASHBOARD_SYNC_DATA = new <init>("DATA_TYPE_HOST_TO_WINGTIP_DASHBOARD_SYNC_DATA", 24);
-        DATA_TYPE_WINGTIP_TO_HOST_DASHBOARD_SYNC_DATA = new <init>("DATA_TYPE_WINGTIP_TO_HOST_DASHBOARD_SYNC_DATA", 25);
-        DATA_TYPE_WINGTIP_TO_HOST_DASHBOARD_SYNC_DONE = new <init>("DATA_TYPE_WINGTIP_TO_HOST_DASHBOARD_SYNC_DONE", 26);
-        DATA_TYPE_WINGTIP_TO_HOST_BAROMETER_READY = new <init>("DATA_TYPE_WINGTIP_TO_HOST_BAROMETER_READY", 27);
-        DATA_TYPE_HOST_TO_WINGTIP_BAROMETER_ON = new <init>("DATA_TYPE_HOST_TO_WINGTIP_BAROMETER_ON", 28);
-        DATA_TYPE_HOST_TO_WINGTIP_BAROMETER_OFF = new <init>("DATA_TYPE_HOST_TO_WINGTIP_BAROMETER_OFF", 29);
-        
-          public static final int COACHING_PROFILE_TYPE_CYCLING = 11002;
-    public static final int COACHING_PROFILE_TYPE_HIKING = 12001;
-    public static final int COACHING_PROFILE_TYPE_RUNNING = 14002;
-    public static final int COACHING_PROFILE_TYPE_WALKING = 10002;
-    
     
     @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
     find device
@@ -288,6 +207,9 @@ import com.solderbyte.openfit.OpenFitApi;
     bytes = OpenFitApi.getOpenWeatherClock();
     bluetoothLeService.write(bytes);
     
+    clock city request
+    010100000008
+    
     view msg
     030900000013F87CCD5500000000
     
@@ -300,146 +222,6 @@ import com.solderbyte.openfit.OpenFitApi;
     delete notification?
     030900000016CFBCCF5500000000
     @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-    
-    
-    WEATHER
-        public byte[] createWeatherNotificationProtocol(int i, long l, String s, int j)
-    {
-        DataComposer datacomposer = DataComposer.newVariableDataComposer();
-        datacomposer.writeByte((byte)i);
-        datacomposer.writeLong(l);
-        if (s == null)
-        {
-            s = "";
-        }
-        byte abyte0[] = DataComposer.convertToByteArray(s);
-        datacomposer.writeByte((byte)abyte0.length);
-        datacomposer.writeBytes(abyte0);
-        datacomposer.writeInt(j);
-        DataComposer.writeCurrentTimeInfo(datacomposer);
-        return datacomposer.toByteArray();
-    }
-    
-        public static final byte PORT_CM = 99;
-    public static final byte PORT_CM_FEATURE = 100;
-    public static final byte PORT_CUP = 66;
-    public static final byte PORT_FEATURE = 0;
-    public static final byte PORT_FOTA = 77;
-    public static final byte PORT_FOTA_COMMAND = 78;
-    public static final byte PORT_REQUEST_READ_RSSI = 44;
-    public static final byte PORT_RSSI = 127;
-    public static final byte PORT_SENSOR = 8;
 
-    public static byte DATA_TYPE_INCOMING_CALL = 0;
-    public static byte DATA_TYPE_MISSCALL = 1;
-    public static byte DATA_TYPE_EMAIL = 3;
-    public static byte DATA_TYPE_MESSAGE = 4;
-    public static byte DATA_TYPE_ALARM = 5;
-    public static byte DATA_TYPE_WEATHER = 7;
-    public static byte DATA_TYPE_CHATON = 10;
-    public static byte DATA_TYPE_GENERAL= 12;
-    public static byte DATA_TYPE_REJECT_ACTION = 13;
-    public static byte DATA_TYPE_ALARM_ACTION = 14;
-    public static byte DATA_TYPE_SMART_RELAY_REQUEST = 17;
-    public static byte DATA_TYPE_SMART_RELAY_RESPONSE = 18;
-    public static byte DATA_TYPE_IMAGE = 33;
-    public static byte DATA_TYPE_CMAS = 35;
-    public static byte DATA_TYPE_EAS = 36;
-    public static byte DATA_TYPE_RESERVED = 49;
-
-    // Media Controller
-    public static final byte FORWARD = 4;
-    public static final byte FORWARD_RELEASE = 6;
-    public static final byte OPEN = 0;
-    public static final byte PAUSE = 2;
-    public static final byte PLAY = 1;
-    public static final byte REWIND = 5;
-    public static final byte REWIND_RELEASE = 7;
-    public static final byte STOP = 3;
-
-    public static final byte CONTROL = 0;
-    public static final byte INFO = 2;
-    public static final byte REQUEST_START = 3;
-    public static final byte REQUEST_STOP = 4;
-    public static final byte VOLUME = 1;
-
-    // Status Data Type
-    public static final byte ALL_INFO = 2;
-    public static final byte AUTO_LOCK = 3;
-    public static final byte BATTERY_STATUS = 11;
-    public static final byte CLOCK_TYPE_ORDER = 16;
-    public static final byte DISPLAY_TYPE = 24;
-    public static final byte DOUBLE_PRESS_LAUNCH_APP_TYPE = 21;
-    public static final byte FONT_SIZE = 9;
-    public static final byte FOTA = 14;
-    public static final byte HOME_BG_COLOR = 7;
-    public static final byte HOME_BG_GALLERY = 15;
-    public static final byte HOME_BG_WALLPAPER = 8;
-    public static final byte HOME_LAYOUT_ORDER = 18;
-    public static final byte LANGUAGE = 10;
-    public static final byte LANGUAGE_RESOURCE = 20;
-    public static final byte LANGUAGE_RESOURCE_REQUEST = 19;
-    public static final byte OPEN_SOURCE_GUIDE_TYPE = 22;
-    public static final byte REQUEST_ALL_INFO = 1;
-    public static final byte SCREEN_TIMEOUT = 6;
-    public static final byte SHAKE_TO_CONTROL = 17;
-    public static final byte SMART_RELAY = 4;
-    public static final byte SMART_RELAY_CURRENT_DISPLAY = 12;
-    public static final byte SOS = 13;
-    public static final byte WAKEUP_BY_GESTURE = 5;
-    public static final byte WINGTIP_DEVICE_INFO = 23;
-    public static final byte WINGTIP_VERSION = 0;
-
-    // Unknown Data Type
-    public static final byte OPENFIT_DATA = 100;
-
-    // Byte Type
-    static final ByteOrder BYTE_ORDER = ByteOrder.LITTLE_ENDIAN;
-    static final Charset DEFAULT_CHARSET = Charset.forName("UCS-2");
-    static final Charset DEFAULT_DECODING_CHARSET = Charset.forName("US-ASCII");
-    public static final int MAX_UNSIGNED_BYTE_VALUE = 255;
-    public static final int SIZE_OF_DOUBLE = 8;
-    public static final int SIZE_OF_FLOAT = 4;
-    public static final int SIZE_OF_INT = 4;
-    public static final int SIZE_OF_LONG = 8;
-    public static final int SIZE_OF_SHORT = 2;
-
-    // Font Type
-    public static final byte TYPE_FONT_LARGE = 2;
-    public static final byte TYPE_FONT_NORMAL = 1;
-    public static final byte TYPE_FONT_SMALL = 0;
-
-    // HOME BG Type
-    public static final int TYPE_HOME_BG_TY_COLOR = 0;
-    public static final int TYPE_HOME_BG_IMAGE = 2;
-    public static final int TYPE_HOME_BG_WALLPAPER = 1;
-
-    // Unknown Data
-    public static final int DISCONNECTED_BY_ACL_DISCONNECTED = 2;
-    public static final int DISCONNECTED_BY_SOCKET_CLOSED = 1;
-    public static final int DISCONNECTED_BY_TIMEOUT = 3;
-
-    public static final int MSG_ID_CONNECTED = 2;
-    public static final int MSG_ID_DATA_RECEIVED = 5;
-    public static final int MSG_ID_DISCONNECTED = 3;
-    public static final int MSG_ID_ETC_DATA_RECEIVED = 6;
-
-    public static final byte LAUNCHER_APP_TYPE_CLOCK = 1;
-    public static final byte LAUNCHER_APP_TYPE_CUIP = 0;
-    public static final byte LAUNCHER_APP_TYPE_EXERCISE = 6;
-    public static final byte LAUNCHER_APP_TYPE_FIND_MY_DEIVCE = 4;
-    public static final byte LAUNCHER_APP_TYPE_HEARTRATE = 7;
-    public static final byte LAUNCHER_APP_TYPE_MAX = 12;
-    public static final byte LAUNCHER_APP_TYPE_MEDIA_CONTROLLER = 3;
-    public static final byte LAUNCHER_APP_TYPE_NOTIFICATIONS = 2;
-    public static final byte LAUNCHER_APP_TYPE_PEDOMETER = 5;
-    public static final byte LAUNCHER_APP_TYPE_SETTINGS = 10;
-    public static final byte LAUNCHER_APP_TYPE_SLEEP = 11;
-    public static final byte LAUNCHER_APP_TYPE_STOP_WATCH = 9;
-    public static final byte LAUNCHER_APP_TYPE_TIMER = 8;
-
-    public static final byte TEXT_DATE_FORMAT_TYPE = 1; // 0,1,2
-    public static final byte NUMBER_DATE_FORMAT_TYPE = 2; // 0,1,2
-    public static final boolean IS_TIME_DISPLAY_24 = false; // 0,1
 
 */

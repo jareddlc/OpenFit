@@ -59,7 +59,13 @@ public class ApplicationManager {
             catch (NameNotFoundException e) {
                 packageInfo = null;
             }
-            String appName = (String) pm.getApplicationLabel(packageInfo);
+            String appName = null;
+            if(packageInfo != null) {
+                appName = (String) pm.getApplicationLabel(packageInfo);
+            }
+            else {
+                appName = packageName;
+            }
             pName.add(packageName);
             aName.add(appName);
             iDraw.add(icon);

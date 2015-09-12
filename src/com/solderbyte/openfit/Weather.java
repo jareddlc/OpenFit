@@ -62,11 +62,22 @@ public class Weather {
                 if(res != null) {
                     try {
                         JSONObject main = res.getJSONObject(MAIN);
-                        tempCur = main.getString(MAIN_TEMP);
-                        tempMin = main.getString(MAIN_TMIN);
-                        tempMax = main.getString(MAIN_TMAX);
-                        humidity = main.getString(MAIN_HUMD);
-                        pressure = main.getString(MAIN_PRES);
+
+                        if(main.has(MAIN_TEMP)) {
+                            tempCur = main.getString(MAIN_TEMP);
+                        }
+                        if(main.has(MAIN_TMIN)) {
+                            tempMin = main.getString(MAIN_TMIN);
+                        }
+                        if(main.has(MAIN_TMAX)) {
+                            tempMax = main.getString(MAIN_TMAX);
+                        }
+                        if(main.has(MAIN_HUMD)) {
+                            humidity = main.getString(MAIN_HUMD);
+                        }
+                        if(main.has(MAIN_PRES)) {
+                            pressure = main.getString(MAIN_PRES);
+                        }
 
                         if(units.equals("imperial")) {
                             tempUnit = "°F";
@@ -87,7 +98,7 @@ public class Weather {
                         }
 
                         name = res.getString(NAME);
-                    } 
+                    }
                     catch(JSONException e) {
                         e.printStackTrace();
                     }

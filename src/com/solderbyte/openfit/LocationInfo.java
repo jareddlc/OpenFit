@@ -43,7 +43,7 @@ public class LocationInfo {
             Location loc = locationManager.getLastKnownLocation(provider);
             if(loc != null) {
                 if(location != null) {
-                    if(loc.getAccuracy() < location.getAccuracy()) {
+                    if(loc.getTime() < location.getTime()) {
                         location = loc;
                     }
                 }

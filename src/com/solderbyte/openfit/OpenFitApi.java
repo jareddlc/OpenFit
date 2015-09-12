@@ -62,6 +62,26 @@ public class OpenFitApi {
         return oVariableDataComposer.toByteArray();
     }
 
+    public static byte[] getFindStart() {
+        //05020000000100
+        OpenFitVariableDataComposer oVariableDataComposer = new OpenFitVariableDataComposer();
+        oVariableDataComposer.writeByte((byte)5);
+        oVariableDataComposer.writeInt(2);
+        oVariableDataComposer.writeByte((byte)1);
+        oVariableDataComposer.writeByte((byte)OpenFitData.FIND_START);
+        return oVariableDataComposer.toByteArray();
+    }
+
+    public static byte[] getFindStop() {
+        //05020000000101
+        OpenFitVariableDataComposer oVariableDataComposer = new OpenFitVariableDataComposer();
+        oVariableDataComposer.writeByte((byte)5);
+        oVariableDataComposer.writeInt(2);
+        oVariableDataComposer.writeByte((byte)1);
+        oVariableDataComposer.writeByte((byte)OpenFitData.FIND_STOP);
+        return oVariableDataComposer.toByteArray();
+    }
+
     public static byte[] getMediaPrev() {
         //06020000000005
         OpenFitVariableDataComposer oVariableDataComposer = new OpenFitVariableDataComposer();

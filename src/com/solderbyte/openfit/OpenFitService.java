@@ -456,27 +456,6 @@ public class OpenFitService extends Service {
         }
     }
 
-    public void sendFindStart() {
-        Log.d(LOG_TAG, "Find Start");
-        // Implement alarm start
-        if(isFinding == false) {
-            findSoundThread = new FindSoundThread();
-            findSoundThread.start();
-            isFinding = true;
-        }
-    }
-
-    public void sendFindStop() {
-        Log.d(LOG_TAG, "Find Stop");
-        // Implement alarm stop
-
-        if(findSoundThread != null) {
-            findSoundThread = null;
-            Log.d(LOG_TAG, "stopped reconnect thread");
-        }
-        isFinding = false;
-    }
-
     public void sendMediaPrev() {
         Log.d(LOG_TAG, "Media Prev");
         sendOrderedBroadcast(MediaController.prevTrackDown(), null);
@@ -518,6 +497,24 @@ public class OpenFitService extends Service {
         Log.d(LOG_TAG, "Media Request");
         sendMediaTrack();
         sendMediaVolume(MediaController.getVolume(), true);
+    }
+
+    public void sendFindStart() {
+        Log.d(LOG_TAG, "Find Start");
+        if(isFinding == false) {
+            findSoundThread = new FindSoundThread();
+            findSoundThread.start();
+            isFinding = true;
+        }
+    }
+
+    public void sendFindStop() {
+        Log.d(LOG_TAG, "Find Stop");
+        if(findSoundThread != null) {
+            findSoundThread = null;
+            Log.d(LOG_TAG, "stopped find thread");
+        }
+        isFinding = false;
     }
 
     public void sendAppNotification(String packageName, String sender, String title, String message, int id) {
@@ -794,29 +791,6 @@ public class OpenFitService extends Service {
         }
     };
 
-    private class FindSoundThread extends Thread {
-        public void run() {
-            long timeStart = Calendar.getInstance().getTimeInMillis();
-            Log.d(LOG_TAG, "FindSound Start: "+timeStart);
-            ToneGenerator toneG = new ToneGenerator(AudioManager.STREAM_ALARM, ToneGenerator.MAX_VOLUME);
-
-            while(isFinding) {
-                try {
-                    long timeDiff =  Calendar.getInstance().getTimeInMillis() - timeStart;
-                    Log.d(LOG_TAG, "Sound time: " + timeDiff/1000);
-
-                    toneG.startTone(ToneGenerator.TONE_CDMA_ALERT_CALL_GUARD, 200); // 200 ms tone
-                    Thread.sleep(600L);
-                }
-                catch(InterruptedException ie) {
-                    // unexpected interruption while enabling bluetooth
-                    Thread.currentThread().interrupt(); // restore interrupted flag
-                    return;
-                }
-            }
-        }
-    };
-
     private BroadcastReceiver weatherReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -888,4 +862,27 @@ public class OpenFitService extends Service {
             reconnecting = false;
         }
     }
+
+    private class FindSoundThread extends Thread {
+        public void run() {
+            long timeStart = Calendar.getInstance().getTimeInMillis();
+            Log.d(LOG_TAG, "FindSound Start: "+timeStart);
+            ToneGenerator toneG = new ToneGenerator(AudioManager.STREAM_ALARM, ToneGenerator.MAX_VOLUME);
+
+            while(isFinding) {
+                try {
+                    long timeDiff =  Calendar.getInstance().getTimeInMillis() - timeStart;
+                    Log.d(LOG_TAG, "Sound time: " + timeDiff/1000);
+
+                    toneG.startTone(ToneGenerator.TONE_CDMA_ALERT_CALL_GUARD, 200); // 200 ms tone
+                    Thread.sleep(600L);
+                }
+                catch(InterruptedException ie) {
+                    // unexpected interruption while enabling bluetooth
+                    Thread.currentThread().interrupt(); // restore interrupted flag
+                    return;
+                }
+            }
+        }
+    };
 }

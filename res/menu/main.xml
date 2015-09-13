@@ -2,6 +2,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.jareddlc.openfit.MainActivity" >
     <item
+        android:id="@+id/menu_help"
+        android:title="@string/menu_help"
+        android:icon="@drawable/open_help"
+        android:showAsAction="always|collapseActionView">
+    </item>
+    <item
         android:id="@+id/menu_del"
         android:title="@string/menu_del"
         android:icon="@drawable/open_del"

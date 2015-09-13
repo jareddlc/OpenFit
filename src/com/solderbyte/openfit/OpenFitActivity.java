@@ -9,6 +9,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
@@ -49,6 +50,11 @@ public class OpenFitActivity extends Activity {
             DialogDelApplication d = new DialogDelApplication(appManager.getListeningAdapter(getBaseContext()), appManager.getListeningPackageNames(), appManager.getListeningAppNames());
             d.show(getFragmentManager(), "listening");
         }
+        if(item.getTitle().equals(getResources().getString(R.string.menu_help))) {
+            Log.d(LOG_TAG, "Help selected: ");
+            DialogHelp d = new DialogHelp();
+            d.show(getFragmentManager(), "help");
+        }
         return true;
     }
 
@@ -78,6 +84,7 @@ public class OpenFitActivity extends Activity {
         private static ListPreference preference_list_weather;
         private static ListPreference preference_list_devices;
         private static Preference preference_scan;
+        private static Preference preference_donate;
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
@@ -242,6 +249,17 @@ public class OpenFitActivity extends Activity {
                     oPrefs.saveString("preference_list_weather_value", weatherValue);
                     oPrefs.saveString("preference_list_weather_entry", weatherName);
                     sendIntent("bluetooth", "weather", weatherValue);
+                    return true;
+                }
+            });
+
+            preference_donate = (Preference) getPreferenceManager().findPreference("preference_donate");
+            preference_donate.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=2PLHGNYFEUYK8&lc=US&item_name=Open%20Fit%20Donations&item_number=Open%20Fit%20Donation&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_LG%2egif%3aNonHosted"));
+                    //Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.paypal.me/jareddlc"));
+                    startActivity(browserIntent);
                     return true;
                 }
             });

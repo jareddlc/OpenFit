@@ -4,6 +4,7 @@
     <string name="service_name">Open Fit</string>
     <string name="menu_add">Add Application</string>
     <string name="menu_del">Del Application</string>
+    <string name="menu_help">Open Fit Help</string>
     <string name="preference_category_connectivity_title">Connectivity</string>
     <string name="preference_switch_bluetooth_title">Enable Bluetooth</string>
     <string name="preference_scan_title">Scan</string>
@@ -27,4 +28,26 @@
     <string name="preference_list_weather_summary">Select Option</string>
     <string name="preference_list_weather_default">No Updates</string>
     <string name="preference_category_apps_title">Applications</string>
+    <string name="preference_donate_title">Donate</string>
+    <string name="preference_donate_summary">Make a donation via PayPal</string>
+    <string name="open_help">
+        <b>Application Notifications:</b>
+        \n
+        For applications notifications to work,
+        you must turn on "Notification Access" for the Open Fit application.
+        This is commonly found at: Settings>Notifications>Notification Access.
+        \n\n
+        <b>Connection Problems:</b>
+        \n
+        If you cannot pair with Gear Fit from Open Fit application,
+        go to bluetooth settings, make sure the Gear Fit is not on the list of paired devices,
+        If it is you may need to remove it(see note below),
+        Then scan and pair to the Gear Fit. 
+        the pairing will succeed but the Gear Fit will show \'waiting for confirmation..\'.
+        Wait for it to fail and the screen on the Gear Fit will change.
+        Then open the Open Fit app and scan, select device, and connect.
+        \n\n
+        <b>Note:</b> Deleting the Gear Fit from the paired devices in bluetooth settings,
+        will cause a reset to the Gear Fit.
+    </string>
 </resources>

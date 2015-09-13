@@ -26,7 +26,7 @@ public class DialogAddApplication extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle("Add Application");
+        builder.setTitle(R.string.menu_add);
         builder.setAdapter(addApplication, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int index) {
                 Intent msg = new Intent("addApplication");

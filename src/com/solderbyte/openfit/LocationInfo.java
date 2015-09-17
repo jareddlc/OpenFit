@@ -7,7 +7,9 @@ import android.content.Context;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Bundle;
 import android.util.Log;
 
 
@@ -18,6 +20,8 @@ public class LocationInfo {
     private static LocationManager locationManager = null;
     //private static Criteria criteria = null;
     private static Location location = null;
+    private static Location locationGPS = null;
+    private static Location locationNet = null;
     private static Geocoder geocoder = null;
     private static List<String> providers = null;
 
@@ -34,6 +38,7 @@ public class LocationInfo {
         geocoder = new Geocoder(context, Locale.getDefault());
 
         updateLastKnownLocation();
+        //listenForLocation();
     }
 
     public static void updateLastKnownLocation() {
@@ -56,7 +61,6 @@ public class LocationInfo {
         //criteria = new Criteria();
         //locationManager.getBestProvider(criteria, true);
         //location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, true));
-        
         if(location != null) {
             latitude = location.getLatitude();
             longitude = location.getLongitude();
@@ -68,13 +72,69 @@ public class LocationInfo {
                     StateName = addresses.get(0).getAdminArea();
                     CountryName = addresses.get(0).getCountryName();
                     CountryCode = addresses.get(0).getCountryCode();
-                    Log.d(LOG_TAG, "Location: "+ cityName + ", " + StateName + " " + CountryName);
+                    Log.d(LOG_TAG, "Location: "+ cityName + ", " + CountryCode);
                 }
             }
             catch (Exception e) {
                 Log.e(LOG_TAG, "Error: "+ e);
             }
         }
+    }
+
+    public static Location getLastBestLocation() {
+        locationGPS = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        locationNet = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+        long GPSLocationTime = 0;
+        long NetLocationTime = 0;
+
+        if(locationGPS != null) { 
+            GPSLocationTime = locationGPS.getTime();
+        }
+        if(locationNet != null) {
+            NetLocationTime = locationNet.getTime();
+        }
+        if(GPSLocationTime - NetLocationTime < 0) {
+            return locationGPS;
+        }
+        else {
+            return locationNet;
+        }
+    }
+
+    public static void listenForLocation() {
+        LocationListener locationListener = new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+                Log.d(LOG_TAG, "onLocationChanged");
+                if(location != null) {
+                    latitude = location.getLatitude();
+                    longitude = location.getLongitude();
+                    
+                    try {
+                        addresses = geocoder.getFromLocation(latitude, longitude, 1);
+                        if(addresses.size() > 0) {
+                            cityName = addresses.get(0).getLocality();
+                            StateName = addresses.get(0).getAdminArea();
+                            CountryName = addresses.get(0).getCountryName();
+                            CountryCode = addresses.get(0).getCountryCode();
+                            Log.d(LOG_TAG, "Location Update: "+ cityName + ", " + CountryCode);
+                        }
+                    }
+                    catch (Exception e) {
+                        Log.e(LOG_TAG, "Error: "+ e);
+                    }
+                }
+                locationManager.removeUpdates(this);
+            }
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {}
+            @Override
+            public void onProviderDisabled(String provider) {}
+            @Override
+            public void onProviderEnabled(String provider) {}
+           };
+
+         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
     }
 
     public static String getCityName() {
@@ -91,5 +151,13 @@ public class LocationInfo {
 
     public static String getCountryCode() {
         return CountryCode;
+    }
+
+    public static double getLat() {
+        return latitude;
+    }
+
+    public static double getLon() {
+        return longitude;
     }
 }

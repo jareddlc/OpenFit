@@ -15,7 +15,7 @@ public class Weather {
 
     private static String APIKEY = "APPID=00042ee1a3e6f5dbb2a3c63e4e8fb50a";
     private static String APIURL = "http://api.openweathermap.org/data/2.5/weather";
-    private static String QUERY = "?q=";
+    private static String QUERY = "?";
     private static String AMP = "&";
     private static String UNITS = "units=";
 
@@ -53,9 +53,9 @@ public class Weather {
         http = new HttpClient(cntxt);
     }
 
-    public static void getWeather(String cityName) {
-        Log.d(LOG_TAG, "Getting weather info for: " + cityName);
-        http.get(APIURL + QUERY + cityName + AMP + UNITS + units + AMP + APIKEY, new AsyncResponse() {
+    public static void getWeather(String query, final String location) {
+        Log.d(LOG_TAG, "Getting weather info for: " + query + " - " + location);
+        http.get(APIURL + QUERY + query + AMP + UNITS + units + AMP + APIKEY, new AsyncResponse() {
             @Override
             public void callback(JSONObject res) {
                 Log.d(LOG_TAG, "Weather callback");
@@ -114,6 +114,7 @@ public class Weather {
                     msg.putExtra("pressure", pressure);
                     msg.putExtra("icon", icon);
                     msg.putExtra("tempUnit", tempUnit);
+                    msg.putExtra("location", location);
                     context.sendBroadcast(msg);
                 }
             }

@@ -795,7 +795,7 @@ public class OpenFitService extends Service {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d(LOG_TAG, "Weather updated: ");
-            String name = intent.getStringExtra("name");
+            //String name = intent.getStringExtra("name");
             //String weather = intent.getStringExtra("weather");
             String description = intent.getStringExtra("description");
             String tempCur = intent.getStringExtra("tempCur");
@@ -805,6 +805,7 @@ public class OpenFitService extends Service {
             //String humidity = intent.getStringExtra("humidity");
             //String pressure = intent.getStringExtra("pressure");
             String icon = intent.getStringExtra("icon");
+            String location = intent.getStringExtra("location");
 
             /*Log.d(LOG_TAG, "City Name: " + name);
             Log.d(LOG_TAG, "Weather: " + weather);
@@ -817,7 +818,7 @@ public class OpenFitService extends Service {
             Log.d(LOG_TAG, "Pressure: " + pressure);
             Log.d(LOG_TAG, "icon: " + icon);*/
 
-            String weatherInfo = name + ": " + tempCur + tempUnit + "\nWeather: " + description;
+            String weatherInfo = location + ": " + tempCur + tempUnit + "\nWeather: " + description;
             Log.d(LOG_TAG, weatherInfo);
             sendWeatherNotifcation(weatherInfo, icon);
         }
@@ -830,9 +831,27 @@ public class OpenFitService extends Service {
             if(weatherEnabled) {
                 LocationInfo.updateLastKnownLocation();
 
-                if(LocationInfo.getCityName() != null && LocationInfo.getStateName() != null) {
-                    String query = LocationInfo.getCityName().replace(" ", "%20") + "," + LocationInfo.getCountryCode();
+                /*if(LocationInfo.getCityName() != null && LocationInfo.getStateName() != null) {
+                    String query = "q=" + LocationInfo.getCityName().replace(" ", "%20") + "," + LocationInfo.getCountryCode();
                     Weather.getWeather(query);
+                }*/
+                if(LocationInfo.getLat() != 0 && LocationInfo.getLon() != 0) {
+                    String query = "lat=" + LocationInfo.getLat() + "&lon=" + LocationInfo.getLon();
+                    String country = null;
+                    String location = null;
+                    if(LocationInfo.getCountryCode() != null) {
+                        country = LocationInfo.getCountryCode();
+                    }
+                    else if(LocationInfo.getCountryName() != null) {
+                        country = LocationInfo.getCountryName();
+                    }
+                    if(country != null) {
+                        location = LocationInfo.getCityName() + ", " + country;
+                    }
+                    else {
+                        location = LocationInfo.getCityName();
+                    }
+                    Weather.getWeather(query, location);
                 }
             }
         }

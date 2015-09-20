@@ -171,6 +171,11 @@ public class OpenFitApi {
     //06020000000006
     //06020000000007
 
+    public static byte[] getFitness() {
+        OpenFitVariableDataComposer oVariableDataComposer = new OpenFitVariableDataComposer();
+        oVariableDataComposer.writeByte((byte)2);
+        return oVariableDataComposer.toByteArray();
+    }
 
     public static byte[] getFitnessSync() {
         //02

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Locale;
 
 import android.content.Context;
+import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -15,7 +16,7 @@ import android.util.Log;
 
 public class LocationInfo {
     private static final String LOG_TAG = "OpenFit:Location";
-    
+
     private static List<Address> addresses = null;
     private static LocationManager locationManager = null;
     //private static Criteria criteria = null;
@@ -32,13 +33,16 @@ public class LocationInfo {
     private static double latitude = 0;
     private static double longitude = 0;
 
-    public static void init(Context context) {
+    private static Context context;
+
+    public static void init(Context cntxt) {
         Log.d(LOG_TAG, "Initializing Location");
+        context = cntxt;
         locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         geocoder = new Geocoder(context, Locale.getDefault());
 
         updateLastKnownLocation();
-        //listenForLocation();
+        listenForLocation();
     }
 
     public static void updateLastKnownLocation() {
@@ -105,7 +109,6 @@ public class LocationInfo {
         LocationListener locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
-                Log.d(LOG_TAG, "onLocationChanged");
                 if(location != null) {
                     latitude = location.getLatitude();
                     longitude = location.getLongitude();
@@ -117,7 +120,14 @@ public class LocationInfo {
                             StateName = addresses.get(0).getAdminArea();
                             CountryName = addresses.get(0).getCountryName();
                             CountryCode = addresses.get(0).getCountryCode();
-                            Log.d(LOG_TAG, "Location Update: "+ cityName + ", " + CountryCode);
+                            Log.d(LOG_TAG, "onLocationChanged: "+ cityName + ", " + CountryCode);
+
+                            Intent msg = new Intent("location");
+                            msg.putExtra("cityName", cityName);
+                            msg.putExtra("StateName", StateName);
+                            msg.putExtra("CountryName", CountryName);
+                            msg.putExtra("CountryCode", CountryCode);
+                            context.sendBroadcast(msg);
                         }
                     }
                     catch (Exception e) {

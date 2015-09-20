@@ -53,6 +53,7 @@ public class OpenFitService extends Service {
     private boolean reconnecting = false;
     private boolean isStopping = false;
     private boolean isFinding = false;
+    //private boolean isDataExtra = false;
     private SmsListener smsListener;
     private MmsListener mmsListener;
     private TelephonyManager telephony;
@@ -80,6 +81,7 @@ public class OpenFitService extends Service {
         this.registerReceiver(mediaReceiver, MediaController.getIntentFilter());
         this.registerReceiver(alarmReceiver, Alarm.getIntentFilter());
         this.registerReceiver(weatherReceiver, new IntentFilter("weather"));
+        this.registerReceiver(locationReceiver, new IntentFilter("location"));
         this.registerReceiver(cronReceiver, new IntentFilter("cronJob"));
 
         pManager = this.getPackageManager();
@@ -261,6 +263,9 @@ public class OpenFitService extends Service {
                 }
                 startWeather();
             }
+            if(message.equals("heartrate")) {
+                sendFitnessHeartBeat();
+            }
             if(message.equals("phone")) {
                 String s = intent.getStringExtra("data");
                 phoneEnabled = Boolean.parseBoolean(s);
@@ -317,6 +322,17 @@ public class OpenFitService extends Service {
         }
         if(Arrays.equals(data, OpenFitApi.getFitnessSyncRes())) {
             sendFitnessHeartBeat();
+        }
+        if(OpenFitApi.byteArrayToHexString(data).contains(OpenFitApi.byteArrayToHexString(OpenFitApi.getFitness()))) {
+            Log.d(LOG_TAG, "Fitness");
+            if(Fitness.isFitnessData(data)) {
+                Log.d(LOG_TAG, "Fitness data true");
+                Fitness.parseData(data);
+                //isDataExtra = true;
+            }
+            else {
+                Log.d(LOG_TAG, "Fitness data false");
+            }
         }
         if(OpenFitApi.byteArrayToHexString(data).contains(OpenFitApi.byteArrayToHexString(OpenFitApi.getOpenRejectCall()))) {
             endCall();
@@ -630,6 +646,31 @@ public class OpenFitService extends Service {
             Cronjob.stop();
         }
     }
+    
+    public void getWeather() {
+        /*if(LocationInfo.getCityName() != null && LocationInfo.getStateName() != null) {
+            String query = "q=" + LocationInfo.getCityName().replace(" ", "%20") + "," + LocationInfo.getCountryCode();
+            Weather.getWeather(query);
+        }*/
+        if(LocationInfo.getLat() != 0 && LocationInfo.getLon() != 0) {
+            String query = "lat=" + LocationInfo.getLat() + "&lon=" + LocationInfo.getLon();
+            String country = null;
+            String location = null;
+            if(LocationInfo.getCountryCode() != null) {
+                country = LocationInfo.getCountryCode();
+            }
+            else if(LocationInfo.getCountryName() != null) {
+                country = LocationInfo.getCountryName();
+            }
+            if(country != null) {
+                location = LocationInfo.getCityName() + ", " + country;
+            }
+            else {
+                location = LocationInfo.getCityName();
+            }
+            Weather.getWeather(query, location);
+        }
+    }
 
     // Does not work
     /*public void snoozeAlarm() {
@@ -672,6 +713,7 @@ public class OpenFitService extends Service {
             unregisterReceiver(mediaReceiver);
             unregisterReceiver(alarmReceiver);
             unregisterReceiver(weatherReceiver);
+            unregisterReceiver(locationReceiver);
             unregisterReceiver(cronReceiver);
             unbindService(mServiceConnection);
             Cronjob.stop();
@@ -794,7 +836,7 @@ public class OpenFitService extends Service {
     private BroadcastReceiver weatherReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d(LOG_TAG, "Weather updated: ");
+            Log.d(LOG_TAG, "weatherReceiver updated: ");
             //String name = intent.getStringExtra("name");
             //String weather = intent.getStringExtra("weather");
             String description = intent.getStringExtra("description");
@@ -824,35 +866,23 @@ public class OpenFitService extends Service {
         }
     };
 
+    private BroadcastReceiver locationReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d(LOG_TAG, "locationReceiver updated: ");
+            getWeather();
+        }
+    };
+
     private BroadcastReceiver cronReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d(LOG_TAG, "#####CronJob#####");
             if(weatherEnabled) {
-                LocationInfo.updateLastKnownLocation();
-
-                /*if(LocationInfo.getCityName() != null && LocationInfo.getStateName() != null) {
-                    String query = "q=" + LocationInfo.getCityName().replace(" ", "%20") + "," + LocationInfo.getCountryCode();
-                    Weather.getWeather(query);
-                }*/
-                if(LocationInfo.getLat() != 0 && LocationInfo.getLon() != 0) {
-                    String query = "lat=" + LocationInfo.getLat() + "&lon=" + LocationInfo.getLon();
-                    String country = null;
-                    String location = null;
-                    if(LocationInfo.getCountryCode() != null) {
-                        country = LocationInfo.getCountryCode();
-                    }
-                    else if(LocationInfo.getCountryName() != null) {
-                        country = LocationInfo.getCountryName();
-                    }
-                    if(country != null) {
-                        location = LocationInfo.getCityName() + ", " + country;
-                    }
-                    else {
-                        location = LocationInfo.getCityName();
-                    }
-                    Weather.getWeather(query, location);
-                }
+                //LocationInfo.updateLastKnownLocation();
+                //getWeather();
+                LocationInfo.listenForLocation();
+                
             }
         }
     };

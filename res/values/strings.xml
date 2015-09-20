@@ -27,6 +27,9 @@
     <string name="preference_list_weather_dialog">Select Weather</string>
     <string name="preference_list_weather_summary">Select Option</string>
     <string name="preference_list_weather_default">No Updates</string>
+    <string name="preference_heartrate_title">Heart Rate</string>
+    <string name="preference_heartrate_dialog">Heart Rate</string>
+    <string name="preference_heartrate_summary">Heart Rate Updates</string>
     <string name="preference_category_apps_title">Applications</string>
     <string name="preference_donate_title">Donate</string>
     <string name="preference_donate_summary">Make a donation via PayPal</string>

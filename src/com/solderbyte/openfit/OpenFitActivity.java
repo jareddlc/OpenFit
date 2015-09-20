@@ -84,6 +84,7 @@ public class OpenFitActivity extends Activity {
         private static ListPreference preference_list_weather;
         private static ListPreference preference_list_devices;
         private static Preference preference_scan;
+        //private static Preference preference_heartrate;
         private static Preference preference_donate;
 
         @Override
@@ -174,7 +175,7 @@ public class OpenFitActivity extends Activity {
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
                     if((Boolean)newValue) {
                         //String mDeviceAddress = oPrefs.preference_list_devices_value;
-                        String mDeviceName = oPrefs.preference_list_devices_entry;
+                        String mDeviceName = oPrefs.getString("preference_list_devices_entry");
                         Toast.makeText(getActivity(), "Attempting to connect to: "+mDeviceName, Toast.LENGTH_SHORT).show();
                         sendIntent("bluetooth", "connect");
                         return false;
@@ -252,6 +253,15 @@ public class OpenFitActivity extends Activity {
                     return true;
                 }
             });
+
+            /*preference_heartrate = (Preference) getPreferenceManager().findPreference("preference_heartrate");
+            preference_heartrate.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    sendIntent("bluetooth", "heartrate");
+                    return true;
+                }
+            });*/
 
             preference_donate = (Preference) getPreferenceManager().findPreference("preference_donate");
             preference_donate.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {

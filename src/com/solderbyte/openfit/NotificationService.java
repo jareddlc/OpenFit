@@ -33,6 +33,22 @@ public class NotificationService extends NotificationListenerService {
     @Override
     public void onNotificationPosted(StatusBarNotification sbn) {
         String packageName = sbn.getPackageName();
+       
+        if (!listeningListPackageNames.contains(packageName)) { 
+        	// Ignore packages we are not interested in
+        	return;
+        }
+        
+        // API v19
+        Notification notification = sbn.getNotification();
+        Bundle extras = notification.extras;
+        //String category = notification.category; API v21
+        
+        if ((notification.flags & Notification.FLAG_ONGOING_EVENT) != 0) { 
+        	// Ignore ongoing notifications
+    		return;
+    	}
+        
         String ticker = null;
         String message = null;
         String submessage = null;
@@ -49,10 +65,6 @@ public class NotificationService extends NotificationListenerService {
         long time = sbn.getPostTime();
         int id = sbn.getId();
 
-        // API v19
-        Notification notification = sbn.getNotification();
-        Bundle extras = notification.extras;
-        //String category = notification.category; API v21
 
         if(extras.getCharSequence("android.title") != null) {
             title = extras.getString("android.title");
@@ -72,33 +84,32 @@ public class NotificationService extends NotificationListenerService {
 
         Log.d(LOG_TAG, "Captured notification message: " + message + " from source:" + packageName);
 
-        if(listeningListPackageNames.contains(packageName)) {
-            Log.d(LOG_TAG, "ticker: " + ticker);
-            Log.d(LOG_TAG, "title: " + title);
-            Log.d(LOG_TAG, "message: " + message);
-            Log.d(LOG_TAG, "tag: " + tag);
-            Log.d(LOG_TAG, "time: " + time);
-            Log.d(LOG_TAG, "id: " + id);
-            Log.d(LOG_TAG, "submessage: " + submessage);
-            Log.d(LOG_TAG, "summary: " + summary);
-            Log.d(LOG_TAG, "info: " + info);
-            //Log.d(LOG_TAG, "category: " + category);
+    	Log.d(LOG_TAG, "ticker: " + ticker);
+        Log.d(LOG_TAG, "title: " + title);
+        Log.d(LOG_TAG, "message: " + message);
+        Log.d(LOG_TAG, "tag: " + tag);
+        Log.d(LOG_TAG, "time: " + time);
+        Log.d(LOG_TAG, "id: " + id);
+        Log.d(LOG_TAG, "submessage: " + submessage);
+        Log.d(LOG_TAG, "summary: " + summary);
+        Log.d(LOG_TAG, "info: " + info);
+        //Log.d(LOG_TAG, "category: " + category);
 
-            Intent msg = new Intent("notification");
-            msg.putExtra("packageName", packageName);
-            msg.putExtra("ticker", ticker);
-            msg.putExtra("title", title);
-            msg.putExtra("message", message);
-            msg.putExtra("time", time);
-            msg.putExtra("id", id);
-            if(submessage != null) {
-                msg.putExtra("submessage", submessage);
-            }
-
-            //LocalBroadcastManager.getInstance(context).sendBroadcast(msg);
-            context.sendBroadcast(msg);
-            Log.d(LOG_TAG, "Sending notification message: " + message + " from source:" + packageName);
+        Intent msg = new Intent("notification");
+        msg.putExtra("packageName", packageName);
+        msg.putExtra("ticker", ticker);
+        msg.putExtra("title", title);
+        msg.putExtra("message", message);
+        msg.putExtra("time", time);
+        msg.putExtra("id", id);
+        if(submessage != null) {
+            msg.putExtra("submessage", submessage);
         }
+
+        //LocalBroadcastManager.getInstance(context).sendBroadcast(msg);
+        context.sendBroadcast(msg);
+        Log.d(LOG_TAG, "Sending notification message: " + message + " from source:" + packageName);
+        
     }
 
     @Override

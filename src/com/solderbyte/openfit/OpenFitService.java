@@ -545,7 +545,7 @@ public class OpenFitService extends Service {
 
     public void sendDialerNotification(String number) {
         long id = (long)(System.currentTimeMillis() / 1000L);
-        String sender = "OpenFit Call";
+        String sender = number;
         String name = getContactName(number);
         if(name != null) {
             sender = name;

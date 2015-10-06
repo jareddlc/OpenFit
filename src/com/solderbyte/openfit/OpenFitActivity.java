@@ -1,5 +1,6 @@
 package com.solderbyte.openfit;
 
+import java.util.ArrayList;
 import java.util.Set;
 
 import com.solderbyte.openfit.R;
@@ -84,7 +85,7 @@ public class OpenFitActivity extends Activity {
         private static ListPreference preference_list_weather;
         private static ListPreference preference_list_devices;
         private static Preference preference_scan;
-        //private static Preference preference_heartrate;
+        private static Preference preference_fitness;
         private static Preference preference_donate;
 
         @Override
@@ -254,14 +255,15 @@ public class OpenFitActivity extends Activity {
                 }
             });
 
-            /*preference_heartrate = (Preference) getPreferenceManager().findPreference("preference_heartrate");
-            preference_heartrate.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            preference_fitness = (Preference) getPreferenceManager().findPreference("preference_fitness");
+            preference_fitness.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
                     sendIntent("bluetooth", "heartrate");
+                    Toast.makeText(getActivity(), "Requesting fitness data...", Toast.LENGTH_SHORT).show();
                     return true;
                 }
-            });*/
+            });
 
             preference_donate = (Preference) getPreferenceManager().findPreference("preference_donate");
             preference_donate.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -330,16 +332,6 @@ public class OpenFitActivity extends Activity {
                     CharSequence[] entries = intent.getCharSequenceArrayExtra("bluetoothEntries");
                     CharSequence[] entryValues = intent.getCharSequenceArrayExtra("bluetoothEntryValues");
 
-                    /*for(int i = 0; i < entries.length; i++) {
-                        Toast.makeText(getActivity(), "Entries "+i+": " +entries[i], Toast.LENGTH_SHORT).show();
-                        Log.d(LOG_TAG, "entries" + entries[i]);
-                    }
-                    for(int i = 0; i < entryValues.length; i++) {
-                        Toast.makeText(getActivity(), "Values "+i+": " +entryValues[i], Toast.LENGTH_SHORT).show();
-                        Log.d(LOG_TAG, "entryValues" + entryValues[i]);
-                    }*/
-
-
                     if(entries != null && entryValues != null) {
                         preference_list_devices.setEntries(entries);
                         preference_list_devices.setEntryValues(entryValues);
@@ -347,6 +339,16 @@ public class OpenFitActivity extends Activity {
                     else {
                         Toast.makeText(getActivity(), "Error setting devices list", Toast.LENGTH_SHORT).show();
                     }
+                }
+                if(message.equals("fitness")) {
+                    Log.d(LOG_TAG, "Fitness data");
+
+                    PedometerTotal pedometerTotal = intent.getParcelableExtra("pedometerTotal");
+                    ArrayList<PedometerData> pedometerList = intent.getParcelableArrayListExtra("pedometerArrayList");
+                    ArrayList<PedometerData> pedometerDailyList = intent.getParcelableArrayListExtra("pedometerDailyArrayList");
+
+                    DialogFitness d = new DialogFitness(getActivity(), pedometerDailyList, pedometerList, pedometerTotal);
+                    d.show(getFragmentManager(), "fitness");
                 }
             }
         }

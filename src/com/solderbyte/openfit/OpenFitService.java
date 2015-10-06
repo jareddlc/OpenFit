@@ -53,7 +53,6 @@ public class OpenFitService extends Service {
     private boolean reconnecting = false;
     private boolean isStopping = false;
     private boolean isFinding = false;
-    //private boolean isDataExtra = false;
     private SmsListener smsListener;
     private MmsListener mmsListener;
     private TelephonyManager telephony;
@@ -261,7 +260,7 @@ public class OpenFitService extends Service {
                     Weather.setUnits(unit);
                     weatherEnabled = true;
                 }
-                startWeather();
+                startWeatherCronJob();
             }
             if(message.equals("heartrate")) {
                 sendFitnessHeartBeat();
@@ -323,12 +322,14 @@ public class OpenFitService extends Service {
         if(Arrays.equals(data, OpenFitApi.getFitnessSyncRes())) {
             sendFitnessHeartBeat();
         }
-        if(OpenFitApi.byteArrayToHexString(data).contains(OpenFitApi.byteArrayToHexString(OpenFitApi.getFitness()))) {
-            Log.d(LOG_TAG, "Fitness");
+        if(Fitness.isPendingData()) {
+            handleFitnessData(data);
+        }
+        if(OpenFitApi.byteArrayToHexString(data).startsWith(OpenFitApi.byteArrayToHexString(OpenFitApi.getFitness()))) {
+            Log.d(LOG_TAG, "Fitness Received: " + data.length);
             if(Fitness.isFitnessData(data)) {
-                Log.d(LOG_TAG, "Fitness data true");
-                Fitness.parseData(data);
-                //isDataExtra = true;
+                Log.d(LOG_TAG, "Fitness data found setting listener");
+                handleFitnessData(data);
             }
             else {
                 Log.d(LOG_TAG, "Fitness data false");
@@ -336,6 +337,22 @@ public class OpenFitService extends Service {
         }
         if(OpenFitApi.byteArrayToHexString(data).contains(OpenFitApi.byteArrayToHexString(OpenFitApi.getOpenRejectCall()))) {
             endCall();
+        }
+    }
+
+    public void handleFitnessData(byte[] data) {
+        Fitness.addData(data);
+        if(!Fitness.isPendingData()) {
+            Log.d(LOG_TAG, "Fitness data complete");
+            Fitness.parseData();
+            Intent i = new Intent("bluetoothUI");
+            i.putExtra("message", "fitness");
+            i.putExtra("pedometerTotal", Fitness.getPedometerTotal());
+            i.putExtra("pedometerList", Fitness.getPedometerList());
+            i.putParcelableArrayListExtra("pedometerArrayList", Fitness.getPedometerList());
+            i.putParcelableArrayListExtra("pedometerDailyArrayList", Fitness.getPedometerDailyList());
+
+            sendBroadcast(i);
         }
     }
 
@@ -637,21 +654,18 @@ public class OpenFitService extends Service {
         bluetoothLeService.write(bytes);
     }
 
-    public void startWeather() {
-        Log.d(LOG_TAG, "Starting Weather Cronjob");
+    public void startWeatherCronJob() {
         if(weatherEnabled) {
+            Log.d(LOG_TAG, "Starting Weather Cronjob");
             Cronjob.start();
         }
         else {
+            Log.d(LOG_TAG, "Stopping Weather Cronjob");
             Cronjob.stop();
         }
     }
-    
+
     public void getWeather() {
-        /*if(LocationInfo.getCityName() != null && LocationInfo.getStateName() != null) {
-            String query = "q=" + LocationInfo.getCityName().replace(" ", "%20") + "," + LocationInfo.getCountryCode();
-            Weather.getWeather(query);
-        }*/
         if(LocationInfo.getLat() != 0 && LocationInfo.getLon() != 0) {
             String query = "lat=" + LocationInfo.getLat() + "&lon=" + LocationInfo.getLon();
             String country = null;
@@ -668,7 +682,9 @@ public class OpenFitService extends Service {
             else {
                 location = LocationInfo.getCityName();
             }
-            Weather.getWeather(query, location);
+            if(weatherEnabled) {
+                Weather.getWeather(query, location);
+            }
         }
     }
 
@@ -869,7 +885,7 @@ public class OpenFitService extends Service {
     private BroadcastReceiver locationReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d(LOG_TAG, "locationReceiver updated: ");
+            Log.d(LOG_TAG, "locationReceiver updated");
             getWeather();
         }
     };

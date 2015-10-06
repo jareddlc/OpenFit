@@ -595,6 +595,9 @@ public class OpenFitApi {
 
     public static int getOpenWeatherIcon(String icon) {
         int i = 0;
+        if(icon == null) {
+            icon = "01";
+        }
         if(icon.contains("01")) {
             i = OpenFitData.WEATHER_TYPE_SUNNY;
         }

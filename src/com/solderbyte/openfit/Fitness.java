@@ -100,6 +100,9 @@ public class Fitness {
         ByteBuffer buffer = ByteBuffer.wrap(fitnessStream.toByteArray());
         buffer = buffer.order(ByteOrder.LITTLE_ENDIAN);
 
+        if(buffer.capacity() < 14) {
+            return;
+        }
         byte msgType = buffer.get();
         int msgSize = buffer.getInt();
         int byte4 = buffer.getInt();
@@ -149,7 +152,6 @@ public class Fitness {
     public static void parsePedometer(ByteBuffer buffer) {
         int pedometerSize = buffer.getInt();
         Log.d(LOG_TAG, "Pedometer size: " + pedometerSize);
-        ArrayList<Date> pedometerDailyDates = new ArrayList<Date>();
         Calendar cal = Calendar.getInstance();
         int pedometerTotalSteps = 0;
         float pedometerTotalDistance = 0;
@@ -177,11 +179,9 @@ public class Fitness {
                     dailyCalorie += calorie;
                 }
                 else if(i == (pedometerSize - 1)) {
-                    pedometerDailyDates.add(date);
                     pedometerDailyList.add(new PedometerData(timeStamp, dailySteps, dailyDistance, dailyCalorie));
                 }
                 else {
-                    pedometerDailyDates.add(date);
                     pedometerDailyList.add(new PedometerData(timeStamp, dailySteps, dailyDistance, dailyCalorie));
                     dailySteps = 0;
                     dailyDistance = 0;

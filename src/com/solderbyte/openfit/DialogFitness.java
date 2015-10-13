@@ -51,6 +51,7 @@ public class DialogFitness extends DialogFragment {
         for(int i = 0; i < pedometerDailyList.size(); i++) {
             Date date = new Date(pedometerDailyList.get(i).getTimeStamp());
             cal.setTime(date);
+            cal.set(Calendar.DAY_OF_MONTH, (cal.get(Calendar.DAY_OF_MONTH) - 1));
             String month = cal.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault());
             String day = Integer.toString(cal.get(Calendar.DAY_OF_MONTH));
             String year = Integer.toString(cal.get(Calendar.YEAR));

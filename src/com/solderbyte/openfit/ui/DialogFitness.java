@@ -1,9 +1,13 @@
-package com.solderbyte.openfit;
+package com.solderbyte.openfit.ui;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+
+import com.solderbyte.openfit.PedometerData;
+import com.solderbyte.openfit.PedometerTotal;
+import com.solderbyte.openfit.R;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -21,7 +25,6 @@ public class DialogFitness extends DialogFragment {
     private ListAdapter adapter;
     private Context context;
     public DialogFitness(Context cntxt, ArrayList<PedometerData> pedometerDailyList, ArrayList<PedometerData> pedometerList, PedometerTotal pedometerTotal) {
-        Log.d(LOG_TAG, "DialogFitness");
         context = cntxt;
         buildAdapter(pedometerDailyList, pedometerList, pedometerTotal);
     }
@@ -29,13 +32,13 @@ public class DialogFitness extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle(R.string.menu_fitness);
+        builder.setTitle(R.string.dialog_title_fitness);
         builder.setAdapter(adapter, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int index) {
                 Log.d(LOG_TAG, "Clicked: " + index);
             }
         });
-        builder.setPositiveButton("Close",  new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(R.string.dialog_close_fitness,  new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int index) {}
         });
 

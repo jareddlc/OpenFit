@@ -1,4 +1,4 @@
-package com.solderbyte.openfit;
+package com.solderbyte.openfit.ui;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,4 +1,6 @@
-package com.solderbyte.openfit;
+package com.solderbyte.openfit.ui;
+
+import com.solderbyte.openfit.R;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -10,14 +12,15 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.ListAdapter;
 
-public class DialogAddApplication extends DialogFragment {
-    private static final String LOG_TAG = "OpenFit:DialogAddApplication";
+public class DialogDelApplication extends DialogFragment {
+    private static final String LOG_TAG = "OpenFit:DialogDelApplication";
+    private static final String INTENT_UI_DELAPPLICATION = "com.solderbyte.openfit.ui.delapplication";
 
     private CharSequence[] packageNames = new CharSequence[0];
     private CharSequence[] appNames = new CharSequence[0];
     private ListAdapter addApplication;
 
-    public DialogAddApplication(ListAdapter adapter, CharSequence[] pNames, CharSequence[] aNames) {
+    public DialogDelApplication(ListAdapter adapter, CharSequence[] pNames, CharSequence[] aNames) {
         addApplication = adapter;
         packageNames = pNames;
         appNames = aNames;
@@ -26,10 +29,10 @@ public class DialogAddApplication extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle(R.string.menu_add);
+        builder.setTitle(R.string.dialog_title_del);
         builder.setAdapter(addApplication, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int index) {
-                Intent msg = new Intent("addApplication");
+                Intent msg = new Intent(INTENT_UI_DELAPPLICATION);
                 msg.putExtra("packageName", packageNames[index]);
                 msg.putExtra("appName", appNames[index]);
                 LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(msg);
@@ -39,4 +42,5 @@ public class DialogAddApplication extends DialogFragment {
 
         return builder.create();
     }
+
 }

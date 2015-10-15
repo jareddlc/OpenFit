@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest package="com.solderbyte.openfit"
-    android:versionCode="144"
-    android:versionName="1.4.4" xmlns:android="http://schemas.android.com/apk/res/android">
+    android:versionCode="145"
+    android:versionName="1.4.5" xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-sdk
         android:minSdkVersion="19"
@@ -29,7 +29,7 @@
         android:label="@string/app_name"
         android:theme="@android:style/Theme.DeviceDefault">
         <activity
-            android:name=".OpenFitActivity"
+            android:name="com.solderbyte.openfit.ui.OpenFitActivity"
             android:label="@string/app_name"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:screenOrientation="portrait" >

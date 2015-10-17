@@ -14,31 +14,61 @@ public class OpenFitTimeZoneUtil {
         try {
             Field oField = pTimeZone.getClass().getDeclaredField("mTransitions");
             oField.setAccessible(true);
-            int[] paramTimeZone = (int[])oField.get(pTimeZone);
+            int[] paramTimeZone = (int[]) oField.get(pTimeZone);
             return paramTimeZone;
         }
         catch(NoSuchFieldException eTimeZone) {
             Log.w(LOG_TAG, eTimeZone.getMessage(), eTimeZone);
             return null;
         }
-        catch (IllegalArgumentException eTimeZone) {
+        catch(IllegalArgumentException eTimeZone) {
             Log.w(LOG_TAG, eTimeZone.getMessage(), eTimeZone);
             return null;
         }
-        catch (IllegalAccessException eTimeZone) {
+        catch(IllegalAccessException eTimeZone) {
             Log.w(LOG_TAG, eTimeZone.getMessage(), eTimeZone);
             return null;
         }
+        catch(ClassCastException eTimeZone) {
+            if(eTimeZone.getMessage().contains("long[] cannot be cast to int[]")) {
+                try {
+                    Field oField = pTimeZone.getClass().getDeclaredField("mTransitions");
+                    oField.setAccessible(true);
+                    long[] paramTimeZone = (long[]) oField.get(pTimeZone);
+                    int [] transitions = new int[paramTimeZone.length];
+                    for(int i = 0; i < paramTimeZone.length; i++) {
+                        transitions[i] = (int) paramTimeZone[i];
+                    }
+                    return transitions;
+                }
+                catch(NoSuchFieldException eTZone) {
+                    Log.w(LOG_TAG, eTZone.getMessage(), eTZone);
+                    return null;
+                }
+                catch(IllegalArgumentException eTZone) {
+                    Log.w(LOG_TAG, eTimeZone.getMessage(), eTimeZone);
+                    return null;
+                }
+                catch(IllegalAccessException eTZone) {
+                    Log.w(LOG_TAG, eTimeZone.getMessage(), eTimeZone);
+                    return null;
+                }
+            }
+            else {
+                Log.w(LOG_TAG, eTimeZone.getMessage(), eTimeZone);
+                return null;
+            }
+        }
     }
 
-    public static long nextTransition(String pString, long pLong) {
-        return nextTransition(TimeZone.getTimeZone(pString), pLong);
+    public static long nextTransition(String pString, long nLong) {
+        return nextTransition(TimeZone.getTimeZone(pString), nLong);
     }
 
-    public static long nextTransition(TimeZone pTimeZone, long pLong) {
+    public static long nextTransition(TimeZone pTimeZone, long nLong) {
         int[] oTimeZone = getTransitions(pTimeZone);
         if(oTimeZone != null) {
-            int i = (int)(pLong / 1000L);
+            int i = (int)(nLong / 1000L);
             int j = oTimeZone.length;
             int k = 0;
             while(k < j) {
@@ -48,7 +78,7 @@ public class OpenFitTimeZoneUtil {
                 k++;
             }
         }
-        return pLong;
+        return nLong;
     }
 
     public static long prevTransition(String pString, long pLong) {

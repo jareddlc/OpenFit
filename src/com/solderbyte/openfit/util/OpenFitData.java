@@ -111,6 +111,30 @@ public class OpenFitData {
     public static final int WEATHER_TYPE_WINDY = 21;
     public static final int WEATHER_TYPE_RESERVED = 22;
 
+    // Weather Clock
+    public static final int WEATHER_CLOCK_RESERVED = 0;
+    public static final int WEATHER_CLOCK_SUNNY = 1;
+    public static final int WEATHER_CLOCK_PARTLY_SUNNY = 2;
+    public static final int WEATHER_CLOCK_MOSTLY_CLOUDY = 3;
+    public static final int WEATHER_CLOCK_RAIN = 4;
+    public static final int WEATHER_CLOCK_FOG = 5;
+    public static final int WEATHER_CLOCK_SHOWERS = 6;
+    public static final int WEATHER_CLOCK_PARTLY_SUNNY_SHOWERS = 7;
+    public static final int WEATHER_CLOCK_THUNDERSTORMS = 8;
+    public static final int WEATHER_CLOCK_MOSTLY_CLOUDY_THUNDER_SHOWER = 9;
+    public static final int WEATHER_CLOCK_FLURRIES = 10;
+    public static final int WEATHER_CLOCK_MOSTLY_CLOUDY_FLURRIES = 11;
+    public static final int WEATHER_CLOCK_SNOW = 12;
+    public static final int WEATHER_CLOCK_RAIN_SNOW = 13;
+    public static final int WEATHER_CLOCK_ICE = 14;
+    public static final int WEATHER_CLOCK_HOT = 15;
+    public static final int WEATHER_CLOCK_COLD = 16;
+    public static final int WEATHER_CLOCK_WINDY = 17;
+    public static final int WEATHER_CLOCK_CLEAR = 18;
+    public static final int WEATHER_CLOCK_MOSTLY_CLOUDY2 = 19;
+    public static final int WEATHER_CLOCK_HAIL = 20;
+    public static final int WEATHER_CLOCK_HEAVY_RAIN = 21;
+
     // Battery
     public static final byte CHARGING_AC = 2;
     public static final byte CHARGING_USB = 1;

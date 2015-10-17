@@ -562,7 +562,7 @@ public class OpenFitService extends Service {
 
     public void sendDialerNotification(String number) {
         long id = (long)(System.currentTimeMillis() / 1000L);
-        String sender = "OpenFit Call";
+        String sender = number;
         String name = getContactName(number);
         if(name != null) {
             sender = name;
@@ -599,7 +599,7 @@ public class OpenFitService extends Service {
     public void sendSmsNotification(String number, String message) {
         long id = (long)(System.currentTimeMillis() / 1000L);
         String title = "Text Message";
-        String sender = "Text Message";
+        String sender = number;
         String name = getContactName(number);
         if(name != null) {
             sender = name;
@@ -651,6 +651,11 @@ public class OpenFitService extends Service {
     public void sendWeatherNotifcation(String weather, String icon) {
         long id = (long)(System.currentTimeMillis() / 1000L);
         byte[] bytes = OpenFitApi.getOpenWeather(weather, icon, id);
+        bluetoothLeService.write(bytes);
+    }
+    
+    public void sendWeatherClock(String location, String tempCur, String tempUnit, String icon) {
+        byte[] bytes = OpenFitApi.getOpenWeatherClock(location, tempCur, tempUnit, icon);
         bluetoothLeService.write(bytes);
     }
 
@@ -879,6 +884,7 @@ public class OpenFitService extends Service {
             String weatherInfo = location + ": " + tempCur + tempUnit + "\nWeather: " + description;
             Log.d(LOG_TAG, weatherInfo);
             sendWeatherNotifcation(weatherInfo, icon);
+            sendWeatherClock(location, tempCur, tempUnit, icon);
         }
     };
 

@@ -585,7 +585,8 @@ public class OpenFitApi {
         List<OpenFitDataTypeAndString> mDataList = new ArrayList<OpenFitDataTypeAndString>();
         mDataList.add(new OpenFitDataTypeAndString(OpenFitDataType.BYTE, location));
 
-        int tempInt = Integer.parseInt(temp);
+        float t = Float.parseFloat(temp);
+        int tempInt = Math.round(t);
         if(tempInt < 10) {
             tempInt = tempInt * 1000;
         }

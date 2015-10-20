@@ -159,7 +159,7 @@ public class OpenFitNotificationProtocol {
         oDatacomposer.writeInt(0);
         return oDatacomposer.toByteArray();
     }
-    
+
     public static byte[] createWeatherProtocol(int msgType, long msgId, String msgData, int icon, long timeStamp) {
         OpenFitVariableDataComposer oDatacomposer = new OpenFitVariableDataComposer();
         oDatacomposer.writeByte((byte)msgType);
@@ -171,6 +171,37 @@ public class OpenFitNotificationProtocol {
         oDatacomposer.writeBytes(oByte);
         oDatacomposer.writeInt(icon);
         OpenFitVariableDataComposer.writeTimeInfo(oDatacomposer, timeStamp);
+        return oDatacomposer.toByteArray();
+    }
+
+    public static byte[] createWeatherClockProtocol(int msgType, List<OpenFitDataTypeAndString> msgData, int temp, int unit, int icon, long timeStamp) {
+        OpenFitVariableDataComposer oDatacomposer = new OpenFitVariableDataComposer();
+        oDatacomposer.writeByte((byte)msgType);
+
+        StringBuilder oStringBuilder = new StringBuilder();
+        Iterator<OpenFitDataTypeAndString> oIterator = msgData.iterator();
+
+        while(oIterator.hasNext()) {
+            OpenFitDataTypeAndString oDataString = (OpenFitDataTypeAndString)oIterator.next();
+            byte[] oByte = OpenFitVariableDataComposer.convertToByteArray(oDataString.getData());
+
+            if(oDataString.getDataType() == OpenFitDataType.BYTE) {
+                oDatacomposer.writeByte((byte)oByte.length);
+            }
+            if(oDataString.getDataType() == OpenFitDataType.SHORT) {
+                oDatacomposer.writeShort((short)oByte.length);
+            }
+            oStringBuilder.append(oByte.length).append(" ");
+            oDatacomposer.writeBytes(oByte);
+        }
+        oDatacomposer.writeByte((byte)icon);
+        oDatacomposer.writeInt(temp);
+        oDatacomposer.writeByte((byte)unit);
+        oDatacomposer.writeByte((byte)0);
+        oDatacomposer.writeInt((int) timeStamp);
+        //OpenFitVariableDataComposer.writeTimeInfo(oDatacomposer, timeStamp);
+
+        oDatacomposer.writeInt((int) timeStamp);
         return oDatacomposer.toByteArray();
     }
 }

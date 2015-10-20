@@ -560,7 +560,7 @@ public class OpenFitApi {
         return oDatacomposer.toByteArray();
     }
     
-    public static byte[] getOpenWeatherClock() {
+    public static byte[] getOpenWeatherClock(String location, String temp, String unit, String icon) {
         //01
         //3d000000
         //09
@@ -573,7 +573,8 @@ public class OpenFitApi {
         //01 = units 01 C, 00 F
         //00
         //c944e055 = time stamp
-        //0698080000
+        //06
+        //98080000
         //14050000
         //06000000
         //00000000
@@ -581,20 +582,40 @@ public class OpenFitApi {
         //0600
         //00000000
         //00000000
+        List<OpenFitDataTypeAndString> mDataList = new ArrayList<OpenFitDataTypeAndString>();
+        mDataList.add(new OpenFitDataTypeAndString(OpenFitDataType.BYTE, location));
+
+        float t = Float.parseFloat(temp);
+        int tempInt = Math.round(t);
+        if(tempInt < 10) {
+            tempInt = tempInt * 1000;
+        }
+        else if(tempInt < 100) {
+            tempInt = tempInt * 100;
+        }
+        else if(tempInt < 1000) {
+            tempInt = tempInt * 10;
+        }
+
+        int tempUnit = 1;
+        if(unit.contains("F")) {
+            tempUnit = 0;
+        }
         
-        //00000001 772
-        //00000010 355
-        //00010000 3 +3
-        //00020000 5 +2
-        //00030000 8 +3
-        //00040000 10 +2
-        //00050000 13 +3
-        //16 C
-        return hexStringToByteArray("013d0000000914fffe4e006900650064006500720072006100640006000500000100c944e05506980800001405000006000000000000000006000000000000000000");
+        int i = getOpenWeatherClockIcon(icon);
+        byte[] msg = OpenFitNotificationProtocol.createWeatherClockProtocol(9, mDataList, tempInt, tempUnit, i, System.currentTimeMillis());
+        OpenFitVariableDataComposer oDatacomposer = new OpenFitVariableDataComposer();
+        oDatacomposer.writeByte((byte)1);
+        oDatacomposer.writeInt(msg.length);
+        oDatacomposer.writeBytes(msg);
+        return oDatacomposer.toByteArray();
     }
 
     public static int getOpenWeatherIcon(String icon) {
         int i = 0;
+        if(icon == null) {
+            icon = "01";
+        }
         if(icon.contains("01")) {
             i = OpenFitData.WEATHER_TYPE_SUNNY;
         }
@@ -621,6 +642,41 @@ public class OpenFitApi {
         }
         else if(icon.contains("50")) {
             i = OpenFitData.WEATHER_TYPE_FOG;
+        }
+        return i;
+    }
+    
+    public static int getOpenWeatherClockIcon(String icon) {
+        int i = 0;
+        if(icon == null) {
+            icon = "01";
+        }
+        if(icon.contains("01")) {
+            i = OpenFitData.WEATHER_CLOCK_SUNNY;
+        }
+        else if(icon.contains("02")) {
+            i = OpenFitData.WEATHER_CLOCK_CLEAR;
+        }
+        else if(icon.contains("03")) {
+            i = OpenFitData.WEATHER_CLOCK_MOSTLY_CLOUDY;
+        }
+        else if(icon.contains("04")) {
+            i = OpenFitData.WEATHER_CLOCK_MOSTLY_CLOUDY;
+        }
+        else if(icon.contains("09")) {
+            i = OpenFitData.WEATHER_CLOCK_SHOWERS;
+        }
+        else if(icon.contains("10")) {
+            i = OpenFitData.WEATHER_CLOCK_PARTLY_SUNNY_SHOWERS;
+        }
+        else if(icon.contains("11")) {
+            i = OpenFitData.WEATHER_CLOCK_THUNDERSTORMS;
+        }
+        else if(icon.contains("13")) {
+            i = OpenFitData.WEATHER_CLOCK_SNOW;
+        }
+        else if(icon.contains("50")) {
+            i = OpenFitData.WEATHER_CLOCK_FOG;
         }
         return i;
     }

@@ -1,7 +1,13 @@
-package com.solderbyte.openfit;
+package com.solderbyte.openfit.ui;
 
+import java.util.ArrayList;
 import java.util.Set;
 
+import com.solderbyte.openfit.ApplicationManager;
+import com.solderbyte.openfit.OpenFitSavedPreferences;
+import com.solderbyte.openfit.OpenFitService;
+import com.solderbyte.openfit.PedometerData;
+import com.solderbyte.openfit.PedometerTotal;
 import com.solderbyte.openfit.R;
 
 import android.app.Activity;
@@ -72,6 +78,9 @@ public class OpenFitActivity extends Activity {
 
     public static class OpenFitFragment extends PreferenceFragment {
         private static final String LOG_TAG = "OpenFit:OpenFitFragment";
+        private static final String INTENT_UI_ADDAPPLICATION = "com.solderbyte.openfit.ui.addapplication";
+        private static final String INTENT_UI_DELAPPLICATION = "com.solderbyte.openfit.ui.delapplication";
+        //private static final String INTENT_UI_BT = "com.solderbyte.openfit.ui.bt";
 
         private OpenFitSavedPreferences oPrefs;
 
@@ -84,7 +93,7 @@ public class OpenFitActivity extends Activity {
         private static ListPreference preference_list_weather;
         private static ListPreference preference_list_devices;
         private static Preference preference_scan;
-        //private static Preference preference_heartrate;
+        private static Preference preference_fitness;
         private static Preference preference_donate;
 
         @Override
@@ -106,8 +115,8 @@ public class OpenFitActivity extends Activity {
             this.getActivity().startService(serviceIntent);
 
             // App Listener 
-            LocalBroadcastManager.getInstance(this.getActivity()).registerReceiver(addApplicationReceiver, new IntentFilter("addApplication"));
-            LocalBroadcastManager.getInstance(this.getActivity()).registerReceiver(delApplicationReceiver, new IntentFilter("delApplication"));
+            LocalBroadcastManager.getInstance(this.getActivity()).registerReceiver(addApplicationReceiver, new IntentFilter(INTENT_UI_ADDAPPLICATION));
+            LocalBroadcastManager.getInstance(this.getActivity()).registerReceiver(delApplicationReceiver, new IntentFilter(INTENT_UI_DELAPPLICATION));
             this.getActivity().registerReceiver(bluetoothUIReceiver, new IntentFilter("bluetoothUI"));
             this.getActivity().registerReceiver(stopServiceReceiver, new IntentFilter("stopOpenFitService"));
             this.getActivity().registerReceiver(notificationServiceReceiver, new IntentFilter("NotificationService"));
@@ -132,7 +141,7 @@ public class OpenFitActivity extends Activity {
                     if((Boolean)newValue) {
                         sendIntent("bluetooth", "enable");
                         preference_switch_bluetooth.setChecked(false);
-                        Toast.makeText(getActivity(), "Enabling...", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), R.string.toast_bluetooth_enable, Toast.LENGTH_SHORT).show();
                     }
                     else {
                         sendIntent("bluetooth", "disable");
@@ -145,10 +154,10 @@ public class OpenFitActivity extends Activity {
             preference_scan.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
-                    Toast.makeText(getActivity(), "Scanning...", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), R.string.toast_bluetooth_scan, Toast.LENGTH_SHORT).show();
                     sendIntent("bluetooth", "scan");
                     preference_list_devices.setEnabled(false);
-                    preference_scan.setSummary("Scanning...please wait");
+                    preference_scan.setSummary(R.string.preference_scan_summary_scanning);
                     return true;
                 }
             });
@@ -176,7 +185,7 @@ public class OpenFitActivity extends Activity {
                     if((Boolean)newValue) {
                         //String mDeviceAddress = oPrefs.preference_list_devices_value;
                         String mDeviceName = oPrefs.getString("preference_list_devices_entry");
-                        Toast.makeText(getActivity(), "Attempting to connect to: "+mDeviceName, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), getString(R.string.toast_bluetooth_connect) + " " + mDeviceName, Toast.LENGTH_SHORT).show();
                         sendIntent("bluetooth", "connect");
                         return false;
                     }
@@ -254,14 +263,15 @@ public class OpenFitActivity extends Activity {
                 }
             });
 
-            /*preference_heartrate = (Preference) getPreferenceManager().findPreference("preference_heartrate");
-            preference_heartrate.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            preference_fitness = (Preference) getPreferenceManager().findPreference("preference_fitness");
+            preference_fitness.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
                     sendIntent("bluetooth", "heartrate");
+                    Toast.makeText(getActivity(), R.string.toast_bluetooth_fitness, Toast.LENGTH_SHORT).show();
                     return true;
                 }
-            });*/
+            });
 
             preference_donate = (Preference) getPreferenceManager().findPreference("preference_donate");
             preference_donate.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -283,70 +293,70 @@ public class OpenFitActivity extends Activity {
                     this.restorePreferences(oPrefs);
                 }
                 if(message.equals("isEnabled")) {
-                    Toast.makeText(getActivity(), "Bluetooth Enabled", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), R.string.toast_bluetooth_enabled, Toast.LENGTH_SHORT).show();
                     preference_switch_bluetooth.setChecked(true);
                 }
                 if(message.equals("isEnabledFailed")) {
-                    Toast.makeText(getActivity(), "Failed", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), R.string.toast_bluetooth_enabled_failed, Toast.LENGTH_SHORT).show();
                     preference_switch_bluetooth.setChecked(false);
                 }
                 if(message.equals("isConnected")) {
                     Log.d(LOG_TAG, "Bluetooth Connected");
-                    Toast.makeText(getActivity(), "Gear Fit Connected", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), R.string.toast_bluetooth_connected, Toast.LENGTH_SHORT).show();
                     preference_checkbox_connect.setChecked(true);
                 }
                 if(message.equals("isDisconnected")) {
                     Log.d(LOG_TAG, "Bluetooth Disconnected");
-                    Toast.makeText(getActivity(), "Gear Fit Disconnected", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), R.string.toast_bluetooth_disconnected, Toast.LENGTH_SHORT).show();
                     preference_checkbox_connect.setChecked(false);
                 }
                 if(message.equals("isConnectedFailed")) {
                     Log.d(LOG_TAG, "Bluetooth Connected Failed");
-                    Toast.makeText(getActivity(), "Gear Fit Connected failed", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), R.string.toast_bluetooth_connect_failed, Toast.LENGTH_SHORT).show();
                     preference_checkbox_connect.setChecked(false);
                 }
                 if(message.equals("isConnectedRfcomm")) {
                     Log.d(LOG_TAG, "Bluetooth RFcomm Connected");
-                    Toast.makeText(getActivity(), "Gear Fit Connected", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), R.string.toast_bluetooth_connected, Toast.LENGTH_SHORT).show();
                     preference_checkbox_connect.setChecked(true);
                 }
                 if(message.equals("isDisconnectedRfComm")) {
                     Log.d(LOG_TAG, "Bluetooth Disconnected");
-                    Toast.makeText(getActivity(), "Gear Fit Disconnected", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), R.string.toast_bluetooth_disconnected, Toast.LENGTH_SHORT).show();
                     preference_checkbox_connect.setChecked(false);
                 }
                 if(message.equals("isConnectedRfcommFailed")) {
                     Log.d(LOG_TAG, "Bluetooth RFcomm Failed");
-                    Toast.makeText(getActivity(), "Gear Fit Rfcomm Failed", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), R.string.toast_bluetooth_connect_failed, Toast.LENGTH_SHORT).show();
                 }
                 if(message.equals("scanStopped")) {
                     Log.d(LOG_TAG, "Bluetooth scanning done");
                     preference_list_devices.setEnabled(true);
                     preference_scan.setSummary(R.string.preference_scan_summary);
-                    Toast.makeText(getActivity(), "Scanning complete. Please select device", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), R.string.toast_bluetooth_scan_complete, Toast.LENGTH_SHORT).show();
                 }
                 if(message.equals("bluetoothDevicesList")) {
                     Log.d(LOG_TAG, "Bluetooth device list");
                     CharSequence[] entries = intent.getCharSequenceArrayExtra("bluetoothEntries");
                     CharSequence[] entryValues = intent.getCharSequenceArrayExtra("bluetoothEntryValues");
 
-                    /*for(int i = 0; i < entries.length; i++) {
-                        Toast.makeText(getActivity(), "Entries "+i+": " +entries[i], Toast.LENGTH_SHORT).show();
-                        Log.d(LOG_TAG, "entries" + entries[i]);
-                    }
-                    for(int i = 0; i < entryValues.length; i++) {
-                        Toast.makeText(getActivity(), "Values "+i+": " +entryValues[i], Toast.LENGTH_SHORT).show();
-                        Log.d(LOG_TAG, "entryValues" + entryValues[i]);
-                    }*/
-
-
                     if(entries != null && entryValues != null) {
                         preference_list_devices.setEntries(entries);
                         preference_list_devices.setEntryValues(entryValues);
                     }
                     else {
-                        Toast.makeText(getActivity(), "Error setting devices list", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), R.string.toast_bluetooth_devices_failed, Toast.LENGTH_SHORT).show();
                     }
+                }
+                if(message.equals("fitness")) {
+                    Log.d(LOG_TAG, "Fitness data");
+
+                    PedometerTotal pedometerTotal = intent.getParcelableExtra("pedometerTotal");
+                    ArrayList<PedometerData> pedometerList = intent.getParcelableArrayListExtra("pedometerArrayList");
+                    ArrayList<PedometerData> pedometerDailyList = intent.getParcelableArrayListExtra("pedometerDailyArrayList");
+
+                    DialogFitness d = new DialogFitness(getActivity(), pedometerDailyList, pedometerList, pedometerTotal);
+                    d.show(getFragmentManager(), "fitness");
                 }
             }
         }

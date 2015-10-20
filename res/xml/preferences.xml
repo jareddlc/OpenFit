@@ -55,12 +55,12 @@
             android:entries="@array/preference_list_weather_entries"
             android:entryValues="@array/preference_list_weather_values"
             android:defaultValue="@string/preference_list_weather_default" />
-        <!--  <Preference
-            android:key="preference_heartrate"
+        <Preference
+            android:key="preference_fitness"
             android:icon="@drawable/open_heart"
-            android:title="@string/preference_heartrate_title"
-            android:dialogTitle="@string/preference_heartrate_dialog"
-            android:summary="@string/preference_heartrate_summary"/> -->
+            android:title="@string/preference_fitness_title"
+            android:dialogTitle="@string/preference_fitness_dialog"
+            android:summary="@string/preference_fitness_summary"/>
     </PreferenceCategory>
 
     <PreferenceCategory

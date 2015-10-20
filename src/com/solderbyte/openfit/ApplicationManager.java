@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.solderbyte.openfit.ui.ArrayAdapterWithIcon;
+
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -73,7 +75,7 @@ public class ApplicationManager {
         listeningPackageNames = pName.toArray(new CharSequence[pName.size()]);
         listeningAppNames = aName.toArray(new CharSequence[aName.size()]);
         listeningPackageIcons = iDraw;
-        ListAdapter adapter = new ArrayAdapterWithIcon(context, aName, iDraw);;
+        ListAdapter adapter = new ArrayAdapterWithIcon(context, aName, iDraw);
         return adapter;
     }
 

@@ -29,7 +29,7 @@
         will cause a reset to the Gear Fit.
     </string>
     <string name="dialog_close_help">Close</string>
-    <string name="dialog_title_fitness">Fitness (Sync coming soon)</string>
+    <string name="dialog_title_fitness">Fitness</string>
     <string name="dialog_close_fitness">Close</string>
     <string name="preference_category_connectivity_title">Connectivity</string>
     <string name="preference_switch_bluetooth_title">Enable Bluetooth</string>
@@ -71,4 +71,10 @@
     <string name="toast_bluetooth_disconnected">Gear Fit disconnected</string>
     <string name="toast_bluetooth_connect_failed">Gear Fit connect failed</string>
     <string name="toast_bluetooth_devices_failed">Gear Fit connect failed</string>
+    <string name="notification_title">Open Fit</string>
+    <string name="notification_connected">Connected to Gear Fit</string>
+    <string name="notification_disconnected">Disconnected to Gear Fit</string>
+    <string name="notification_button_connect">Connect</string>
+    <string name="notification_button_disconnect">Disconnect</string>
+    <string name="notification_button_close">Shut Down</string>
 </resources>

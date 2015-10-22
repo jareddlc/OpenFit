@@ -11,6 +11,8 @@ import android.util.Log;
 public class SmsListener extends BroadcastReceiver {
     private static final String LOG_TAG = "TurquoiseBicuspid:SmsListener";
 
+    private static final String INTENT_SERVICE_SMS = "com.solderbyte.openfit.service.sms";
+
     //private static final SmsManager sms = SmsManager.getDefault();
     private Context context;
 
@@ -39,7 +41,7 @@ public class SmsListener extends BroadcastReceiver {
                     String message = currentMessage.getDisplayMessageBody();
 
                     Log.d(LOG_TAG, "SMS: "+senderNum+" - "+message);
-                    Intent msg = new Intent("sms");
+                    Intent msg = new Intent(INTENT_SERVICE_SMS);
                     msg.putExtra("message", message);
                     msg.putExtra("sender", senderNum);
                     context.sendBroadcast(msg);

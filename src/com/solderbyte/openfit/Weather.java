@@ -13,6 +13,8 @@ import android.util.Log;
 public class Weather {
     private static final String LOG_TAG = "OpenFit:Weather";
 
+    private static final String INTENT_SERVICE_WEATHER = "com.solderbyte.openfit.service.weather";
+
     private static String APIKEY = "APPID=00042ee1a3e6f5dbb2a3c63e4e8fb50a";
     private static String APIURL = "http://api.openweathermap.org/data/2.5/weather";
     private static String QUERY = "?";
@@ -103,7 +105,7 @@ public class Weather {
                         e.printStackTrace();
                     }
 
-                    Intent msg = new Intent("weather");
+                    Intent msg = new Intent(INTENT_SERVICE_WEATHER);
                     msg.putExtra("name", name);
                     msg.putExtra("weather", weather);
                     msg.putExtra("description", description);

@@ -14,18 +14,22 @@ import android.util.Log;
 
 public class NotificationService extends NotificationListenerService {
     private static final String LOG_TAG = "OpenFit:NotificationService";
+    private static final String INTENT_SERVICE_STOP = "com.solderbyte.openfit.service.stop";
+    private static final String INTENT_NOTIFICATION = "com.solderbyte.openfit.notification";
+    private static final String INTENT_SERVICE_NOTIFICATION = "com.solderbyte.openfit.service.notification";
+    private static final String INTENT_SERVICE_NOTIFICATION_APPLICATIONS = "com.solderbyte.openfit.service.notification.applications";
 
-    private ArrayList<String> listeningListPackageNames = new ArrayList<String>();
+    private ArrayList<String> ListPackageNames = new ArrayList<String>();
     private Context context;
 
     @Override
     public void onCreate() {
         Log.d(LOG_TAG, "Created NotificationService");
-        this.registerReceiver(stopServiceReceiver, new IntentFilter("stopOpenFitService"));
-        this.registerReceiver(appsReceiver, new IntentFilter("listeningApps"));
+        this.registerReceiver(serviceStopReceiver, new IntentFilter(INTENT_SERVICE_STOP));
+        this.registerReceiver(applicationsReceiver, new IntentFilter(INTENT_SERVICE_NOTIFICATION_APPLICATIONS));
         context = getApplicationContext();
 
-        Intent msg = new Intent("NotificationService");
+        Intent msg = new Intent(INTENT_SERVICE_NOTIFICATION);
         context.sendBroadcast(msg);
         super.onCreate();
     }
@@ -72,7 +76,7 @@ public class NotificationService extends NotificationListenerService {
 
         Log.d(LOG_TAG, "Captured notification message: " + message + " from source:" + packageName);
 
-        if(listeningListPackageNames.contains(packageName)) {
+        if(ListPackageNames.contains(packageName)) {
             Log.d(LOG_TAG, "ticker: " + ticker);
             Log.d(LOG_TAG, "title: " + title);
             Log.d(LOG_TAG, "message: " + message);
@@ -84,7 +88,7 @@ public class NotificationService extends NotificationListenerService {
             Log.d(LOG_TAG, "info: " + info);
             //Log.d(LOG_TAG, "category: " + category);
 
-            Intent msg = new Intent("notification");
+            Intent msg = new Intent(INTENT_NOTIFICATION);
             msg.putExtra("packageName", packageName);
             msg.putExtra("ticker", ticker);
             msg.putExtra("title", title);
@@ -95,7 +99,6 @@ public class NotificationService extends NotificationListenerService {
                 msg.putExtra("submessage", submessage);
             }
 
-            //LocalBroadcastManager.getInstance(context).sendBroadcast(msg);
             context.sendBroadcast(msg);
             Log.d(LOG_TAG, "Sending notification message: " + message + " from source:" + packageName);
         }
@@ -114,25 +117,25 @@ public class NotificationService extends NotificationListenerService {
         Log.d(LOG_TAG, "Removed notification message: " + shortMsg + " from source:" + packageName);
     }
 
-    public void setListeningPackageNames(ArrayList<String> packageNames) {
-        listeningListPackageNames = packageNames;
+    public void setPackageNames(ArrayList<String> packageNames) {
+        ListPackageNames = packageNames;
     }
 
-    private BroadcastReceiver stopServiceReceiver = new BroadcastReceiver() {
+    private BroadcastReceiver serviceStopReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d(LOG_TAG, "Stopping Service");
-            unregisterReceiver(appsReceiver);
-            unregisterReceiver(stopServiceReceiver);
+            unregisterReceiver(applicationsReceiver);
+            unregisterReceiver(serviceStopReceiver);
             stopSelf();
         }
     };
 
-    private BroadcastReceiver appsReceiver = new BroadcastReceiver() {
+    private BroadcastReceiver applicationsReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            ArrayList<String> listeningApps = intent.getStringArrayListExtra("data");
-            setListeningPackageNames(listeningApps);
+            ArrayList<String> applications = intent.getStringArrayListExtra("data");
+            setPackageNames(applications);
             Log.d(LOG_TAG, "Recieved listeningApps");
         }
     };

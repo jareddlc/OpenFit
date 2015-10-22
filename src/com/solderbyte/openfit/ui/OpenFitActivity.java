@@ -78,9 +78,14 @@ public class OpenFitActivity extends Activity {
 
     public static class OpenFitFragment extends PreferenceFragment {
         private static final String LOG_TAG = "OpenFit:OpenFitFragment";
+
         private static final String INTENT_UI_ADDAPPLICATION = "com.solderbyte.openfit.ui.addapplication";
         private static final String INTENT_UI_DELAPPLICATION = "com.solderbyte.openfit.ui.delapplication";
-        //private static final String INTENT_UI_BT = "com.solderbyte.openfit.ui.bt";
+        private static final String INTENT_UI_BT = "com.solderbyte.openfit.ui.bt";
+        private static final String INTENT_SERVICE_STOP = "com.solderbyte.openfit.service.stop";
+        private static final String INTENT_SERVICE_NOTIFICATION = "com.solderbyte.openfit.service.notification";
+        private static final String INTENT_SERVICE_NOTIFICATION_APPLICATIONS = "com.solderbyte.openfit.service.notification.applications";
+        private static final String INTENT_SERVICE_BT = "com.solderbyte.openfit.service.bt";
 
         private OpenFitSavedPreferences oPrefs;
 
@@ -117,9 +122,9 @@ public class OpenFitActivity extends Activity {
             // App Listener 
             LocalBroadcastManager.getInstance(this.getActivity()).registerReceiver(addApplicationReceiver, new IntentFilter(INTENT_UI_ADDAPPLICATION));
             LocalBroadcastManager.getInstance(this.getActivity()).registerReceiver(delApplicationReceiver, new IntentFilter(INTENT_UI_DELAPPLICATION));
-            this.getActivity().registerReceiver(bluetoothUIReceiver, new IntentFilter("bluetoothUI"));
-            this.getActivity().registerReceiver(stopServiceReceiver, new IntentFilter("stopOpenFitService"));
-            this.getActivity().registerReceiver(notificationServiceReceiver, new IntentFilter("NotificationService"));
+            this.getActivity().registerReceiver(btReceiver, new IntentFilter(INTENT_UI_BT));
+            this.getActivity().registerReceiver(serviceStopReceiver, new IntentFilter(INTENT_SERVICE_STOP));
+            this.getActivity().registerReceiver(serviceNotificationReceiver, new IntentFilter(INTENT_SERVICE_NOTIFICATION));
         }
 
         @Override
@@ -139,12 +144,12 @@ public class OpenFitActivity extends Activity {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
                     if((Boolean)newValue) {
-                        sendIntent("bluetooth", "enable");
+                        sendIntent(INTENT_SERVICE_BT, "enable");
                         preference_switch_bluetooth.setChecked(false);
                         Toast.makeText(getActivity(), R.string.toast_bluetooth_enable, Toast.LENGTH_SHORT).show();
                     }
                     else {
-                        sendIntent("bluetooth", "disable");
+                        sendIntent(INTENT_SERVICE_BT, "disable");
                     }
                     return true;
                 }
@@ -155,7 +160,7 @@ public class OpenFitActivity extends Activity {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
                     Toast.makeText(getActivity(), R.string.toast_bluetooth_scan, Toast.LENGTH_SHORT).show();
-                    sendIntent("bluetooth", "scan");
+                    sendIntent(INTENT_SERVICE_BT, "scan");
                     preference_list_devices.setEnabled(false);
                     preference_scan.setSummary(R.string.preference_scan_summary_scanning);
                     return true;
@@ -173,7 +178,7 @@ public class OpenFitActivity extends Activity {
                     preference_list_devices.setSummary(mDeviceName);
                     oPrefs.saveString("preference_list_devices_value", mDeviceAddress);
                     oPrefs.saveString("preference_list_devices_entry", mDeviceName);
-                    sendIntent("bluetooth", "setDevice", mDeviceAddress);
+                    sendIntent(INTENT_SERVICE_BT, "setDevice", mDeviceAddress);
                     return true;
                 }
             });
@@ -186,11 +191,11 @@ public class OpenFitActivity extends Activity {
                         //String mDeviceAddress = oPrefs.preference_list_devices_value;
                         String mDeviceName = oPrefs.getString("preference_list_devices_entry");
                         Toast.makeText(getActivity(), getString(R.string.toast_bluetooth_connect) + " " + mDeviceName, Toast.LENGTH_SHORT).show();
-                        sendIntent("bluetooth", "connect");
+                        sendIntent(INTENT_SERVICE_BT, "connect");
                         return false;
                     }
                     else {
-                        sendIntent("bluetooth", "disconnect");
+                        sendIntent(INTENT_SERVICE_BT, "disconnect");
                         return true;
                     }
                 }
@@ -202,12 +207,12 @@ public class OpenFitActivity extends Activity {
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
                     if((Boolean)newValue) {
                         oPrefs.saveBoolean("preference_checkbox_phone", true);
-                        sendIntent("bluetooth", "phone", "true");
+                        sendIntent(INTENT_SERVICE_BT, "phone", "true");
                         return true;
                     }
                     else {
                         oPrefs.saveBoolean("preference_checkbox_phone", false);
-                        sendIntent("bluetooth", "phone", "false");
+                        sendIntent(INTENT_SERVICE_BT, "phone", "false");
                         return true;
                     }
                 }
@@ -219,12 +224,12 @@ public class OpenFitActivity extends Activity {
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
                     if((Boolean)newValue) {
                         oPrefs.saveBoolean("preference_checkbox_sms", true);
-                        sendIntent("bluetooth", "sms", "true");
+                        sendIntent(INTENT_SERVICE_BT, "sms", "true");
                         return true;
                     }
                     else {
                         oPrefs.saveBoolean("preference_checkbox_sms", false);
-                        sendIntent("bluetooth", "sms", "false");
+                        sendIntent(INTENT_SERVICE_BT, "sms", "false");
                         return true;
                     }
                 }
@@ -235,12 +240,12 @@ public class OpenFitActivity extends Activity {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
                     if((Boolean)newValue) {
-                        sendIntent("bluetooth", "time", "true");
+                        sendIntent(INTENT_SERVICE_BT, "time", "true");
                         oPrefs.saveBoolean("preference_checkbox_time", true);
                         return true;
                     }
                     else {
-                        sendIntent("bluetooth", "time", "false");
+                        sendIntent(INTENT_SERVICE_BT, "time", "false");
                         oPrefs.saveBoolean("preference_checkbox_time", false);
                         return true;
                     }
@@ -258,7 +263,7 @@ public class OpenFitActivity extends Activity {
                     preference_list_weather.setSummary(weatherName);
                     oPrefs.saveString("preference_list_weather_value", weatherValue);
                     oPrefs.saveString("preference_list_weather_entry", weatherName);
-                    sendIntent("bluetooth", "weather", weatherValue);
+                    sendIntent(INTENT_SERVICE_BT, "weather", weatherValue);
                     return true;
                 }
             });
@@ -267,7 +272,7 @@ public class OpenFitActivity extends Activity {
             preference_fitness.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
-                    sendIntent("bluetooth", "heartrate");
+                    sendIntent(INTENT_SERVICE_BT, "fitness");
                     Toast.makeText(getActivity(), R.string.toast_bluetooth_fitness, Toast.LENGTH_SHORT).show();
                     return true;
                 }
@@ -285,7 +290,7 @@ public class OpenFitActivity extends Activity {
             });
         }
 
-        public void handleBluetoothMessage(String message, Intent intent) {
+        public void handleServiceMessage(String message, Intent intent) {
             // setup message handler
             if(message != null && !message.isEmpty()) {
                 if(message.equals("OpenFitService")) {
@@ -372,13 +377,13 @@ public class OpenFitActivity extends Activity {
                     if((Boolean)newValue) {
                         oPrefs.saveBoolean(packageName, true);
                         Log.d(LOG_TAG, appName+": Enabled");
-                        sendIntentListeningApps();
+                        sendIntentNotificationApplications();
                         return true;
                     }
                     else {
                         oPrefs.saveBoolean(packageName, false);
                         Log.d(LOG_TAG, appName+": Disabled");
-                        sendIntentListeningApps();
+                        sendIntentNotificationApplications();
                         return true;
                     }
                 }
@@ -406,8 +411,8 @@ public class OpenFitActivity extends Activity {
                 String mDeviceAddress = oPrefs.preference_list_devices_value;
                 String mDeviceName = oPrefs.preference_list_devices_entry;
                 preference_list_devices.setSummary(mDeviceName);
-                sendIntent("bluetooth", "setEntries");
-                sendIntent("bluetooth", "setDevice", mDeviceAddress);
+                sendIntent(INTENT_SERVICE_BT, "setEntries");
+                sendIntent(INTENT_SERVICE_BT, "setDevice", mDeviceAddress);
                 Log.d(LOG_TAG, "Restored device: "+mDeviceName+":"+mDeviceAddress);
             }
         }
@@ -428,7 +433,7 @@ public class OpenFitActivity extends Activity {
                 category.addPreference(app);
                 appManager.addInstalledApp(packageName);
             }
-            sendIntentListeningApps();
+            sendIntentNotificationApplications();
         }
 
         public void restoreDeviceListeners(OpenFitSavedPreferences oPrefs) {
@@ -441,14 +446,14 @@ public class OpenFitActivity extends Activity {
                 String weatherValue = oPrefs.preference_list_weather_value;
                 String weatherEntry = oPrefs.preference_list_weather_entry;
                 preference_list_weather.setSummary(weatherEntry);
-                sendIntent("bluetooth", "weather", weatherValue);
+                sendIntent(INTENT_SERVICE_BT, "weather", weatherValue);
                 Log.d(LOG_TAG, "Restored weather: "+weatherEntry+":"+weatherValue);
             }
             String sms = Boolean.toString(oPrefs.preference_checkbox_sms);
             String phone = Boolean.toString(oPrefs.preference_checkbox_phone);
-            sendIntent("bluetooth", "sms", sms);
-            sendIntent("bluetooth", "phone", phone);
-            sendIntent("bluetooth", "status");
+            sendIntent(INTENT_SERVICE_BT, "sms", sms);
+            sendIntent(INTENT_SERVICE_BT, "phone", phone);
+            sendIntent(INTENT_SERVICE_BT, "status");
         }
 
         public void clearListeningApps(OpenFitSavedPreferences oPrefs) {
@@ -458,10 +463,10 @@ public class OpenFitActivity extends Activity {
             appManager.clearInstalledApp();
         }
 
-        public void sendIntentListeningApps() {
-            Log.d(LOG_TAG, "Sending Intent: listeningApps");
-            Intent i = new Intent("listeningApps");
-            i.putExtra("message", "listeningApps");
+        public void sendIntentNotificationApplications() {
+            Log.d(LOG_TAG, "Sending Intent: " + INTENT_SERVICE_NOTIFICATION_APPLICATIONS);
+            Intent i = new Intent(INTENT_SERVICE_NOTIFICATION_APPLICATIONS);
+            i.putExtra("message", INTENT_SERVICE_NOTIFICATION_APPLICATIONS);
             i.putExtra("data", appManager.getInstalledApp());
             getActivity().sendBroadcast(i);
         }
@@ -484,9 +489,9 @@ public class OpenFitActivity extends Activity {
         @Override
         public void onDestroy() {
             Log.d(LOG_TAG, "onDestroy");
-            this.getActivity().unregisterReceiver(bluetoothUIReceiver);
-            this.getActivity().unregisterReceiver(stopServiceReceiver);
-            this.getActivity().unregisterReceiver(notificationServiceReceiver);
+            this.getActivity().unregisterReceiver(btReceiver);
+            this.getActivity().unregisterReceiver(serviceStopReceiver);
+            this.getActivity().unregisterReceiver(serviceNotificationReceiver);
             LocalBroadcastManager.getInstance(this.getActivity()).unregisterReceiver(addApplicationReceiver);
             LocalBroadcastManager.getInstance(this.getActivity()).unregisterReceiver(delApplicationReceiver);
             super.onDestroy();
@@ -510,7 +515,7 @@ public class OpenFitActivity extends Activity {
                     category.removePreference(placeholder);
                 }
                 category.addPreference(app);
-                sendIntentListeningApps();
+                sendIntentNotificationApplications();
             }
         };
 
@@ -528,28 +533,28 @@ public class OpenFitActivity extends Activity {
                 PreferenceCategory category = (PreferenceCategory) findPreference("preference_category_apps");
                 CheckBoxPreference app = (CheckBoxPreference) findPreference(packageName);
                 category.removePreference(app);
-                sendIntentListeningApps();
+                sendIntentNotificationApplications();
             }
         };
 
-        private BroadcastReceiver bluetoothUIReceiver = new BroadcastReceiver() {
+        private BroadcastReceiver btReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 final String message = intent.getStringExtra("message");
-                Log.d(LOG_TAG, "Recieved data to update UI: " + message);
-                handleBluetoothMessage(message, intent);
+                Log.d(LOG_TAG, "Received Service Command: " + message);
+                handleServiceMessage(message, intent);
             }
         };
 
-        private BroadcastReceiver notificationServiceReceiver = new BroadcastReceiver() {
+        private BroadcastReceiver serviceNotificationReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 Log.d(LOG_TAG, "Received Notification Service");
-                sendIntentListeningApps();
+                sendIntentNotificationApplications();
             }
         };
 
-        private BroadcastReceiver stopServiceReceiver = new BroadcastReceiver() {
+        private BroadcastReceiver serviceStopReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 Log.d(LOG_TAG, "Stopping Activity");

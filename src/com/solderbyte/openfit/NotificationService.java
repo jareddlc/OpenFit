@@ -14,6 +14,7 @@ import android.util.Log;
 
 public class NotificationService extends NotificationListenerService {
     private static final String LOG_TAG = "OpenFit:NotificationService";
+
     private static final String INTENT_SERVICE_STOP = "com.solderbyte.openfit.service.stop";
     private static final String INTENT_NOTIFICATION = "com.solderbyte.openfit.notification";
     private static final String INTENT_SERVICE_NOTIFICATION = "com.solderbyte.openfit.service.notification";
@@ -39,7 +40,6 @@ public class NotificationService extends NotificationListenerService {
         String packageName = sbn.getPackageName();
 
         if(!ListPackageNames.contains(packageName)) { 
-            // Ignore packages we are not interested in
             return;
         }
 
@@ -47,9 +47,8 @@ public class NotificationService extends NotificationListenerService {
         Notification notification = sbn.getNotification();
         Bundle extras = notification.extras;
         //String category = notification.category; API v21
-        
-        if ((notification.flags & Notification.FLAG_ONGOING_EVENT) != 0) { 
-            // Ignore ongoing notifications
+
+        if((notification.flags & Notification.FLAG_ONGOING_EVENT) != 0) { 
             return;
         }
 
@@ -63,12 +62,11 @@ public class NotificationService extends NotificationListenerService {
             ticker = (String) sbn.getNotification().tickerText;
         }
         catch(Exception e) {
-            // nothing
+            Log.d(LOG_TAG, "Notification does not have tickerText");
         }
         String tag = sbn.getTag();
         long time = sbn.getPostTime();
         int id = sbn.getId();
-
 
         if(extras.getCharSequence("android.title") != null) {
             title = extras.getString("android.title");
@@ -109,10 +107,8 @@ public class NotificationService extends NotificationListenerService {
             msg.putExtra("submessage", submessage);
         }
 
-        //LocalBroadcastManager.getInstance(context).sendBroadcast(msg);
         context.sendBroadcast(msg);
         Log.d(LOG_TAG, "Sending notification message: " + message + " from source:" + packageName);
-
     }
 
     @Override

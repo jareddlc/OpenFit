@@ -29,7 +29,9 @@ public class ApplicationManager {
 
     private CharSequence[] whitelist = new CharSequence[] {
         "com.google.android",
-        "com.android.deskclock"
+        "com.android.deskclock",
+        "com.android.email",
+        "com.asus.email"
     };
 
     public ApplicationManager() {

@@ -504,9 +504,7 @@ public class OpenFitService extends Service {
 
     public void sendMediaPrev() {
         Log.d(LOG_TAG, "Media Prev");
-        //If using Spotify
-		sendOrderedBroadcast(MediaController.spotifyPrev(), null);
-        //else
+        sendOrderedBroadcast(MediaController.spotifyPrevious(), null);
         sendOrderedBroadcast(MediaController.prevTrackDown(), null);
         sendOrderedBroadcast(MediaController.prevTrackUp(), null);
     }
@@ -522,9 +520,7 @@ public class OpenFitService extends Service {
 
     public void sendMediaPlay() {
         Log.d(LOG_TAG, "Media Play/Pause");
-        //If using Spotify
-		sendOrderedBroadcast(MediaController.spotifyPlay(), null);
-        //else
+        sendOrderedBroadcast(MediaController.spotifyPlayPause(), null);
         sendOrderedBroadcast(MediaController.playTrackDown(), null);
         sendOrderedBroadcast(MediaController.playTrackUp(), null);
     }

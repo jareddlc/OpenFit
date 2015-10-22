@@ -9,6 +9,8 @@ import android.util.Log;
 public class MmsListener extends BroadcastReceiver {
     private static final String LOG_TAG = "TurquoiseBicuspid:MmsListener";
 
+    private static final String INTENT_SERVICE_MMS = "com.solderbyte.openfit.service.mms";
+
     private Context context;
 
     public MmsListener(Context cntxt) {
@@ -36,7 +38,7 @@ public class MmsListener extends BroadcastReceiver {
                                 phoneNumber = phoneNumber.substring(index);
                                 String senderNum = phoneNumber;
                                 Log.d(LOG_TAG, "MMS: "+senderNum);
-                                Intent msg = new Intent("mms");
+                                Intent msg = new Intent(INTENT_SERVICE_MMS);
                                 msg.putExtra("sender", senderNum);
                                 context.sendBroadcast(msg);
                             }

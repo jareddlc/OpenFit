@@ -35,6 +35,10 @@ public class MediaController {
         media.addAction("com.rdio.android.metachanged");
         media.addAction("com.samsung.sec.android.MusicPlayer.metachanged");
         media.addAction("com.andrew.apollo.metachanged");
+        //Spotify Metadata
+        media.addAction("com.spotify.music.playbackstatechanged");
+        media.addAction("com.spotify.music.metadatachanged");
+        media.addAction("com.spotify.music.queuechanged");
         return media;
     }
 
@@ -127,6 +131,20 @@ public class MediaController {
     public static Intent playTrackUp() {
         Intent i = new Intent(Intent.ACTION_MEDIA_BUTTON);
         i.putExtra(Intent.EXTRA_KEY_EVENT, new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE));
+        return i;
+    }
+
+    //Spotify Control intents
+    public static Intent spotifyPlayPause() {
+        Intent i = new Intent("com.spotify.mobile.android.ui.widget.PLAY");
+        return i;
+    }
+    public static Intent spotifyNext() {
+        Intent i = new Intent("com.spotify.mobile.android.ui.widget.NEXT");
+        return i;
+    }
+    public static Intent spotifyPrevious() {
+        Intent i = new Intent("com.spotify.mobile.android.ui.widget.PREVIOUS");
         return i;
     }
 }

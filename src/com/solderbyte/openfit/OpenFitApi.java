@@ -585,6 +585,9 @@ public class OpenFitApi {
         List<OpenFitDataTypeAndString> mDataList = new ArrayList<OpenFitDataTypeAndString>();
         mDataList.add(new OpenFitDataTypeAndString(OpenFitDataType.BYTE, location));
 
+        if(temp == null) {
+            temp = "0";
+        }
         float t = Float.parseFloat(temp);
         int tempInt = Math.round(t);
         if(tempInt < 10) {

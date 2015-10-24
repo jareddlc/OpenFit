@@ -13,7 +13,7 @@ public class Alarm {
         alarm.addAction("com.android.deskclock.ALARM_DONE");
         return alarm;
     }
-    
+
     public static String getAction(Intent intent) {
         String action = intent.getAction();
 

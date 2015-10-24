@@ -8,29 +8,34 @@
     <string name="dialog_title_add">Add Application</string>
     <string name="dialog_title_del">Del Application</string>
     <string name="dialog_title_help">Open Fit Help</string>
-    <string name="dialog_message_help">
-        <b>Application Notifications:</b>
-        \n
-        For applications notifications to work,
+    <string name="dialog_message_help"><b>Application Notifications:</b>
+        \n\nFor applications notifications to work,
         you must turn on "Notification Access" for the Open Fit application.
         This is commonly found at: Settings>Notifications>Notification Access.
-        \n\n
-        <b>Connection Problems:</b>
-        \n
-        If you cannot pair with Gear Fit from Open Fit application,
+        \n\n<b>Connection Problems:</b>
+        \n\nIf you cannot pair with Gear Fit from Open Fit application,
         go to bluetooth settings, make sure the Gear Fit is not on the list of paired devices,
         If it is you may need to remove it(see note below),
         Then scan and pair to the Gear Fit. 
         the pairing will succeed but the Gear Fit will show \'waiting for confirmation..\'.
         Wait for it to fail and the screen on the Gear Fit will change.
         Then open the Open Fit app and scan, select device, and connect.
-        \n\n
-        <b>Note:</b> Deleting the Gear Fit from the paired devices in bluetooth settings,
+        \n\n<b>Note:</b> Deleting the Gear Fit from the paired devices in bluetooth settings,
         will cause a reset to the Gear Fit.
     </string>
     <string name="dialog_close_help">Close</string>
     <string name="dialog_title_fitness">Fitness</string>
     <string name="dialog_close_fitness">Close</string>
+    <string name="dialog_title_news">Open Fit News</string>
+    <string name="dialog_message_news">Help translate Open Fit into other languages!
+        In order to make Open Fit better, I am asking for your help to help translate.
+        \n\nPlease visit the google sheet and add a new sheet with the language you are translating.
+        \n\n<a href="https://docs.google.com/spreadsheets/d/17rnoXMUbnEaNvBJePeiO8gYPk7MWcntM9yC2Ex7y6eg/edit?usp=sharing">Link</a>
+        \nOr go to: https://goo.gl/fdzPMC
+        \n\nThank you to everybody who has let me know of issues and provided meaningful feedback.
+        This way I can work to have better and stable application.
+    </string>
+    <string name="dialog_close_news">Close</string>
     <string name="preference_category_connectivity_title">Connectivity</string>
     <string name="preference_switch_bluetooth_title">Enable Bluetooth</string>
     <string name="preference_scan_title">Scan</string>
@@ -60,6 +65,7 @@
     <string name="preference_category_apps_title">Applications</string>
     <string name="preference_donate_title">Donate</string>
     <string name="preference_donate_summary">Make a donation via PayPal</string>
+    <string name="preference_applications_summary">No applications added. Click the + icon at the top menu to add an application. Make sure Notification Access is Enabled, otherwise notifcations will not work.</string>
     <string name="toast_bluetooth_enable">Enabling&#8230;</string>
     <string name="toast_bluetooth_scan">Scanning&#8230;</string>
     <string name="toast_bluetooth_scan_complete">Scanning complete. Please select device</string>

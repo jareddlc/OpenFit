@@ -20,11 +20,12 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
-import android.bluetooth.BluetoothAdapter.LeScanCallback;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
@@ -393,8 +394,10 @@ public class BluetoothLeService extends Service {
     }
 
     public static void setBluetoothDevice() {
+        Log.d(LOG_TAG, "setBluetoothDevice: " + mDeviceMac);
         // loop through devices
         if(pairedDevices != null) {
+            Log.d(LOG_TAG, "setting from paired devices");
             for(BluetoothDevice device : pairedDevices) {
                 if(device.getAddress().equals(mDeviceMac)) {
                     Log.d(LOG_TAG, "Set paired device: "+device.getName()+":"+device.getAddress());
@@ -402,7 +405,8 @@ public class BluetoothLeService extends Service {
                 }
             }
         }
-        else if(scannedDevices.size() > 0) {
+        if(scannedDevices.size() > 0) {
+            Log.d(LOG_TAG, "setting from scanned devices");
             for(BluetoothDevice device : scannedDevices) {
                 if(device.getAddress().equals(mDeviceMac)) {
                     Log.d(LOG_TAG, "Set scanned device: "+device.getName()+":"+device.getAddress());
@@ -490,7 +494,6 @@ public class BluetoothLeService extends Service {
         }
     }
 
-    @SuppressWarnings("deprecation")
     public void scanLeDevice() {
         Log.d(LOG_TAG, "scanLeDevice");
         if(isEnabled) {
@@ -516,7 +519,7 @@ public class BluetoothLeService extends Service {
                     }
                     
                     if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        Log.d(LOG_TAG, "scanning with startScan");
+                        Log.d(LOG_TAG, "scanning with startScan"+ mBluetoothAdapter);
                         mHandler.postDelayed(new Runnable() {
                             @Override
                             public void run() {
@@ -535,13 +538,15 @@ public class BluetoothLeService extends Service {
                         isScanning = true;
                         BluetoothLeScanner mBluetoothLeScanner = mBluetoothAdapter.getBluetoothLeScanner();
                         mBluetoothLeScanner.startScan(mScanCallback);
+
                     }*/
+
                     // Stops scanning after a pre-defined scan period.
                     mHandler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
                             isScanning = false;
-                            mBluetoothAdapter.stopLeScan(mLeScanCallback);
+                            mBluetoothAdapter.cancelDiscovery();
                             Message msg = mHandler.obtainMessage();
                             Bundle b = new Bundle();
                             b.putString("bluetooth", "scanStopped");
@@ -552,8 +557,11 @@ public class BluetoothLeService extends Service {
                     }, SCAN_PERIOD);
                     
                     Log.d(LOG_TAG, "scanLeDevice starting scan for: "+SCAN_PERIOD+"ms");
+                    IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND); 
+                    registerReceiver(mScanReceiver, filter);
+                    Log.d(LOG_TAG, "starting discovery");
                     isScanning = true;
-                    mBluetoothAdapter.startLeScan(mLeScanCallback);
+                    mBluetoothAdapter.startDiscovery();
                 }
                 else {
                     Log.d(LOG_TAG, "scanLeDevice currently scanning");
@@ -567,7 +575,7 @@ public class BluetoothLeService extends Service {
             Log.d(LOG_TAG, "scanLeDevice called without BT enabled");
         }
     }
-    
+
     public void write(byte[] bytes) {
         if(onconnect != null) {
             Log.d(LOG_TAG, "Writting bytes");
@@ -578,7 +586,7 @@ public class BluetoothLeService extends Service {
         }
     }
 
-    private LeScanCallback mLeScanCallback = new LeScanCallback() {
+    /*private LeScanCallback mLeScanCallback = new LeScanCallback() {
         @Override
         public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
             if(scannedDevices.add(device)) {
@@ -593,7 +601,8 @@ public class BluetoothLeService extends Service {
         }
     };
 
-    /*private ScanCallback mScanCallback = new ScanCallback() {
+    @SuppressLint("NewApi")
+    private ScanCallback mScanCallback = new ScanCallback() {
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
             BluetoothDevice device = result.getDevice();
@@ -606,9 +615,26 @@ public class BluetoothLeService extends Service {
                 mHandler.sendMessage(msg);
                 setEntries();
             }
-            Log.d(LOG_TAG, device.getName()+" : "+device.getAddress()+" : "+device.getType()+" : "+device.getBondState());
         }
     };*/
+
+    private final BroadcastReceiver mScanReceiver = new BroadcastReceiver() {
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if(BluetoothDevice.ACTION_FOUND.equals(action)) {
+                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                if(scannedDevices.add(device)) {
+                    Log.d(LOG_TAG, device.getName()+" : "+device.getAddress()+" : "+device.getType()+" : "+device.getBondState());
+                    Message msg = mHandler.obtainMessage();
+                    Bundle b = new Bundle();
+                    b.putString("bluetoothDevice", device.getName()+","+device.getAddress());
+                    msg.setData(b);
+                    mHandler.sendMessage(msg);
+                    setEntries();
+                }
+            }
+        }
+    };
 
     private class EnableBluetoothThread extends Thread {
         public void run() {

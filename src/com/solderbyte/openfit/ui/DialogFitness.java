@@ -44,7 +44,7 @@ public class DialogFitness extends DialogFragment {
 
         return builder.create();
     }
-    
+
     public void buildAdapter(ArrayList<PedometerData> pedometerDailyList, ArrayList<PedometerData> pedometerList, PedometerTotal pedometerTotal) {
         ArrayList<String> items = new ArrayList<String>();
         ArrayList<String> subitems = new ArrayList<String>();

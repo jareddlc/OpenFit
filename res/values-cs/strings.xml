@@ -27,7 +27,6 @@
     <string name="dialog_title_fitness">Fitnes data</string>
     <string name="dialog_close_fitness">Zavřít</string>
     <string name="dialog_title_news">Open Fit novinky</string>
-    <string name="dialog_message_news"></string>
     <string name="dialog_close_news">Zavřít</string>
     <string name="preference_category_connectivity_title">Spojení</string>
     <string name="preference_switch_bluetooth_title">Zapnout Bluetooth</string>

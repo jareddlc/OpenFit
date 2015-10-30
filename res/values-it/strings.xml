@@ -27,7 +27,6 @@
     <string name="dialog_title_fitness">Fitness</string>
     <string name="dialog_close_fitness">Chiudi</string>
     <string name="dialog_title_news">Novità Open Fit</string>
-    <string name="dialog_message_news"></string>
     <string name="dialog_close_news">Chiudi</string>
     <string name="preference_category_connectivity_title">Connettività</string>
     <string name="preference_switch_bluetooth_title">Attiva Bluetooth</string>

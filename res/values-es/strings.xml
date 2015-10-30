@@ -27,7 +27,6 @@
     <string name="dialog_title_fitness">Física</string>
     <string name="dialog_close_fitness">Cerrar</string>
     <string name="dialog_title_news">Noticias Open Fit</string>
-    <string name="dialog_message_news"></string>
     <string name="dialog_close_news">Cerrar</string>
     <string name="preference_category_connectivity_title">Conectividad</string>
     <string name="preference_switch_bluetooth_title">Habilitar Bluetooth</string>

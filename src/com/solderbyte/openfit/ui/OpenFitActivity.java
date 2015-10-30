@@ -108,8 +108,8 @@ public class OpenFitActivity extends Activity {
             this.setupUIListeners();
 
             // load news
-            //DialogNews d = new DialogNews();
-            //d.show(getFragmentManager(), getString(R.string.dialog_title_news));
+            DialogNews d = new DialogNews();
+            d.show(getFragmentManager(), getString(R.string.dialog_title_news));
 
             // start service
             Intent serviceIntent = new Intent(this.getActivity(), OpenFitService.class);

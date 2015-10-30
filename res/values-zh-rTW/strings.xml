@@ -27,7 +27,6 @@
     <string name="dialog_title_fitness">健康</string>
     <string name="dialog_close_fitness">關閉</string>
     <string name="dialog_title_news">Open Fit 最新消息</string>
-    <string name="dialog_message_news"></string>
     <string name="dialog_close_news">關閉</string>
     <string name="preference_category_connectivity_title">連接情況</string>
     <string name="preference_switch_bluetooth_title">啟用藍牙</string>

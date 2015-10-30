@@ -27,7 +27,6 @@ Dies ist standardmäßig zu finden unter: Einstellungen>Ton und Benachrichtigung
     <string name="dialog_title_fitness">Fitness</string>
     <string name="dialog_close_fitness">Schließen</string>
     <string name="dialog_title_news">Open Fit News</string>
-    <string name="dialog_message_news"></string>
     <string name="dialog_close_news">Schließen</string>
     <string name="preference_category_connectivity_title">Verbindung</string>
     <string name="preference_switch_bluetooth_title">Bluetooth aktivieren</string>

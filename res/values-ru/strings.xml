@@ -27,7 +27,6 @@
     <string name="dialog_title_fitness">Фитнес</string>
     <string name="dialog_close_fitness">Закрыть</string>
     <string name="dialog_title_news">Новости Open Fit</string>
-    <string name="dialog_message_news"></string>
     <string name="dialog_close_news">Закрыть</string>
     <string name="preference_category_connectivity_title">Подключение</string>
     <string name="preference_switch_bluetooth_title">Включить Bluetooth</string>

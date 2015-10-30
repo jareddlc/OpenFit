@@ -34,7 +34,15 @@
     <string name="dialog_title_fitness">Fitness</string>
     <string name="dialog_close_fitness">Close</string>
     <string name="dialog_title_news">Open Fit News</string>
-    <string name="dialog_message_news">
+    <string name="dialog_message_news"><b>v1.5.0</b>
+        \n• Major code refactor
+        \n• Fix time sync (12hr/24hr)
+        \n• Bug fix random crash
+        \n• New languages. Thanks to those who helped!
+        \n\n<b>Upcoming</b>
+        \n• Better support for media controller
+        \n• Exercise data
+        \n• Pedometer sync with Google Fit
     </string>
     <string name="dialog_close_news">Close</string>
     <string name="preference_category_connectivity_title">Connectivity</string>

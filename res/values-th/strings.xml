@@ -27,7 +27,6 @@
     <string name="dialog_title_fitness">ฟิตเนส</string>
     <string name="dialog_close_fitness">ปิด</string>
     <string name="dialog_title_news">ข่าวสาร Open Fit</string>
-    <string name="dialog_message_news"></string>
     <string name="dialog_close_news">ปิด</string>
     <string name="preference_category_connectivity_title">ภาวะเชื่อมต่อ</string>
     <string name="preference_switch_bluetooth_title">เปิดบลูทูธ</string>

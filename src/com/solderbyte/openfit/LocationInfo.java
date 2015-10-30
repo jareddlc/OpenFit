@@ -3,6 +3,8 @@ package com.solderbyte.openfit;
 import java.util.List;
 import java.util.Locale;
 
+import com.solderbyte.openfit.util.OpenFitIntent;
+
 import android.content.Context;
 import android.content.Intent;
 import android.location.Address;
@@ -16,8 +18,6 @@ import android.util.Log;
 
 public class LocationInfo {
     private static final String LOG_TAG = "OpenFit:Location";
-
-    private static final String INTENT_SERVICE_LOCATION = "com.solderbyte.openfit.service.location";
 
     private static List<Address> addresses = null;
     private static LocationManager locationManager = null;
@@ -124,7 +124,7 @@ public class LocationInfo {
                             CountryCode = addresses.get(0).getCountryCode();
                             Log.d(LOG_TAG, "onLocationChanged: "+ cityName + ", " + CountryCode);
 
-                            Intent msg = new Intent(INTENT_SERVICE_LOCATION);
+                            Intent msg = new Intent(OpenFitIntent.INTENT_SERVICE_LOCATION);
                             msg.putExtra("cityName", cityName);
                             msg.putExtra("StateName", StateName);
                             msg.putExtra("CountryName", CountryName);

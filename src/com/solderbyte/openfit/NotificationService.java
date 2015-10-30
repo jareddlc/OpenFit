@@ -2,6 +2,8 @@ package com.solderbyte.openfit;
 
 import java.util.ArrayList;
 
+import com.solderbyte.openfit.util.OpenFitIntent;
+
 import android.app.Notification;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -15,22 +17,17 @@ import android.util.Log;
 public class NotificationService extends NotificationListenerService {
     private static final String LOG_TAG = "OpenFit:NotificationService";
 
-    private static final String INTENT_SERVICE_STOP = "com.solderbyte.openfit.service.stop";
-    private static final String INTENT_NOTIFICATION = "com.solderbyte.openfit.notification";
-    private static final String INTENT_SERVICE_NOTIFICATION = "com.solderbyte.openfit.service.notification";
-    private static final String INTENT_SERVICE_NOTIFICATION_APPLICATIONS = "com.solderbyte.openfit.service.notification.applications";
-
     private ArrayList<String> ListPackageNames = new ArrayList<String>();
     private Context context;
 
     @Override
     public void onCreate() {
         Log.d(LOG_TAG, "Created NotificationService");
-        this.registerReceiver(serviceStopReceiver, new IntentFilter(INTENT_SERVICE_STOP));
-        this.registerReceiver(applicationsReceiver, new IntentFilter(INTENT_SERVICE_NOTIFICATION_APPLICATIONS));
+        this.registerReceiver(serviceStopReceiver, new IntentFilter(OpenFitIntent.INTENT_SERVICE_STOP));
+        this.registerReceiver(applicationsReceiver, new IntentFilter(OpenFitIntent.INTENT_SERVICE_NOTIFICATION_APPLICATIONS));
         context = getApplicationContext();
 
-        Intent msg = new Intent(INTENT_SERVICE_NOTIFICATION);
+        Intent msg = new Intent(OpenFitIntent.INTENT_SERVICE_NOTIFICATION);
         context.sendBroadcast(msg);
         super.onCreate();
     }
@@ -96,7 +93,7 @@ public class NotificationService extends NotificationListenerService {
         Log.d(LOG_TAG, "info: " + info);
         //Log.d(LOG_TAG, "category: " + category);
 
-        Intent msg = new Intent(INTENT_NOTIFICATION);
+        Intent msg = new Intent(OpenFitIntent.INTENT_NOTIFICATION);
         msg.putExtra("packageName", packageName);
         msg.putExtra("ticker", ticker);
         msg.putExtra("title", title);

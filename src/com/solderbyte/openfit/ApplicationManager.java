@@ -125,7 +125,7 @@ public class ApplicationManager {
         }
         return found;
     }
-    
+
     public CharSequence[] getListeningPackageNames() {
         return listeningPackageNames;
     }
@@ -162,11 +162,11 @@ public class ApplicationManager {
         listeningListPackageNames.remove(packageName);
     }
 
-    public ArrayList<String> getInstalledApp() {
+    public ArrayList<String> getNotificationApplications() {
         return listeningListPackageNames;
     }
 
-    public void clearInstalledApp() {
+    public void clearNotificationApplications() {
         listeningListPackageNames = new ArrayList<String>();
     }
 }

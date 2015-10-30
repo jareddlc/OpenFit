@@ -389,6 +389,7 @@ public class BluetoothLeService extends Service {
     }
 
     public void setDevice(String devMac) {
+        Log.d(LOG_TAG, "setDevice: " + devMac);
         mDeviceMac = devMac;
         setBluetoothDevice();
     }
@@ -414,12 +415,14 @@ public class BluetoothLeService extends Service {
                 }
             }
         }
-        else {
-            Log.d(LOG_TAG, "setBluetoothDevice called with empty devices");
+
+        if(pairedDevices == null && scannedDevices.size() <= 0) {
+            Log.d(LOG_TAG, "setBluetoothDevice called with empty no paired or scanned devices");
         }
     }
 
     public void setEntries() {
+        Log.d(LOG_TAG, "setEntries");
         if(isEnabled) {
             List<CharSequence> entries = new ArrayList<CharSequence>();
             List<CharSequence> values = new ArrayList<CharSequence>();

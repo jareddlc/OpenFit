@@ -1,5 +1,7 @@
 package com.solderbyte.openfit;
 
+import com.solderbyte.openfit.util.OpenFitIntent;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -10,8 +12,6 @@ import android.util.Log;
 
 public class SmsListener extends BroadcastReceiver {
     private static final String LOG_TAG = "TurquoiseBicuspid:SmsListener";
-
-    private static final String INTENT_SERVICE_SMS = "com.solderbyte.openfit.service.sms";
 
     //private static final SmsManager sms = SmsManager.getDefault();
     private Context context;
@@ -41,7 +41,7 @@ public class SmsListener extends BroadcastReceiver {
                     String message = currentMessage.getDisplayMessageBody();
 
                     Log.d(LOG_TAG, "SMS: "+senderNum+" - "+message);
-                    Intent msg = new Intent(INTENT_SERVICE_SMS);
+                    Intent msg = new Intent(OpenFitIntent.INTENT_SERVICE_SMS);
                     msg.putExtra("message", message);
                     msg.putExtra("sender", senderNum);
                     context.sendBroadcast(msg);

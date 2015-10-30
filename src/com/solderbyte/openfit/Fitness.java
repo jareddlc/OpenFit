@@ -209,13 +209,7 @@ public class Fitness {
             //Log.d(LOG_TAG, "distance: " + distance);
             //Log.d(LOG_TAG, "calorie: " + calorie);
         }
-        /*Log.d(LOG_TAG, "pedometerDailyDates: " + pedometerDailyDates.size());
-        for(int j = 0; j < pedometerDailyDates.size(); j++) {
-            cal.setTime(pedometerDailyDates.get(j));
-            int day = cal.get(Calendar.DAY_OF_MONTH);
-            Log.d(LOG_TAG, day + " : " + pedometerDailyList.get(j).getTimeStamp() + " : " + pedometerDailyList.get(j).getSteps() + " : " + pedometerDailyList.get(j).getDistance() + " : " + pedometerDailyList.get(j).getCalories());
-        }*/
-        
+
         pedometerTotal = new PedometerTotal(pedometerTotalSteps, pedometerTotalDistance, pedometerTotalCalorie);
         Log.d(LOG_TAG, "totalSteps: " + pedometerTotal.getSteps());
         Log.d(LOG_TAG, "totalDistance: " + pedometerTotal.getDistance());

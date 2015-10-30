@@ -39,6 +39,9 @@ public class DialogDelApplication extends DialogFragment {
                 Log.d(LOG_TAG, "Clicked: " + appNames[index] + " : " + packageNames[index]);
             }
         });
+        builder.setPositiveButton(R.string.dialog_close_del,  new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int index) {}
+        });
 
         return builder.create();
     }

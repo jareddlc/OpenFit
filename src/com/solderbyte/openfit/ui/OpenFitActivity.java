@@ -1,7 +1,6 @@
 package com.solderbyte.openfit.ui;
 
 import java.util.ArrayList;
-import java.util.Set;
 
 import com.solderbyte.openfit.ApplicationManager;
 import com.solderbyte.openfit.OpenFitSavedPreferences;
@@ -50,17 +49,17 @@ public class OpenFitActivity extends Activity {
         if(item.getTitle().equals(getResources().getString(R.string.menu_add))) {
             Log.d(LOG_TAG, "Add selected: "+ item);
             DialogAddApplication d = new DialogAddApplication(appManager.getInstalledAdapter(getBaseContext()), appManager.getInstalledPackageNames(), appManager.getInstalledAppNames());
-            d.show(getFragmentManager(), "installed");
+            d.show(getFragmentManager(), getString(R.string.menu_add));
         }
         if(item.getTitle().equals(getResources().getString(R.string.menu_del))) {
             Log.d(LOG_TAG, "Remove selected: "+ item);
             DialogDelApplication d = new DialogDelApplication(appManager.getListeningAdapter(getBaseContext()), appManager.getListeningPackageNames(), appManager.getListeningAppNames());
-            d.show(getFragmentManager(), "listening");
+            d.show(getFragmentManager(), getString(R.string.menu_del));
         }
         if(item.getTitle().equals(getResources().getString(R.string.menu_help))) {
             Log.d(LOG_TAG, "Help selected");
             DialogHelp d = new DialogHelp();
-            d.show(getFragmentManager(), "help");
+            d.show(getFragmentManager(), getString(R.string.menu_help));
         }
         return true;
     }
@@ -73,8 +72,8 @@ public class OpenFitActivity extends Activity {
         appManager.getInstalledAdapter(getBaseContext());
         // load the PreferenceFragment
         Log.d(LOG_TAG, "Loading PreferenceFragment");
-        
-        this.getFragmentManager().beginTransaction().replace(android.R.id.content, new OpenFitFragment()).commit();
+
+        this.getFragmentManager().beginTransaction().replace(android.R.id.content, new OpenFitFragment()).commitAllowingStateLoss();
     }
 
     public static class OpenFitFragment extends PreferenceFragment {
@@ -109,8 +108,8 @@ public class OpenFitActivity extends Activity {
             this.setupUIListeners();
 
             // load news
-            DialogNews d = new DialogNews();
-            d.show(getFragmentManager(), "news");
+            //DialogNews d = new DialogNews();
+            //d.show(getFragmentManager(), getString(R.string.dialog_title_news));
 
             // start service
             Intent serviceIntent = new Intent(this.getActivity(), OpenFitService.class);
@@ -127,8 +126,6 @@ public class OpenFitActivity extends Activity {
         @Override
         public void onResume() {
             Log.d(LOG_TAG, "onResume");
-            this.clearListeningApps(oPrefs);
-            this.restorePreferences(oPrefs);
             super.onResume();
         }
 
@@ -174,7 +171,7 @@ public class OpenFitActivity extends Activity {
                     preference_list_devices.setSummary(mDeviceName);
                     oPrefs.saveString("preference_list_devices_value", mDeviceAddress);
                     oPrefs.saveString("preference_list_devices_entry", mDeviceName);
-                    sendIntent(OpenFitIntent.INTENT_SERVICE_BT, OpenFitIntent.ACTION_SETDEVICE, mDeviceAddress);
+                    sendIntent(OpenFitIntent.INTENT_SERVICE_BT, OpenFitIntent.ACTION_SET_DEVICE, mDeviceAddress);
                     return true;
                 }
             });
@@ -289,57 +286,55 @@ public class OpenFitActivity extends Activity {
         public void handleServiceMessage(String message, Intent intent) {
             // setup message handler
             if(message != null && !message.isEmpty()) {
-                if(message.equals("OpenFitService")) {
-                    this.clearListeningApps(oPrefs);
-                    this.restorePreferences(oPrefs);
+                if(message.equals(OpenFitIntent.INTENT_SERVICE_START)) {
                 }
-                if(message.equals("isEnabled")) {
+                if(message.equals(OpenFitIntent.EXTRA_IS_ENABLED)) {
                     Toast.makeText(getActivity(), R.string.toast_bluetooth_enabled, Toast.LENGTH_SHORT).show();
                     preference_switch_bluetooth.setChecked(true);
                 }
-                if(message.equals("isEnabledFailed")) {
+                if(message.equals(OpenFitIntent.EXTRA_IS_ENABLED_FAILED)) {
                     Toast.makeText(getActivity(), R.string.toast_bluetooth_enabled_failed, Toast.LENGTH_SHORT).show();
                     preference_switch_bluetooth.setChecked(false);
                 }
-                if(message.equals("isConnected")) {
+                if(message.equals(OpenFitIntent.EXTRA_IS_CONNECTED)) {
                     Log.d(LOG_TAG, "Bluetooth Connected");
                     Toast.makeText(getActivity(), R.string.toast_bluetooth_connected, Toast.LENGTH_SHORT).show();
                     preference_checkbox_connect.setChecked(true);
                 }
-                if(message.equals("isDisconnected")) {
+                if(message.equals(OpenFitIntent.EXTRA_IS_DISCONNCTED)) {
                     Log.d(LOG_TAG, "Bluetooth Disconnected");
                     Toast.makeText(getActivity(), R.string.toast_bluetooth_disconnected, Toast.LENGTH_SHORT).show();
                     preference_checkbox_connect.setChecked(false);
                 }
-                if(message.equals("isConnectedFailed")) {
+                if(message.equals(OpenFitIntent.EXTRA_IS_CONNECTED_FAILED)) {
                     Log.d(LOG_TAG, "Bluetooth Connected Failed");
                     Toast.makeText(getActivity(), R.string.toast_bluetooth_connect_failed, Toast.LENGTH_SHORT).show();
                     preference_checkbox_connect.setChecked(false);
                 }
-                if(message.equals("isConnectedRfcomm")) {
+                if(message.equals(OpenFitIntent.EXTRA_IS_CONNECTED_RFCOMM)) {
                     Log.d(LOG_TAG, "Bluetooth RFcomm Connected");
                     Toast.makeText(getActivity(), R.string.toast_bluetooth_connected, Toast.LENGTH_SHORT).show();
                     preference_checkbox_connect.setChecked(true);
                 }
-                if(message.equals("isDisconnectedRfComm")) {
+                if(message.equals(OpenFitIntent.EXTRA_IS_DISCONNECTED_RFCOMM)) {
                     Log.d(LOG_TAG, "Bluetooth Disconnected");
                     Toast.makeText(getActivity(), R.string.toast_bluetooth_disconnected, Toast.LENGTH_SHORT).show();
                     preference_checkbox_connect.setChecked(false);
                 }
-                if(message.equals("isConnectedRfcommFailed")) {
+                if(message.equals(OpenFitIntent.EXTRA_IS_CONNECTED_RFCOMM_FAILED)) {
                     Log.d(LOG_TAG, "Bluetooth RFcomm Failed");
                     Toast.makeText(getActivity(), R.string.toast_bluetooth_connect_failed, Toast.LENGTH_SHORT).show();
                 }
-                if(message.equals("scanStopped")) {
+                if(message.equals(OpenFitIntent.EXTRA_SCAN_STOPPED)) {
                     Log.d(LOG_TAG, "Bluetooth scanning done");
                     preference_list_devices.setEnabled(true);
                     preference_scan.setSummary(R.string.preference_scan_summary);
                     Toast.makeText(getActivity(), R.string.toast_bluetooth_scan_complete, Toast.LENGTH_SHORT).show();
                 }
-                if(message.equals("bluetoothDevicesList")) {
+                if(message.equals(OpenFitIntent.EXTRA_BLUETOOTH_DEVICE_LIST)) {
                     Log.d(LOG_TAG, "Bluetooth device list");
-                    CharSequence[] entries = intent.getCharSequenceArrayExtra("bluetoothEntries");
-                    CharSequence[] entryValues = intent.getCharSequenceArrayExtra("bluetoothEntryValues");
+                    CharSequence[] entries = intent.getCharSequenceArrayExtra(OpenFitIntent.EXTRA_BLUETOOTH_ENTRIES);
+                    CharSequence[] entryValues = intent.getCharSequenceArrayExtra(OpenFitIntent.EXTRA_BLUETOOTH_ENTRIES_VALUES);
 
                     if(entries != null && entryValues != null) {
                         preference_list_devices.setEntries(entries);
@@ -349,41 +344,66 @@ public class OpenFitActivity extends Activity {
                         Toast.makeText(getActivity(), R.string.toast_bluetooth_devices_failed, Toast.LENGTH_SHORT).show();
                     }
                 }
-                if(message.equals("fitness")) {
-                    Log.d(LOG_TAG, "Fitness data");
+                if(message.equals(OpenFitIntent.EXTRA_DEVICE_NAME)) {
+                    Log.d(LOG_TAG, "Bluetooth device name");
+                    String mDeviceName = intent.getStringExtra(OpenFitIntent.INTENT_EXTRA_DATA);
+                    preference_list_devices.setSummary(mDeviceName);
+                }
 
-                    PedometerTotal pedometerTotal = intent.getParcelableExtra("pedometerTotal");
-                    ArrayList<PedometerData> pedometerList = intent.getParcelableArrayListExtra("pedometerArrayList");
-                    ArrayList<PedometerData> pedometerDailyList = intent.getParcelableArrayListExtra("pedometerDailyArrayList");
+                if(message.equals(OpenFitIntent.EXTRA_SMS)) {
+                    Log.d(LOG_TAG, "SMS");
+                    Boolean data = intent.getBooleanExtra(OpenFitIntent.INTENT_EXTRA_DATA, false);
+                    preference_checkbox_sms.setChecked(data);
+                }
+                if(message.equals(OpenFitIntent.EXTRA_PHONE)) {
+                    Log.d(LOG_TAG, "Phone");
+                    Boolean data = intent.getBooleanExtra(OpenFitIntent.INTENT_EXTRA_DATA, false);
+                    preference_checkbox_phone.setChecked(data);
+                }
+                if(message.equals(OpenFitIntent.EXTRA_TIME)) {
+                    Log.d(LOG_TAG, "Time");
+                    Boolean data = intent.getBooleanExtra(OpenFitIntent.INTENT_EXTRA_DATA, false);
+                    preference_checkbox_time.setChecked(data);
+                }
+                if(message.equals(OpenFitIntent.EXTRA_WEATHER)) {
+                    Log.d(LOG_TAG, "Weather");
+                    String entry = intent.getStringExtra(OpenFitIntent.EXTRA_WEATHER_ENTRY);
+                    String value = intent.getStringExtra(OpenFitIntent.EXTRA_WEATHER_VALUE);
+                    preference_list_weather.setValue(value);
+                    preference_list_weather.setSummary(entry);
+                }
+                if(message.equals(OpenFitIntent.EXTRA_FITNESS)) {
+                    Log.d(LOG_TAG, "Fitness");
+                    PedometerTotal pedometerTotal = intent.getParcelableExtra(OpenFitIntent.EXTRA_PEDOMETER_TOTAL);
+                    ArrayList<PedometerData> pedometerList = intent.getParcelableArrayListExtra(OpenFitIntent.EXTRA_PEDOMETER_LIST);
+                    ArrayList<PedometerData> pedometerDailyList = intent.getParcelableArrayListExtra(OpenFitIntent.EXTRA_PEDOMETER_DAILY_LIST);
 
                     DialogFitness d = new DialogFitness(getActivity(), pedometerDailyList, pedometerList, pedometerTotal);
-                    d.show(getFragmentManager(), "fitness");
+                    d.show(getFragmentManager(), OpenFitIntent.EXTRA_FITNESS);
+                }
+                if(message.equals(OpenFitIntent.EXTRA_APPLICATIONS)) {
+                    Log.d(LOG_TAG, "Applications");
+                    ArrayList<String> listeningListPackageNames = intent.getStringArrayListExtra(OpenFitIntent.EXTRA_APPLICATIONS_PACKAGE_NAME);
+                    ArrayList<String> listeningListAppNames = intent.getStringArrayListExtra(OpenFitIntent.EXTRA_APPLICATIONS_APP_NAME);
+
+                    PreferenceCategory category = (PreferenceCategory) findPreference("preference_category_apps");
+                    if(listeningListPackageNames.size() <= 0) {
+                        Preference placeholder = createPlaceHolderPreference();
+                        category.addPreference(placeholder);
+                    }
+                    for(int i = 0; i < listeningListPackageNames.size(); i++) {
+                        Preference app = createAppPreference(listeningListPackageNames.get(i), listeningListAppNames.get(i));
+                        category.addPreference(app);
+                        appManager.addInstalledApp(listeningListPackageNames.get(i));
+                    }
                 }
             }
         }
 
-        public CheckBoxPreference createAppPreference(final String packageName, final String appName, final boolean value) {
-            CheckBoxPreference app = new CheckBoxPreference(getActivity());
+        public Preference createAppPreference(final String packageName, final String appName) {
+            Preference app = new Preference(getActivity());
             app.setTitle(appName);
             app.setKey(packageName);
-            app.setChecked(value);
-            app.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-                @Override
-                public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    if((Boolean)newValue) {
-                        oPrefs.saveBoolean(packageName, true);
-                        Log.d(LOG_TAG, appName+": Enabled");
-                        sendIntentNotificationApplications();
-                        return true;
-                    }
-                    else {
-                        oPrefs.saveBoolean(packageName, false);
-                        Log.d(LOG_TAG, appName+": Disabled");
-                        sendIntentNotificationApplications();
-                        return true;
-                    }
-                }
-            });
             app.setIcon(appManager.getIcon(packageName));
             return app;
         }
@@ -395,75 +415,24 @@ public class OpenFitActivity extends Activity {
             return ph;
         }
 
-        public void restorePreferences(OpenFitSavedPreferences oPrefs) {
-            this.restoreDevicesList(oPrefs);
-            this.restoreListeningApps(oPrefs);
-            this.restoreDeviceListeners(oPrefs);
-        }
-
-        public void restoreDevicesList(OpenFitSavedPreferences oPrefs) {
-            Log.d(LOG_TAG, "Restoring devices list: " + oPrefs.preference_list_devices_value);
-            if(oPrefs.preference_list_devices_value != "DEFAULT") {
-                String mDeviceAddress = oPrefs.preference_list_devices_value;
-                String mDeviceName = oPrefs.preference_list_devices_entry;
-                preference_list_devices.setSummary(mDeviceName);
-                sendIntent(OpenFitIntent.INTENT_SERVICE_BT, OpenFitIntent.ACTION_SETENTRIES);
-                sendIntent(OpenFitIntent.INTENT_SERVICE_BT, OpenFitIntent.ACTION_SETDEVICE, mDeviceAddress);
-                Log.d(LOG_TAG, "Restored device: "+mDeviceName+":"+mDeviceAddress);
-            }
-        }
-
-        public void restoreListeningApps(OpenFitSavedPreferences oPrefs) {
-            Log.d(LOG_TAG, "Restoring listening apps");
-            PreferenceCategory category = (PreferenceCategory) findPreference("preference_category_apps");
-            Set<String> listeningPackageNames = oPrefs.getSet();
-            if(listeningPackageNames.size() <= 0) {
-                Preference placeholder = createPlaceHolderPreference();
-                category.addPreference(placeholder);
-            }
-            for(String packageName : listeningPackageNames) {
-                boolean value = oPrefs.getBoolean(packageName);
-                String appName = oPrefs.getString(packageName);
-                Log.d(LOG_TAG, "Listening App: " + packageName + ":" + value);
-                CheckBoxPreference app = createAppPreference(packageName, appName, value);
-                category.addPreference(app);
-                appManager.addInstalledApp(packageName);
-            }
-            sendIntentNotificationApplications();
-        }
-
-        public void restoreDeviceListeners(OpenFitSavedPreferences oPrefs) {
-            Log.d(LOG_TAG, "Restoring device listeners");
-            preference_checkbox_phone.setChecked(oPrefs.preference_checkbox_phone);
-            preference_checkbox_sms.setChecked(oPrefs.preference_checkbox_sms);
-            preference_checkbox_time.setChecked(oPrefs.preference_checkbox_time);
-            
-            if(oPrefs.preference_list_weather_value != "DEFAULT") {
-                String weatherValue = oPrefs.preference_list_weather_value;
-                String weatherEntry = oPrefs.preference_list_weather_entry;
-                preference_list_weather.setSummary(weatherEntry);
-                sendIntent(OpenFitIntent.INTENT_SERVICE_BT, OpenFitIntent.ACTION_WEATHER, weatherValue);
-                Log.d(LOG_TAG, "Restored weather: "+weatherEntry+":"+weatherValue);
-            }
-            String sms = Boolean.toString(oPrefs.preference_checkbox_sms);
-            String phone = Boolean.toString(oPrefs.preference_checkbox_phone);
-            sendIntent(OpenFitIntent.INTENT_SERVICE_BT, OpenFitIntent.ACTION_SMS, sms);
-            sendIntent(OpenFitIntent.INTENT_SERVICE_BT, OpenFitIntent.ACTION_PHONE, phone);
-            sendIntent(OpenFitIntent.INTENT_SERVICE_BT, OpenFitIntent.ACTION_STATUS);
-        }
-
-        public void clearListeningApps(OpenFitSavedPreferences oPrefs) {
+        public void clearNotificationApplications() {
             Log.d(LOG_TAG, "Clearing listening apps");
             PreferenceCategory category = (PreferenceCategory) findPreference("preference_category_apps");
             category.removeAll();
-            appManager.clearInstalledApp();
+            appManager.clearNotificationApplications();
         }
 
-        public void sendIntentNotificationApplications() {
+        public void sendNotificationApplications() {
             Log.d(LOG_TAG, "Sending Intent: " + OpenFitIntent.INTENT_SERVICE_NOTIFICATION_APPLICATIONS);
             Intent i = new Intent(OpenFitIntent.INTENT_SERVICE_NOTIFICATION_APPLICATIONS);
             i.putExtra(OpenFitIntent.INTENT_EXTRA_MSG, OpenFitIntent.INTENT_SERVICE_NOTIFICATION_APPLICATIONS);
-            i.putExtra(OpenFitIntent.INTENT_EXTRA_DATA, appManager.getInstalledApp());
+            i.putExtra(OpenFitIntent.INTENT_EXTRA_DATA, appManager.getNotificationApplications());
+            getActivity().sendBroadcast(i);
+        }
+
+        public void sendIntent(String intentName) {
+            Log.d(LOG_TAG, "Sending Intent: " + intentName);
+            Intent i = new Intent(intentName);
             getActivity().sendBroadcast(i);
         }
 
@@ -497,21 +466,20 @@ public class OpenFitActivity extends Activity {
         private BroadcastReceiver addApplicationReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                final String packageName = intent.getStringExtra("packageName");
-                final String appName = intent.getStringExtra("appName");
+                final String packageName = intent.getStringExtra(OpenFitIntent.EXTRA_PACKAGE_NAME);
+                final String appName = intent.getStringExtra(OpenFitIntent.EXTRA_APP_NAME);
                 Log.d(LOG_TAG, "Recieved add application: "+appName+" : "+packageName);
                 appManager.addInstalledApp(packageName);
                 oPrefs.saveSet(packageName);
-                oPrefs.saveBoolean(packageName, true);
                 oPrefs.saveString(packageName, appName);
-                CheckBoxPreference app = createAppPreference(packageName, appName, true);
+                Preference app = createAppPreference(packageName, appName);
                 PreferenceCategory category = (PreferenceCategory) findPreference("preference_category_apps");
                 Preference placeholder = category.findPreference("preference_apps_placeholder");
                 if(placeholder != null) {
                     category.removePreference(placeholder);
                 }
                 category.addPreference(app);
-                sendIntentNotificationApplications();
+                sendNotificationApplications();
             }
         };
 
@@ -519,17 +487,16 @@ public class OpenFitActivity extends Activity {
             @Override
             public void onReceive(Context context, Intent intent) {
 
-                final String packageName = intent.getStringExtra("packageName");
-                final String appName = intent.getStringExtra("appName");
+                final String packageName = intent.getStringExtra(OpenFitIntent.EXTRA_PACKAGE_NAME);
+                final String appName = intent.getStringExtra(OpenFitIntent.EXTRA_APP_NAME);
                 Log.d(LOG_TAG, "Recieved del application: "+appName+" : "+packageName);
                 appManager.delInstalledApp(packageName);
                 oPrefs.removeSet(packageName);
-                oPrefs.removeBoolean(packageName);
                 oPrefs.removeString(packageName);
                 PreferenceCategory category = (PreferenceCategory) findPreference("preference_category_apps");
-                CheckBoxPreference app = (CheckBoxPreference) findPreference(packageName);
+                Preference app = (Preference) findPreference(packageName);
                 category.removePreference(app);
-                sendIntentNotificationApplications();
+                sendNotificationApplications();
             }
         };
 
@@ -546,7 +513,7 @@ public class OpenFitActivity extends Activity {
             @Override
             public void onReceive(Context context, Intent intent) {
                 Log.d(LOG_TAG, "Received Notification Service");
-                sendIntentNotificationApplications();
+                sendNotificationApplications();
             }
         };
 

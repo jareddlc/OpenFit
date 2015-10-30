@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Open Fit</string>
+    <string name="service_name">Open Fit</string>
+    <string name="menu_add">Ajouter une application</string>
+    <string name="menu_del">Supprimer une application</string>
+    <string name="menu_help">Aide</string>
+    <string name="dialog_title_add">Ajouter une application</string>
+    <string name="dialog_title_del">Supprimer une application</string>
+    <string name="dialog_title_help">Aide Open Fit</string>
+    <string name="dialog_message_help"><b>Notifications des applications:</b>
+        \n\nPour que les notifications des applications fonctionnent,
+        vous devez activer l\' "Accès aux notifications" pour l\'application Open Fit.
+        Ceci est généralement dans: Paramètres>Notifications>Accès aux notifications.
+        \n\n<b>Problèmes de connexion:</b>
+        \n\nSi vous n\'arrivez pas à appairer votre Gear Fit avec l\'application Open Fit,
+        allez dans les paramètres bluetooth, vérifiez que la Gear Fit n\'est pas dans la liste des périphériques associés,
+        Sinon vous pouvez avoir besoin de la supprimer (voir la note ci-dessous),
+        Puis scannez et appairez-vous à la Gear Fit. 
+        L\'appairage va réussir mais la Gear Fit affichera \'attente de confirmation..\'.
+        Attendez qu\'elle échoue et que l\'écran sur la Gear Fit change.
+        Puis ouvrez l\'app Open Fit et scannez, sélectionnez le périphérique et connectez-vous y.
+        \n\n<b>Note:</b> Supprimer la Gear Fit des périphériques associés dans les paramètres bluetooth
+        provoquera une remise à zéro de la Gear Fit.
+    </string>
+    <string name="dialog_close_help">Fermer</string>
+    <string name="dialog_title_fitness">Fitness</string>
+    <string name="dialog_close_fitness">Fermer</string>
+    <string name="dialog_title_news">Nouveautés Open Fit</string>
+    <string name="dialog_message_news"></string>
+    <string name="dialog_close_news">Fermer</string>
+    <string name="preference_category_connectivity_title">Connectivité</string>
+    <string name="preference_switch_bluetooth_title">Activer le Bluetooth</string>
+    <string name="preference_scan_title">Scan</string>
+    <string name="preference_scan_dialog">Scan Bluetooth</string>
+    <string name="preference_scan_summary">Scan d\'une Gear Fit</string>
+    <string name="preference_scan_summary_scanning">Scan en cours&#8230; Veuillez patienter</string>
+    <string name="preference_list_devices_title">Afficher les périphériques</string>
+    <string name="preference_list_devices_dialog">Sélectionner la Gear Fit</string>
+    <string name="preference_list_devices_summary">Sélectionner la Gear Fit</string>
+    <string name="preference_checkbox_connect_title">Connexion</string>
+    <string name="preference_checkbox_connect_on">Connecté</string>
+    <string name="preference_checkbox_connect_off">Déconnecté</string>
+    <string name="preference_list_devices_default">Vide</string>
+    <string name="preference_category_device_title">Périphérique</string>
+    <string name="preference_checkbox_sms_title">Messages texte</string>
+    <string name="preference_checkbox_phone_title">Appels téléphoniques</string>
+    <string name="preference_checkbox_time_title">Format de l\'horloge</string>
+    <string name="preference_checkbox_time_on">24 heures</string>
+    <string name="preference_checkbox_time_off">12 heures</string>
+    <string name="preference_list_weather_title">Mise à jour météo</string>
+    <string name="preference_list_weather_dialog">Sélectionnez Météo</string>
+    <string name="preference_list_weather_summary">Sélectionnez une option</string>
+    <string name="preference_list_weather_default">Aucune mise à jour</string>
+    <string name="preference_fitness_title">Fitness</string>
+    <string name="preference_fitness_dialog">Fitness</string>
+    <string name="preference_fitness_summary">Requête des données Fitness</string>
+    <string name="preference_category_apps_title">Applications</string>
+    <string name="preference_donate_title">Don</string>
+    <string name="preference_donate_summary">Faire un don via PayPal</string>
+    <string name="preference_applications_summary">Pas d\'applications ajoutées. Cliquez sur l\'icône + en haut du menu pour ajouter une application. Vérifiez que l\'accès aux Notifications est activé, sinon les notifications ne fonctionneront pas.</string>
+    <string name="toast_bluetooth_enable">Activation&#8230;</string>
+    <string name="toast_bluetooth_scan">Scan en cours&#8230;</string>
+    <string name="toast_bluetooth_scan_complete">Scan terminé. Veuillez sélectionner un périphérique.</string>
+    <string name="toast_bluetooth_connect">Tentative de connexion à :</string>
+    <string name="toast_bluetooth_fitness">Demande des données fitness&#8230;</string>
+    <string name="toast_bluetooth_enabled">Bluetooth activé</string>
+    <string name="toast_bluetooth_enabled_failed">Échec d\'activation du Bluetooth</string>
+    <string name="toast_bluetooth_connected">Gear Fit connecté</string>
+    <string name="toast_bluetooth_disconnected">Gear Fit déconnecté</string>
+    <string name="toast_bluetooth_connect_failed">Échec de connexion à la Gear Fit</string>
+    <string name="toast_bluetooth_devices_failed">Échec de connexion à la Gear Fit</string>
+    <string name="notification_title">Open Fit</string>
+    <string name="notification_connected">Connecté à la Gear Fit</string>
+    <string name="notification_disconnected">Déconnecté de la Gear Fit</string>
+    <string name="notification_button_connect">Se connecter</string>
+    <string name="notification_button_disconnect">Se déconnecter</string>
+    <string name="notification_button_close">Arrêt de l\'appli</string>
+</resources>

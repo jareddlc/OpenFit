@@ -6,9 +6,7 @@
     <string name="menu_del">Del Application</string>
     <string name="menu_help">Help</string>
     <string name="dialog_title_add">Add Application</string>
-    <string name="dialog_close_add">Close</string>
     <string name="dialog_title_del">Del Application</string>
-    <string name="dialog_close_del">Close</string>
     <string name="dialog_title_help">Open Fit Help</string>
     <string name="dialog_message_help"><b>Application Notifications:</b>
         \n\nFor applications notifications to work,
@@ -22,11 +20,6 @@
         the pairing will succeed but the Gear Fit will show \'waiting for confirmation..\'.
         Wait for it to fail and the screen on the Gear Fit will change.
         Then open the Open Fit app and scan, select device, and connect.
-        \n\n<b>Contributing:</b>
-        \n\nIf you want to help translating Open Fit, please visit:
-        \nhttps://goo.gl/fdzPMC
-        \nFor other contributions please visit the official XDA forum at:
-        \nhttp://goo.gl/y2Fkmt
         \n\n<b>Note:</b> Deleting the Gear Fit from the paired devices in bluetooth settings,
         will cause a reset to the Gear Fit.
     </string>
@@ -34,8 +27,7 @@
     <string name="dialog_title_fitness">Fitness</string>
     <string name="dialog_close_fitness">Close</string>
     <string name="dialog_title_news">Open Fit News</string>
-    <string name="dialog_message_news">
-    </string>
+    <string name="dialog_message_news"></string>
     <string name="dialog_close_news">Close</string>
     <string name="preference_category_connectivity_title">Connectivity</string>
     <string name="preference_switch_bluetooth_title">Enable Bluetooth</string>
@@ -48,7 +40,7 @@
     <string name="preference_list_devices_summary">Select Gear Fit</string>
     <string name="preference_checkbox_connect_title">Connect</string>
     <string name="preference_checkbox_connect_on">Connected</string>
-    <string name="preference_checkbox_connect_off">Disconnected</string>
+    <string name="preference_checkbox_connect_off">Disconnected</string>    
     <string name="preference_list_devices_default">None</string>
     <string name="preference_category_device_title">Device</string>
     <string name="preference_checkbox_sms_title">Text Messages</string>

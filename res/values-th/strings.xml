@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Open Fit</string>
+    <string name="service_name">Open Fit</string>
+    <string name="menu_add">เพิ่ม แอปพลิเคชัน</string>
+    <string name="menu_del">ลบ แอปพลิเคชัน</string>
+    <string name="menu_help">ความช่วยเหลือ</string>
+    <string name="dialog_title_add">เพิ่ม แอปพลิเคชัน</string>
+    <string name="dialog_title_del">ลบ แอปพลิเคชัน</string>
+    <string name="dialog_title_help">ความช่วยเหลือใน Open Fit</string>
+    <string name="dialog_message_help"><b>การแจ้งเตือนแอปพลิเคชัน:</b>
+        \n\nเพื่อเปิดการแจ้งเตือนแอปผ่านนาฬิกา
+        คุณจะต้องเลือกเปิดให้แอป Open Fit สามารถเข้าถึงการแจ้งเตือนของระบบได้
+        โดยเข้าไปที่: \nการตั้งค่าระบบ>การแจ้งเตือน>การเข้าถึงการแจ้งเตือน \nSettings>Notifications>Notification Access
+        \n\n<b>ปัญหาการเชื่อมต่อ:</b>
+        \n\nถ้าคุณไม่สามารถเชื่อมต่อ Gear Fit ผ่านแอป Open Fit ได้
+        ให้ไปที่การตั้งค่าบลูทูธ ดูในแน่ใจว่า Gear Fit ไม่ได้อยู่ในรายชื่อของอุปกรณ์ที่จับคู่ (paired devices)
+        ถ้ามีอยู่ คุณอาจจะต้องลบมันออกไป(ดูหมายเหตุ ด้านล่าง)
+        จากนั้นสั่งค้นหา(scan) และจับคู่(pair) Gear Fit 
+        เมื่อจับคู่สำเร็จแต่ Gear Fit แสดงข้อความ \'waiting for confirmation..\' กำลังรอการยืนยันจาก Gear Fit Manager..
+        ให้รอจนล้มเหลว และหน้าจอ Gear Fit เปลี่ยนไป
+        จากนั้นเปิดแอป Open Fit สั่งค้นหา เลือกอุปกรณ์ และเชื่อมต่อ
+        \n\n<b>หมายเหตุ:</b> การลบ Gear Fit ออกจากอุปกรณ์ที่จับคู่ในการตั้งค่าบลูทูธ
+        อาจทำให้ Gear Fit รีเซทตัวเองได้
+    </string>
+    <string name="dialog_close_help">ปิด</string>
+    <string name="dialog_title_fitness">ฟิตเนส</string>
+    <string name="dialog_close_fitness">ปิด</string>
+    <string name="dialog_title_news">ข่าวสาร Open Fit</string>
+    <string name="dialog_message_news"></string>
+    <string name="dialog_close_news">ปิด</string>
+    <string name="preference_category_connectivity_title">ภาวะเชื่อมต่อ</string>
+    <string name="preference_switch_bluetooth_title">เปิดบลูทูธ</string>
+    <string name="preference_scan_title">ค้นหา</string>
+    <string name="preference_scan_dialog">ค้นหาบลูทูธ</string>
+    <string name="preference_scan_summary">ค้นหา Gear Fit</string>
+    <string name="preference_scan_summary_scanning">กำลังค้นหา&#8230;กรุณารอสักครู่</string>
+    <string name="preference_list_devices_title">แสดงอุปกรณ์บลูทูธ</string>
+    <string name="preference_list_devices_dialog">เลือก Gear Fit</string>
+    <string name="preference_list_devices_summary">เลือก Gear Fit</string>
+    <string name="preference_checkbox_connect_title">การเชื่อมต่อ</string>
+    <string name="preference_checkbox_connect_on">เชื่อมต่อแล้ว</string>
+    <string name="preference_checkbox_connect_off">หลุดการเชื่อมต่อ</string>
+    <string name="preference_list_devices_default">ไม่พบ</string>
+    <string name="preference_category_device_title">อุปกรณ์</string>
+    <string name="preference_checkbox_sms_title">ข้อความ</string>
+    <string name="preference_checkbox_phone_title">โทรศัพท์</string>
+    <string name="preference_checkbox_time_title">รูปแบบเวลา</string>
+    <string name="preference_checkbox_time_on">24.00 น.</string>
+    <string name="preference_checkbox_time_off">12.00 AM/PM</string>
+    <string name="preference_list_weather_title">การแจ้งเตือนสภาพอากาศ</string>
+    <string name="preference_list_weather_dialog">เลือกการแจ้งเตือนสภาพอากาศ</string>
+    <string name="preference_list_weather_summary">เลือก ตัวเลือก</string>
+    <string name="preference_list_weather_default">ไม่มีการแจ้งเตือน</string>
+    <string name="preference_fitness_title">ฟิตเนส</string>
+    <string name="preference_fitness_dialog">ฟิตเนส</string>
+    <string name="preference_fitness_summary">เรียกข้อมูลฟิตเนส</string>
+    <string name="preference_category_apps_title">แอปพลิเคชัน</string>
+    <string name="preference_donate_title">บริจาค</string>
+    <string name="preference_donate_summary">บริจาคผ่าน PayPal</string>
+    <string name="preference_applications_summary">ไม่พบแอปพลิเคชัน กรุณากดปุ่ม + ที่เมนูด้านบนเพื่อเพิ่มแอปพลิเคชัน โปรดตรวจสอบด้วยว่าได้เปิดการเข้าถึงการแจ้งเตือน (Notification Access) ไม่เช่นนั้นการแจ้งเตือนอาจไม่ทำงาน</string>
+    <string name="toast_bluetooth_enable">กำลังเปิด&#8230;</string>
+    <string name="toast_bluetooth_scan">กำลังค้นหา&#8230;</string>
+    <string name="toast_bluetooth_scan_complete">การค้นหาเสร็จสิ้น กรุณาเลือกอุปกรณ์</string>
+    <string name="toast_bluetooth_connect">กำลังพยายามเชื่อมต่อ:</string>
+    <string name="toast_bluetooth_fitness">กำลังเรียกข้อมูลฟิตเนส&#8230;</string>
+    <string name="toast_bluetooth_enabled">เปิดใช้งานบลูทูธแล้ว</string>
+    <string name="toast_bluetooth_enabled_failed">บลูทูธล้มเหลว</string>
+    <string name="toast_bluetooth_connected">เชื่อมต่อ Gear Fit แล้ว</string>
+    <string name="toast_bluetooth_disconnected">Gear Fit หลุดการเชื่อมต่อ</string>
+    <string name="toast_bluetooth_connect_failed">การเชื่อมต่อ Gear Fit ล้มเหลว</string>
+    <string name="toast_bluetooth_devices_failed">การเชื่อมต่อ Gear Fit ล้มเหลว</string>
+    <string name="notification_title">Open Fit</string>
+    <string name="notification_connected">เชื่อมต่อ Gear Fit แล้ว</string>
+    <string name="notification_disconnected">หลุดการเชื่อมต่อ</string>
+    <string name="notification_button_connect">เชื่อมต่อ</string>
+    <string name="notification_button_disconnect">หยุดการเชื่อมต่อ</string>
+    <string name="notification_button_close">ปิดการทำงาน</string>
+</resources>

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Open Fit</string>
+    <string name="service_name">Open Fit</string>
+    <string name="menu_add">增加通知程式</string>
+    <string name="menu_del">移除通知程式</string>
+    <string name="menu_help">幫助</string>
+    <string name="dialog_title_add">增加通知程式</string>
+    <string name="dialog_title_del">移除通知程式</string>
+    <string name="dialog_title_help">Open Fit 幫助</string>
+    <string name="dialog_message_help"><b>程式通知:</b>
+        \n\n如要令應用程式通知生效,
+        你必須授權 "通知存取權" 予 Open Fit
+        你可以在: 設定 > 通知 > 通知存取權 中找到相關設定
+        \n\n<b>連接問題:</b>
+        \n\n如果你的 Open Fit 不能與 Gear Fit 配對,
+        前往裝置中的藍牙程定, 設查 Gear Fit 並不在已配對裝置列表,
+        如果你的裝置已配對, 請先取消配對你的裝置 (之後接著以下步驟),
+        使用裝置中的藍牙程定尋找並配對你的 Gear Fit
+        配對將會成功但 Gear Fit 將會顯示 \'正在等待確認\'
+        等待直至確認失敗, 然後 Gear Fit 的畫面將會改變
+        然後開啟 Open Fit 程式並尋找你的裝置, 選擇你的裝置, 最後選擇連接
+        \n\n<b>注意:</b> 從你的裝置中移除 Gear Fit 的藍牙配對,
+        將會重置你的 Gear Fit
+    </string>
+    <string name="dialog_close_help">關閉</string>
+    <string name="dialog_title_fitness">健康</string>
+    <string name="dialog_close_fitness">關閉</string>
+    <string name="dialog_title_news">Open Fit 最新消息</string>
+    <string name="dialog_message_news"></string>
+    <string name="dialog_close_news">關閉</string>
+    <string name="preference_category_connectivity_title">連接情況</string>
+    <string name="preference_switch_bluetooth_title">啟用藍牙</string>
+    <string name="preference_scan_title">尋找裝置</string>
+    <string name="preference_scan_dialog">尋找藍牙裝置</string>
+    <string name="preference_scan_summary">尋找 Gear Fit</string>
+    <string name="preference_scan_summary_scanning">尋找你的裝置中&#8230;請稍候</string>
+    <string name="preference_list_devices_title">顯示所有裝置</string>
+    <string name="preference_list_devices_dialog">選擇你的 Gear Fit</string>
+    <string name="preference_list_devices_summary">選擇 Gear Fit</string>
+    <string name="preference_checkbox_connect_title">連接</string>
+    <string name="preference_checkbox_connect_on">已連接</string>
+    <string name="preference_checkbox_connect_off">未連接</string>
+    <string name="preference_list_devices_default">空</string>
+    <string name="preference_category_device_title">裝置</string>
+    <string name="preference_checkbox_sms_title">SMS 簡訊</string>
+    <string name="preference_checkbox_phone_title">電話通話</string>
+    <string name="preference_checkbox_time_title">時鐘格式</string>
+    <string name="preference_checkbox_time_on">24 小時制</string>
+    <string name="preference_checkbox_time_off">12 小時制</string>
+    <string name="preference_list_weather_title">天氣更新</string>
+    <string name="preference_list_weather_dialog">選擇天氣</string>
+    <string name="preference_list_weather_summary">選擇項目</string>
+    <string name="preference_list_weather_default">不更新</string>
+    <string name="preference_fitness_title">健康</string>
+    <string name="preference_fitness_dialog">健康記錄</string>
+    <string name="preference_fitness_summary">取得健康記錄</string>
+    <string name="preference_category_apps_title">通知程式列表</string>
+    <string name="preference_donate_title">捐款</string>
+    <string name="preference_donate_summary">透過 PayPal 捐款</string>
+    <string name="preference_applications_summary">暫沒有加入任何應用程式, 在頂部目錄中按 + 按鈕加入應用程式, 請確定已授權 Open Fit 的 "通知存取權", 否則通知功能將不能運作</string>
+    <string name="toast_bluetooth_enable">啟動中&#8230;</string>
+    <string name="toast_bluetooth_scan">掃描中&#8230;</string>
+    <string name="toast_bluetooth_scan_complete">掃描已完成, 請選擇裝置</string>
+    <string name="toast_bluetooth_connect">正在嘗試連接至:</string>
+    <string name="toast_bluetooth_fitness">正在取得健康記錄&#8230;</string>
+    <string name="toast_bluetooth_enabled">藍牙已開啟</string>
+    <string name="toast_bluetooth_enabled_failed">藍牙開啟失敗</string>
+    <string name="toast_bluetooth_connected">Gear Fit 已連接</string>
+    <string name="toast_bluetooth_disconnected">Gear Fit 未連接</string>
+    <string name="toast_bluetooth_connect_failed">Gear Fit 連接失敗</string>
+    <string name="toast_bluetooth_devices_failed">Gear Fit 連接失敗</string>
+    <string name="notification_title">Open Fit</string>
+    <string name="notification_connected">連接至 Gear Fit</string>
+    <string name="notification_disconnected">斷開 Gear Fit 的連接</string>
+    <string name="notification_button_connect">連接</string>
+    <string name="notification_button_disconnect">斷開連接</string>
+    <string name="notification_button_close">關閉</string>
+</resources>

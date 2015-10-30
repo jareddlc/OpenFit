@@ -1,10 +1,13 @@
 package com.solderbyte.openfit;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Set;
 
 import com.solderbyte.openfit.R;
+import com.solderbyte.openfit.util.OpenFitIntent;
 
 import android.annotation.SuppressLint;
 import android.app.Notification;
@@ -38,22 +41,10 @@ import android.util.Log;
 public class OpenFitService extends Service {
     private static final String LOG_TAG = "OpenFit:OpenFitService";
 
-    private static final String INTENT_UI_BT = "com.solderbyte.openfit.ui.bt";
-    private static final String INTENT_SERVICE_STOP = "com.solderbyte.openfit.service.stop";
-    private static final String INTENT_NOTIFICATION = "com.solderbyte.openfit.notification";
-    private static final String INTENT_SERVICE_BT = "com.solderbyte.openfit.service.bt";
-    private static final String INTENT_SERVICE_SMS = "com.solderbyte.openfit.service.sms";
-    private static final String INTENT_SERVICE_MMS = "com.solderbyte.openfit.service.mms";
-    private static final String INTENT_SERVICE_PHONE = "com.solderbyte.openfit.service.phone";
-    private static final String INTENT_SERVICE_PHONE_IDLE = "com.solderbyte.openfit.service.phone.idle";
-    private static final String INTENT_SERVICE_PHONE_OFFHOOK = "com.solderbyte.openfit.service.phone.offhook";
-    private static final String INTENT_SERVICE_WEATHER = "com.solderbyte.openfit.service.weather";
-    private static final String INTENT_SERVICE_LOCATION = "com.solderbyte.openfit.service.location";
-    private static final String INTENT_SERVICE_CRONJOB = "com.solderbyte.openfit.service.cronjob";
-
-    // services
+    private OpenFitSavedPreferences oPrefs;
+    private ApplicationManager appManager;
     private BluetoothLeService bluetoothLeService;
-    private  Handler mHandler;
+    private Handler mHandler;
     private PackageManager pManager;
     private static ReconnectBluetoothThread reconnectThread;
     private static FindSoundThread findSoundThread;
@@ -80,22 +71,23 @@ public class OpenFitService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(LOG_TAG, "onStartCommand: " + intent);
+        Log.d(LOG_TAG, "OpenFit Service onStartCommand: " + flags);
         // register receivers
-        this.registerReceiver(serviceStopReceiver, new IntentFilter(INTENT_SERVICE_STOP));
-        this.registerReceiver(btReceiver, new IntentFilter(INTENT_SERVICE_BT));
-        this.registerReceiver(notificationReceiver, new IntentFilter(INTENT_NOTIFICATION));
-        this.registerReceiver(smsReceiver, new IntentFilter(INTENT_SERVICE_SMS));
-        this.registerReceiver(mmsReceiver, new IntentFilter(INTENT_SERVICE_MMS));
-        this.registerReceiver(phoneReceiver, new IntentFilter(INTENT_SERVICE_PHONE));
-        this.registerReceiver(phoneIdleReceiver, new IntentFilter(INTENT_SERVICE_PHONE_IDLE));
-        this.registerReceiver(phoneOffhookReceiver, new IntentFilter(INTENT_SERVICE_PHONE_OFFHOOK));
+        this.registerReceiver(serviceStopReceiver, new IntentFilter(OpenFitIntent.INTENT_SERVICE_STOP));
+        this.registerReceiver(btReceiver, new IntentFilter(OpenFitIntent.INTENT_SERVICE_BT));
+        this.registerReceiver(notificationReceiver, new IntentFilter(OpenFitIntent.INTENT_NOTIFICATION));
+        this.registerReceiver(smsReceiver, new IntentFilter(OpenFitIntent.INTENT_SERVICE_SMS));
+        this.registerReceiver(mmsReceiver, new IntentFilter(OpenFitIntent.INTENT_SERVICE_MMS));
+        this.registerReceiver(phoneReceiver, new IntentFilter(OpenFitIntent.INTENT_SERVICE_PHONE));
+        this.registerReceiver(phoneIdleReceiver, new IntentFilter(OpenFitIntent.INTENT_SERVICE_PHONE_IDLE));
+        this.registerReceiver(phoneOffhookReceiver, new IntentFilter(OpenFitIntent.INTENT_SERVICE_PHONE_OFFHOOK));
         this.registerReceiver(mediaReceiver, MediaController.getIntentFilter());
         this.registerReceiver(alarmReceiver, Alarm.getIntentFilter());
-        this.registerReceiver(weatherReceiver, new IntentFilter(INTENT_SERVICE_WEATHER));
-        this.registerReceiver(locationReceiver, new IntentFilter(INTENT_SERVICE_LOCATION));
-        this.registerReceiver(cronReceiver, new IntentFilter(INTENT_SERVICE_CRONJOB));
+        this.registerReceiver(weatherReceiver, new IntentFilter(OpenFitIntent.INTENT_SERVICE_WEATHER));
+        this.registerReceiver(locationReceiver, new IntentFilter(OpenFitIntent.INTENT_SERVICE_LOCATION));
+        this.registerReceiver(cronReceiver, new IntentFilter(OpenFitIntent.INTENT_SERVICE_CRONJOB));
 
+        // start modules
         pManager = this.getPackageManager();
         MediaController.init(this);
         LocationInfo.init(this);
@@ -108,6 +100,12 @@ public class OpenFitService extends Service {
         this.startBluetoothService();
         this.startNotificationListenerService();
         this.startForeground(notificationId, notification);
+
+        // load saved preferences
+        oPrefs = new OpenFitSavedPreferences(this);
+        appManager = new ApplicationManager();
+        appManager.getInstalledAdapter(this);
+        this.sendNotificationApplications();
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -118,18 +116,119 @@ public class OpenFitService extends Service {
         super.onDestroy();
     }
 
+    protected ServiceConnection mServiceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder service) {
+            Log.d(LOG_TAG, "Bluetooth service connected");
+            bluetoothLeService = ((BluetoothLeService.LocalBinder)service).getService();
+            if(!bluetoothLeService.initialize()) {
+                Log.e(LOG_TAG, "Unable to initialize BluetoothLE");
+            }
+            bluetoothLeService.setHandler(mHandler);
+            sendServiceStarted();
+            sendUIPreferences();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            Log.d(LOG_TAG, "Bluetooth onServiceDisconnected");
+            bluetoothLeService = null;
+        }
+    };
+
+    public void sendUIPreferences() {
+        // update ui
+        if(BluetoothLeService.isEnabled) {
+            Intent i = new Intent(OpenFitIntent.INTENT_UI_BT);
+            i.putExtra(OpenFitIntent.INTENT_EXTRA_MSG, OpenFitIntent.EXTRA_IS_ENABLED);
+            sendBroadcast(i);
+        }
+        else {
+            Intent i = new Intent(OpenFitIntent.INTENT_UI_BT);
+            i.putExtra(OpenFitIntent.INTENT_EXTRA_MSG, OpenFitIntent.EXTRA_IS_ENABLED_FAILED);
+            sendBroadcast(i);
+        }
+        if(BluetoothLeService.isConnected) {
+            Intent i = new Intent(OpenFitIntent.INTENT_UI_BT);
+            i.putExtra(OpenFitIntent.INTENT_EXTRA_MSG, OpenFitIntent.EXTRA_IS_CONNECTED);
+            sendBroadcast(i);
+            createNotification(true);
+        }
+        else {
+            Intent i = new Intent(OpenFitIntent.INTENT_UI_BT);
+            i.putExtra(OpenFitIntent.INTENT_EXTRA_MSG, OpenFitIntent.EXTRA_IS_DISCONNCTED);
+            sendBroadcast(i);
+            createNotification(false);
+        }
+        
+        if(oPrefs.preference_list_devices_value != OpenFitIntent.DEFAULT) {
+            Intent i = new Intent(OpenFitIntent.INTENT_UI_BT);
+            i.putExtra(OpenFitIntent.INTENT_EXTRA_MSG, OpenFitIntent.EXTRA_DEVICE_NAME);
+            i.putExtra(OpenFitIntent.INTENT_EXTRA_DATA, oPrefs.getString("preference_list_devices_entry"));
+            sendBroadcast(i);
+
+            bluetoothLeService.setEntries();
+            bluetoothLeService.setDevice(oPrefs.preference_list_devices_value);
+            Log.d(LOG_TAG, "Service restored device: " + oPrefs.getString("preference_list_weather_entry") + ":" + oPrefs.getString("preference_list_weather_value"));
+        }
+
+        if(oPrefs.preference_list_weather_value != OpenFitIntent.DEFAULT) {
+            Intent i = new Intent(OpenFitIntent.INTENT_UI_BT);
+            i.putExtra(OpenFitIntent.INTENT_EXTRA_MSG, OpenFitIntent.EXTRA_WEATHER);
+            i.putExtra(OpenFitIntent.EXTRA_WEATHER_ENTRY, oPrefs.getString("preference_list_weather_entry"));
+            i.putExtra(OpenFitIntent.EXTRA_WEATHER_VALUE, oPrefs.getString("preference_list_weather_value"));
+            sendBroadcast(i);
+            startWeather(oPrefs.getString("preference_list_weather_value"));
+        }
+
+        Intent s = new Intent(OpenFitIntent.INTENT_UI_BT);
+        s.putExtra(OpenFitIntent.INTENT_EXTRA_MSG, OpenFitIntent.EXTRA_SMS);
+        s.putExtra(OpenFitIntent.INTENT_EXTRA_DATA, oPrefs.getBoolean("preference_checkbox_sms"));
+        sendBroadcast(s);
+        startSmsListener(oPrefs.getBoolean("preference_checkbox_sms"));
+
+        Intent p = new Intent(OpenFitIntent.INTENT_UI_BT);
+        p.putExtra(OpenFitIntent.INTENT_EXTRA_MSG, OpenFitIntent.EXTRA_PHONE);
+        p.putExtra(OpenFitIntent.INTENT_EXTRA_DATA, oPrefs.getBoolean("preference_checkbox_phone"));
+        sendBroadcast(p);
+        startDailerListener(oPrefs.getBoolean("preference_checkbox_phone"));
+
+        Intent t = new Intent(OpenFitIntent.INTENT_UI_BT);
+        t.putExtra(OpenFitIntent.INTENT_EXTRA_MSG, OpenFitIntent.EXTRA_TIME);
+        t.putExtra(OpenFitIntent.INTENT_EXTRA_DATA, oPrefs.getBoolean("preference_checkbox_time"));
+        sendBroadcast(t);
+    }
+
+    public void sendNotificationApplications() {
+        ArrayList<String> listeningListAppNames = new ArrayList<String>();
+        ArrayList<String> listeningListPackageNames = new ArrayList<String>();
+        Set<String> setPackageNames = oPrefs.getSet();
+        for(String packageName : setPackageNames) {
+            listeningListAppNames.add(oPrefs.getString(packageName));
+            listeningListPackageNames.add(packageName);
+            Log.d(LOG_TAG, "Listening Package: " + packageName);
+            appManager.addInstalledApp(packageName);
+        }
+        
+        Intent i = new Intent(OpenFitIntent.INTENT_UI_BT);
+        i.putExtra(OpenFitIntent.INTENT_EXTRA_MSG, OpenFitIntent.EXTRA_APPLICATIONS);
+        i.putStringArrayListExtra(OpenFitIntent.EXTRA_APPLICATIONS_PACKAGE_NAME, listeningListPackageNames);
+        i.putStringArrayListExtra(OpenFitIntent.EXTRA_APPLICATIONS_APP_NAME, listeningListAppNames);
+        sendBroadcast(i);
+        appManager.getNotificationApplications();
+    }
+
     public void sendServiceStarted() {
         Log.d(LOG_TAG, "sendServiceStarted");
-        Intent i = new Intent(INTENT_UI_BT);
-        i.putExtra("message", "OpenFitService");
+        Intent i = new Intent(OpenFitIntent.INTENT_UI_BT);
+        i.putExtra(OpenFitIntent.INTENT_EXTRA_MSG, OpenFitIntent.INTENT_SERVICE_START);
         sendBroadcast(i);
     }
 
     public void startBluetoothService() {
-        // initialize BluetoothLE
+        Log.d(LOG_TAG, "Starting bluetooth service");
         Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
         this.bindService(gattServiceIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
-        Log.d(LOG_TAG, "Starting bluetooth service");
     }
 
     public void reconnectBluetoothService() {
@@ -151,69 +250,47 @@ public class OpenFitService extends Service {
         }
     }
 
-    protected ServiceConnection mServiceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName componentName, IBinder service) {
-            Log.d(LOG_TAG, "onService Connected");
-            bluetoothLeService = ((BluetoothLeService.LocalBinder)service).getService();
-            if(!bluetoothLeService.initialize()) {
-                Log.e(LOG_TAG, "Unable to initialize BluetoothLE");
-            }
-            bluetoothLeService.setHandler(mHandler);
-            sendServiceStarted();
-            sendBluetoothStatus();
-
-            // Automatically connects to the device upon successful start-up initialization.
-            //bluetoothLeService.connect(mDeviceAddress);
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName componentName) {
-            Log.d(LOG_TAG, "Bluetooth onServiceDisconnected");
-            bluetoothLeService = null;
-        }
-    };
-
     public void startBluetoothHandler() {
         // setup message handler
-        Log.d(LOG_TAG, "Setting up bluetooth Service handler");
+        Log.d(LOG_TAG, "Starting up bluetooth handler");
         mHandler = new Handler() {
             @Override
             public void handleMessage(Message msg) {
                 Log.d(LOG_TAG, "handleMessage: "+msg.getData());
-                String bluetoothMessage = msg.getData().getString("bluetooth");
-                String bluetoothDevice = msg.getData().getString("bluetoothDevice");
-                String bluetoothDevicesList = msg.getData().getString("bluetoothDevicesList");
-                String bluetoothData = msg.getData().getString("bluetoothData");
+                String bluetoothMessage = msg.getData().getString(OpenFitIntent.EXTRA_BLUETOOTH);
+                String bluetoothDevice = msg.getData().getString(OpenFitIntent.EXTRA_BLUETOOTH_DEVICE);
+                String bluetoothDevicesList = msg.getData().getString(OpenFitIntent.EXTRA_BLUETOOTH_DEVICE_LIST);
+                String bluetoothData = msg.getData().getString(OpenFitIntent.EXTRA_BLUETOOTH_DATA);
+
                 if(bluetoothMessage != null && !bluetoothMessage.isEmpty()) {
-                    Intent i = new Intent(INTENT_UI_BT);
-                    i.putExtra("message", bluetoothMessage);
+                    Intent i = new Intent(OpenFitIntent.INTENT_UI_BT);
+                    i.putExtra(OpenFitIntent.INTENT_EXTRA_MSG, bluetoothMessage);
                     sendBroadcast(i);
                 }
                 if(bluetoothDevice != null && !bluetoothDevice.isEmpty()) {
                     String[] sDevice = bluetoothDevice.split(",");
                     String sDeviceName = sDevice[0];
                     String sDeviceAddress = sDevice[1];
-                    Intent i = new Intent(INTENT_UI_BT);
-                    i.putExtra("message", bluetoothDevice);
-                    i.putExtra("deviceName", sDeviceName);
-                    i.putExtra("deviceAddress", sDeviceAddress);
+                    Intent i = new Intent(OpenFitIntent.INTENT_UI_BT);
+                    i.putExtra(OpenFitIntent.INTENT_EXTRA_MSG, bluetoothDevice);
+                    i.putExtra(OpenFitIntent.EXTRA_DEVICE_NAME, sDeviceName);
+                    i.putExtra(OpenFitIntent.EXTRA_DEVICE_ADDRESS, sDeviceAddress);
                     sendBroadcast(i);
                 }
                 if(bluetoothDevicesList != null && !bluetoothDevicesList.isEmpty()) {
-                    CharSequence[] bluetoothEntries = msg.getData().getCharSequenceArray("bluetoothEntries");
-                    CharSequence[] bluetoothEntryValues = msg.getData().getCharSequenceArray("bluetoothEntryValues");
-                    Intent i = new Intent(INTENT_UI_BT);
-                    i.putExtra("message", bluetoothDevicesList);
-                    i.putExtra("bluetoothEntries", bluetoothEntries);
-                    i.putExtra("bluetoothEntryValues", bluetoothEntryValues);
+                    CharSequence[] bluetoothEntries = msg.getData().getCharSequenceArray(OpenFitIntent.EXTRA_BLUETOOTH_ENTRIES);
+                    CharSequence[] bluetoothEntryValues = msg.getData().getCharSequenceArray(OpenFitIntent.EXTRA_BLUETOOTH_ENTRIES_VALUES);
+                    Intent i = new Intent(OpenFitIntent.INTENT_UI_BT);
+                    i.putExtra(OpenFitIntent.INTENT_EXTRA_MSG, bluetoothDevicesList);
+                    i.putExtra(OpenFitIntent.EXTRA_BLUETOOTH_ENTRIES, bluetoothEntries);
+                    i.putExtra(OpenFitIntent.EXTRA_BLUETOOTH_ENTRIES_VALUES, bluetoothEntryValues);
                     sendBroadcast(i);
                 }
                 if(bluetoothData != null && !bluetoothData.isEmpty()) {
-                    byte[] byteArray = msg.getData().getByteArray("data");
+                    byte[] byteArray = msg.getData().getByteArray(OpenFitIntent.INTENT_EXTRA_DATA);
                     handleBluetoothData(byteArray);
                 }
-                if(bluetoothMessage != null && bluetoothMessage.equals("isConnectedRfcomm")) {
+                if(bluetoothMessage != null && bluetoothMessage.equals(OpenFitIntent.EXTRA_IS_CONNECTED_RFCOMM)) {
                     if(reconnecting) {
                         reconnectBluetoothStop();
                     }
@@ -221,7 +298,7 @@ public class OpenFitService extends Service {
                         createNotification(true);
                     }
                 }
-                if(bluetoothMessage != null && bluetoothMessage.equals("isDisconnectedRfComm")) {
+                if(bluetoothMessage != null && bluetoothMessage.equals(OpenFitIntent.EXTRA_IS_DISCONNECTED_RFCOMM)) {
                     if(isReconnect) {
                         reconnectBluetoothService();
                     }
@@ -235,61 +312,54 @@ public class OpenFitService extends Service {
 
     public void handleUIMessage(String message, Intent intent) {
         if(message != null && !message.isEmpty() && bluetoothLeService != null) {
-            if(message.equals("enable")) {
+            if(message.equals(OpenFitIntent.ACTION_ENABLE)) {
                 bluetoothLeService.enableBluetooth();
             }
-            if(message.equals("disable")) {
+            if(message.equals(OpenFitIntent.ACTION_DISABLE)) {
                 bluetoothLeService.disableBluetooth();
             }
-            if(message.equals("scan")) {
+            if(message.equals(OpenFitIntent.ACTION_SCAN)) {
                 bluetoothLeService.scanLeDevice();
             }
-            if(message.equals("connect")) {
+            if(message.equals(OpenFitIntent.ACTION_CONNECT)) {
                 bluetoothLeService.connectRfcomm();
                 isReconnect = true;
             }
-            if(message.equals("disconnect")) {
+            if(message.equals(OpenFitIntent.ACTION_DISCONNECT)) {
                 bluetoothLeService.disconnectRfcomm();
                 isReconnect = false;
             }
-            if(message.equals("setEntries")) {
+            if(message.equals(OpenFitIntent.ACTION_SET_ENTRIES)) {
                 bluetoothLeService.setEntries();
             }
-            if(message.equals("setDevice")) {
-                String deviceMac = intent.getStringExtra("data");
+            if(message.equals(OpenFitIntent.ACTION_SET_DEVICE)) {
+                String deviceMac = intent.getStringExtra(OpenFitIntent.INTENT_EXTRA_DATA);
                 bluetoothLeService.setDevice(deviceMac);
             }
-            if(message.equals("time")) {
-                String s = intent.getStringExtra("data");
+            if(message.equals(OpenFitIntent.ACTION_TIME)) {
+                String s = intent.getStringExtra(OpenFitIntent.INTENT_EXTRA_DATA);
                 boolean value = Boolean.parseBoolean(s);
                 sendTime(value);
             }
-            if(message.equals("weather")) {
-                String unit = intent.getStringExtra("data");
-                if(unit.equals("none")) {
-                    weatherEnabled = false;
-                }
-                else {
-                    Weather.setUnits(unit);
-                    weatherEnabled = true;
-                }
-                startWeatherCronJob();
+            if(message.equals(OpenFitIntent.ACTION_WEATHER)) {
+                String unit = intent.getStringExtra(OpenFitIntent.INTENT_EXTRA_DATA);
+                startWeather(unit);
             }
-            if(message.equals("fitness")) {
+            if(message.equals(OpenFitIntent.ACTION_FITNESS)) {
                 sendFitnessRequest();
             }
-            if(message.equals("phone")) {
-                String s = intent.getStringExtra("data");
-                phoneEnabled = Boolean.parseBoolean(s);
-                startDailerListener();
+            if(message.equals(OpenFitIntent.ACTION_PHONE)) {
+                String data = intent.getStringExtra(OpenFitIntent.INTENT_EXTRA_DATA);
+                boolean enabled = Boolean.parseBoolean(data);
+                startDailerListener(enabled);
             }
-            if(message.equals("sms")) {
-                String s = intent.getStringExtra("data");
-                smsEnabled = Boolean.parseBoolean(s);
-                startSmsListener();
+            if(message.equals(OpenFitIntent.ACTION_SMS)) {
+                String data = intent.getStringExtra(OpenFitIntent.INTENT_EXTRA_DATA);
+                Boolean enabled = Boolean.parseBoolean(data);
+                startSmsListener(enabled);
             }
-            if(message.equals("status")) {
-                sendBluetoothStatus();
+            if(message.equals(OpenFitIntent.ACTION_UI_STATUS)) {
+                sendUIPreferences();
             }
         }
     }
@@ -298,10 +368,10 @@ public class OpenFitService extends Service {
         Log.d(LOG_TAG, "Service received: " + OpenFitApi.byteArrayToHexString(data));
         if(Arrays.equals(data, OpenFitApi.getReady())) {
             Log.d(LOG_TAG, "Recieved ready message");
-            bluetoothLeService.write(OpenFitApi.getUpdate());
-            bluetoothLeService.write(OpenFitApi.getUpdateFollowUp());
-            bluetoothLeService.write(OpenFitApi.getFotaCommand());
-            bluetoothLeService.write(OpenFitApi.getCurrentTimeInfo(false));
+            sendBluetoothBytes(OpenFitApi.getUpdate());
+            sendBluetoothBytes(OpenFitApi.getUpdateFollowUp());
+            sendBluetoothBytes(OpenFitApi.getFotaCommand());
+            sendTime(oPrefs.getBoolean("preference_checkbox_time"));
         }
 
         if(Arrays.equals(data, OpenFitApi.getFindStart())) {
@@ -358,24 +428,23 @@ public class OpenFitService extends Service {
         if(!Fitness.isPendingData()) {
             Log.d(LOG_TAG, "Fitness data complete");
             Fitness.parseData();
-            Intent i = new Intent(INTENT_UI_BT);
-            i.putExtra("message", "fitness");
-            i.putExtra("pedometerTotal", Fitness.getPedometerTotal());
-            i.putExtra("pedometerList", Fitness.getPedometerList());
-            i.putParcelableArrayListExtra("pedometerArrayList", Fitness.getPedometerList());
-            i.putParcelableArrayListExtra("pedometerDailyArrayList", Fitness.getPedometerDailyList());
-
+            Intent i = new Intent(OpenFitIntent.INTENT_UI_BT);
+            i.putExtra(OpenFitIntent.INTENT_EXTRA_MSG, OpenFitIntent.EXTRA_FITNESS);
+            i.putExtra(OpenFitIntent.EXTRA_PEDOMETER_TOTAL, Fitness.getPedometerTotal());
+            i.putParcelableArrayListExtra(OpenFitIntent.EXTRA_PEDOMETER_LIST, Fitness.getPedometerList());
+            i.putParcelableArrayListExtra(OpenFitIntent.EXTRA_PEDOMETER_DAILY_LIST, Fitness.getPedometerDailyList());
             sendBroadcast(i);
         }
     }
 
     public void startNotificationListenerService() {
+        Log.d(LOG_TAG, "Starting notification service");
         Intent notificationIntent = new Intent(this, NotificationService.class);
         this.startService(notificationIntent);
-        Log.d(LOG_TAG, "Starting notification service");
     }
 
-    public void startDailerListener() {
+    public void startDailerListener(Boolean enabled) {
+        phoneEnabled = enabled;
         Log.d(LOG_TAG, "Starting Phone Listeners");
         if(phoneEnabled) {
             dailerListener = new DialerListener(this);
@@ -391,16 +460,16 @@ public class OpenFitService extends Service {
         }
     }
 
-    public void startSmsListener() {
+    public void startSmsListener(Boolean enabled) {
+        smsEnabled = enabled;
         Log.d(LOG_TAG, "Starting SMS/MMS Listeners");
-        // register listeners
         if(smsEnabled) {
             if(smsListener == null) {
                 smsListener = new SmsListener(this);
-                IntentFilter smsFilter = new IntentFilter("android.provider.Telephony.SMS_RECEIVED");
+                IntentFilter smsFilter = new IntentFilter(OpenFitIntent.INTENT_ANDROID_SMS);
                 this.registerReceiver(smsListener, smsFilter);
                 mmsListener = new MmsListener(this);
-                IntentFilter mmsFilter = new IntentFilter("android.provider.Telephony.WAP_PUSH_RECEIVED");
+                IntentFilter mmsFilter = new IntentFilter(OpenFitIntent.INTENT_ANDROID_SMS);
                 this.registerReceiver(mmsListener, mmsFilter);
             }
         }
@@ -416,9 +485,9 @@ public class OpenFitService extends Service {
 
     public void createNotification(boolean connected) {
         Log.d(LOG_TAG, "Creating Notification: " + connected);
-        Intent stopService =  new Intent(INTENT_SERVICE_STOP);
+        Intent stopService =  new Intent(OpenFitIntent.INTENT_SERVICE_STOP);
         //Intent startActivity = new Intent(this, OpenFitActivity.class);
-        //PendingIntent startIntent = PendingIntent.getActivity(this, 0,startActivity, PendingIntent.FLAG_NO_CREATE);
+        //PendingIntent startIntent = PendingIntent.getActivity(this, 0, startActivity, PendingIntent.FLAG_NO_CREATE);
         PendingIntent stopIntent = PendingIntent.getBroadcast(this, 0, stopService, PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationCompat.Builder nBuilder = new NotificationCompat.Builder(this);
@@ -435,14 +504,14 @@ public class OpenFitService extends Service {
         nBuilder.setOngoing(true);
         nBuilder.addAction(R.drawable.open_off_noti, getString(R.string.notification_button_close), stopIntent);
         if(connected) {
-            Intent cIntent = new Intent(INTENT_SERVICE_BT);
-            cIntent.putExtra("message", "disconnect");
+            Intent cIntent = new Intent(OpenFitIntent.INTENT_SERVICE_BT);
+            cIntent.putExtra(OpenFitIntent.INTENT_EXTRA_MSG, OpenFitIntent.ACTION_DISCONNECT);
             PendingIntent pConnect = PendingIntent.getBroadcast(this, 0, cIntent, PendingIntent.FLAG_UPDATE_CURRENT);
             nBuilder.addAction(R.drawable.open_btd, getString(R.string.notification_button_disconnect), pConnect);
         }
         else {
-            Intent cIntent = new Intent(INTENT_SERVICE_BT);
-            cIntent.putExtra("message", "connect");
+            Intent cIntent = new Intent(OpenFitIntent.INTENT_SERVICE_BT);
+            cIntent.putExtra(OpenFitIntent.INTENT_EXTRA_MSG, OpenFitIntent.ACTION_CONNECT);
             PendingIntent pConnect = PendingIntent.getBroadcast(this, 0, cIntent, PendingIntent.FLAG_UPDATE_CURRENT);
             nBuilder.addAction(R.drawable.open_btc, getString(R.string.notification_button_connect), pConnect);
         }
@@ -458,48 +527,40 @@ public class OpenFitService extends Service {
         nManager.cancel(notificationId);
     }
 
-    public void sendBluetoothStatus() {
-     // update bluetooth ui
-        if(BluetoothLeService.isEnabled) {
-            Intent i = new Intent(INTENT_UI_BT);
-            i.putExtra("message", "isEnabled");
-            sendBroadcast(i);
+    public void sendBluetoothBytes(byte[] bytes) {
+        if(bluetoothLeService != null) {
+            bluetoothLeService.write(bytes);
         }
         else {
-            Intent i = new Intent(INTENT_UI_BT);
-            i.putExtra("message", "isEnabledFailed");
-            sendBroadcast(i);
+            Log.w(LOG_TAG, "bluetoothLeService is null");
         }
-        if(BluetoothLeService.isConnected) {
-            Intent i = new Intent(INTENT_UI_BT);
-            i.putExtra("message", "isConnected");
-            sendBroadcast(i);
-            createNotification(true);
+    }
+
+    public void startWeather(String unit) {
+        if(unit.equals(OpenFitIntent.NONE)) {
+            weatherEnabled = false;
         }
         else {
-            Intent i = new Intent(INTENT_UI_BT);
-            i.putExtra("message", "isDisconnected");
-            sendBroadcast(i);
-            createNotification(false);
+            Weather.setUnits(unit);
+            weatherEnabled = true;
         }
+        startWeatherCronJob();
     }
 
     public void sendTime(boolean is24Hour) {
         byte[] bytes = OpenFitApi.getCurrentTimeInfo(is24Hour);
-        bluetoothLeService.write(bytes);
+        sendBluetoothBytes(bytes);
     }
 
     public void sendFitnessRequest() {
         Log.d(LOG_TAG, "sendFitnessRequest");
         byte[] bytes = OpenFitApi.getFitnessHeartBeat();
-        bluetoothLeService.write(bytes);
+        sendBluetoothBytes(bytes);
     }
 
     public void sendMediaTrack() {
         byte[] bytes = OpenFitApi.getOpenMediaTrack(MediaController.getTrack());
-        if(bluetoothLeService != null) {
-            bluetoothLeService.write(bytes);
-        }
+        sendBluetoothBytes(bytes);
     }
 
     public void sendMediaPrev() {
@@ -541,7 +602,7 @@ public class OpenFitService extends Service {
         }
         MediaController.setVolume(vol);
         byte[] bytes = OpenFitApi.getMediaSetVolume(vol);
-        bluetoothLeService.write(bytes);
+        sendBluetoothBytes(bytes);
     }
 
     public void sendMediaRes() {
@@ -570,12 +631,12 @@ public class OpenFitService extends Service {
 
     public void sendAppNotification(String packageName, String sender, String title, String message, int id) {
         byte[] bytes = OpenFitApi.getOpenNotification(packageName, sender, title, message, id);
-        bluetoothLeService.write(bytes);
+        sendBluetoothBytes(bytes);
     }
 
     public void sendEmailNotification(String packageName, String sender, String title, String message, int id) {
         byte[] bytes = OpenFitApi.getOpenEmail(sender, title, message, message, id);
-        bluetoothLeService.write(bytes);
+        sendBluetoothBytes(bytes);
     }
 
     public void sendDialerNotification(String number) {
@@ -586,12 +647,12 @@ public class OpenFitService extends Service {
             sender = name;
         }
         byte[] bytes = OpenFitApi.getOpenIncomingCall(sender, number, id);
-        bluetoothLeService.write(bytes);
+        sendBluetoothBytes(bytes);
     }
 
     public void sendDialerEndNotification() {
         byte[] bytes = OpenFitApi.getOpenIncomingCallEnd();
-        bluetoothLeService.write(bytes);
+        sendBluetoothBytes(bytes);
     }
 
     public void endCall() {
@@ -623,7 +684,7 @@ public class OpenFitService extends Service {
             sender = name;
         }
         byte[] bytes = OpenFitApi.getOpenNotification(sender, number, title, message, id);
-        bluetoothLeService.write(bytes);
+        sendBluetoothBytes(bytes);
     }
 
     public String getAppName(String packageName) {
@@ -658,23 +719,23 @@ public class OpenFitService extends Service {
     public void sendAlarmStart() {
         long id = (long)(System.currentTimeMillis() / 1000L);
         byte[] bytes = OpenFitApi.getOpenAlarm(id);
-        bluetoothLeService.write(bytes);
+        sendBluetoothBytes(bytes);
     }
 
     public void sendAlarmStop() {
         byte[] bytes = OpenFitApi.getOpenAlarmClear();
-        bluetoothLeService.write(bytes);
+        sendBluetoothBytes(bytes);
     }
 
     public void sendWeatherNotifcation(String weather, String icon) {
         long id = (long)(System.currentTimeMillis() / 1000L);
         byte[] bytes = OpenFitApi.getOpenWeather(weather, icon, id);
-        bluetoothLeService.write(bytes);
+        sendBluetoothBytes(bytes);
     }
     
     public void sendWeatherClock(String location, String tempCur, String tempUnit, String icon) {
         byte[] bytes = OpenFitApi.getOpenWeatherClock(location, tempCur, tempUnit, icon);
-        bluetoothLeService.write(bytes);
+        sendBluetoothBytes(bytes);
     }
 
     public void startWeatherCronJob() {
@@ -888,17 +949,6 @@ public class OpenFitService extends Service {
             String icon = intent.getStringExtra("icon");
             String location = intent.getStringExtra("location");
 
-            /*Log.d(LOG_TAG, "City Name: " + name);
-            Log.d(LOG_TAG, "Weather: " + weather);
-            Log.d(LOG_TAG, "Description: " + description);
-            Log.d(LOG_TAG, "Temperature Current: " + tempCur);
-            Log.d(LOG_TAG, "Temperature Min: " + tempMin);
-            Log.d(LOG_TAG, "Temperature Max: " + tempMax);
-            Log.d(LOG_TAG, "Temperature Unit: " + tempUnit);
-            Log.d(LOG_TAG, "Humidity: " + humidity);
-            Log.d(LOG_TAG, "Pressure: " + pressure);
-            Log.d(LOG_TAG, "icon: " + icon);*/
-
             String weatherInfo = location + ": " + tempCur + tempUnit + "\nWeather: " + description;
             Log.d(LOG_TAG, weatherInfo);
             sendWeatherNotifcation(weatherInfo, icon);
@@ -919,10 +969,7 @@ public class OpenFitService extends Service {
         public void onReceive(Context context, Intent intent) {
             Log.d(LOG_TAG, "#####CronJob#####");
             if(weatherEnabled) {
-                //LocationInfo.updateLastKnownLocation();
-                //getWeather();
                 LocationInfo.listenForLocation();
-                
             }
         }
     };
@@ -940,8 +987,7 @@ public class OpenFitService extends Service {
                     Thread.sleep(10000L);
                 }
                 catch(InterruptedException ie) {
-                    // unexpected interruption while enabling bluetooth
-                    Thread.currentThread().interrupt(); // restore interrupted flag
+                    Thread.currentThread().interrupt();
                     return;
                 }
             }
@@ -967,8 +1013,7 @@ public class OpenFitService extends Service {
                     Thread.sleep(600L);
                 }
                 catch(InterruptedException ie) {
-                    // unexpected interruption while enabling bluetooth
-                    Thread.currentThread().interrupt(); // restore interrupted flag
+                    Thread.currentThread().interrupt();
                     return;
                 }
             }

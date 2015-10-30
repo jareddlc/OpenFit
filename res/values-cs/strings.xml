@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Open Fit</string>
+    <string name="service_name">Open Fit</string>
+    <string name="menu_add">Přidat aplikaci</string>
+    <string name="menu_del">Smazat aplikaci</string>
+    <string name="menu_help">Nápověda</string>
+    <string name="dialog_title_add">Přidat aplikaci</string>
+    <string name="dialog_title_del">Smazat aplikaci</string>
+    <string name="dialog_title_help">Open Fit nápověda</string>
+    <string name="dialog_message_help"><b>Upozornění aplikací:</b>
+        \n\nAby upozornění aplikací fungovalo,
+        musíte zapnout "Přístup k upozornění" pro Open Fit aplikaci.
+        Nastavení najdete zde: Nastavení>Upozornění>Přístup k upozornění.
+        \n\n<b>Problémy s připojením:</b>
+        \n\nPokud se vám nedaří připojit k Gear Fit z Open Fit aplikace,
+        přejděte do nastavení bluetoothu, ujistěte se, že Gear Fit není na seznamu připojených zařízení,
+        Pokud je, zařízení odstraňte(viz. níže),
+        Potom vyhledejte a připojte Gear Fit.
+        Spojení proběhne v pořádku, ale Gear Fit zobrazí \'čekání na potvrzení..\'.
+        Počekjte na chybu připojení. Gear Fit obrazovka se změní.
+
+        \n\n<b>Poznámka:</b> Smazání Gear Fit z připojených zařízení v nasatvení bluetooth,
+        resetuje nastavení Gear Fit.
+    </string>
+    <string name="dialog_close_help">Zavřít</string>
+    <string name="dialog_title_fitness">Fitnes data</string>
+    <string name="dialog_close_fitness">Zavřít</string>
+    <string name="dialog_title_news">Open Fit novinky</string>
+    <string name="dialog_message_news"></string>
+    <string name="dialog_close_news">Zavřít</string>
+    <string name="preference_category_connectivity_title">Spojení</string>
+    <string name="preference_switch_bluetooth_title">Zapnout Bluetooth</string>
+    <string name="preference_scan_title">Najít</string>
+    <string name="preference_scan_dialog">Najít Bluetooth zařízení</string>
+    <string name="preference_scan_summary">Najít Gear Fit</string>
+    <string name="preference_scan_summary_scanning">Hledám&#8230;prosím čekejte</string>
+    <string name="preference_list_devices_title">Zobrazit zařízení</string>
+    <string name="preference_list_devices_dialog">Vybrat Gear Fit</string>
+    <string name="preference_list_devices_summary">Vybrat Gear Fit</string>
+    <string name="preference_checkbox_connect_title">Připojit</string>
+    <string name="preference_checkbox_connect_on">Připojeno</string>
+    <string name="preference_checkbox_connect_off">Odpojeno</string>
+    <string name="preference_list_devices_default">Nic k zobrazení</string>
+    <string name="preference_category_device_title">Zařízení</string>
+    <string name="preference_checkbox_sms_title">Text zpráv</string>
+    <string name="preference_checkbox_phone_title">Telefonní hovory</string>
+    <string name="preference_checkbox_time_title">Formát hodin</string>
+    <string name="preference_checkbox_time_on">24-hodinový formát</string>
+    <string name="preference_checkbox_time_off">12-hodinový formát</string>
+    <string name="preference_list_weather_title">Aktualizace počasí</string>
+    <string name="preference_list_weather_dialog">Vybrat počasí</string>
+    <string name="preference_list_weather_summary">Vybrat možnost</string>
+    <string name="preference_list_weather_default">Žádné aktualizace</string>
+    <string name="preference_fitness_title">Fitnes</string>
+    <string name="preference_fitness_dialog">Fitnes</string>
+    <string name="preference_fitness_summary">Požádat o Fitnes Data</string>
+    <string name="preference_category_apps_title">Aplikace</string>
+    <string name="preference_donate_title">Daruj</string>
+    <string name="preference_donate_summary">Daruj přes PayPal</string>
+    <string name="preference_applications_summary">Žádné aplikace. Klikněte na ikonu + v horním menu a přidejte aplikace. Ujistěte se, že Přístup k upozornění je pro Open Fit povolen, jinak nebudou upozornění fungovat správně.</string>
+    <string name="toast_bluetooth_enable">Povoluji&#8230;</string>
+    <string name="toast_bluetooth_scan">Hledám&#8230;</string>
+    <string name="toast_bluetooth_scan_complete">vyhledávání dokončeno. Vyberte zařízení</string>
+    <string name="toast_bluetooth_connect">Snažím se připojit k:</string>
+    <string name="toast_bluetooth_fitness">Hledám fitnes data&#8230;</string>
+    <string name="toast_bluetooth_enabled">Bluetooth zapnut</string>
+    <string name="toast_bluetooth_enabled_failed">Bluetooth selhal</string>
+    <string name="toast_bluetooth_connected">Gear Fit připojen</string>
+    <string name="toast_bluetooth_disconnected">Gear Fit odpojen</string>
+    <string name="toast_bluetooth_connect_failed">Gear Fit připojení selhalo</string>
+    <string name="toast_bluetooth_devices_failed">Gear Fit připojení selhalo</string>
+    <string name="notification_title">Open Fit</string>
+    <string name="notification_connected">Připojeno k Gear Fit</string>
+    <string name="notification_disconnected">Odpojeno k Gear Fit</string>
+    <string name="notification_button_connect">Připojit</string>
+    <string name="notification_button_disconnect">Odpojit</string>
+    <string name="notification_button_close">Vypnout</string>
+</resources>

@@ -2,6 +2,8 @@ package com.solderbyte.openfit;
 
 import java.util.Calendar;
 
+import com.solderbyte.openfit.util.OpenFitIntent;
+
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -11,8 +13,6 @@ import android.util.Log;
 public class Cronjob {
     private static final String LOG_TAG = "OpenFit:Cronjob";
 
-    private static final String INTENT_SERVICE_CRONJOB = "com.solderbyte.openfit.service.cronjob";
-
     private static AlarmManager alarmManager = null;
     private static Intent alarmIntent = null;
     private static PendingIntent alarmPendingIntent = null;
@@ -21,7 +21,7 @@ public class Cronjob {
     public static void init(Context context) {
         Log.d(LOG_TAG, "Initializing Cronjob");
         alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
-        alarmIntent = new Intent(INTENT_SERVICE_CRONJOB);
+        alarmIntent = new Intent(OpenFitIntent.INTENT_SERVICE_CRONJOB);
         alarmPendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 

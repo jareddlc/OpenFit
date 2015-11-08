@@ -8,21 +8,6 @@
     <string name="dialog_title_add">애플리케이션 추가</string>
     <string name="dialog_title_del">애플리케이션 삭제</string>
     <string name="dialog_title_help">Open Fit 도움말</string>
-    <string name="dialog_message_help"><b>애플리케이션 알림:</b>
-        \n\n애플리케이션 알림이 작동하기 위해서,
-        Open Fit 애플리케이션의 "알림 액세스"를 켜야 합니다.
-        설정 > 알림 > 알림 액세스 에서 확인하실 수 있습니다.
-        \n\n<b>연결 문제 : </b>
-        \n\n만약 Gear Fit을 Open Fit 애플리케이션으로 연결 할수 없다면,
-        블루투스 설정으로 가서 페어링된 기기 목록에 Gear Fit이 없는지 확인한 후
-        Gear Fit을 검색 하여 페어링 하십시오.
-        (이미 페어링 된 경우 페어링을 해제한 후 다시 연결해야 합니다. 아래 주의사항을 참고해 주세요.)
-        페어링은 성공하였지만, Gear Fit에는 \'확인을 기다리는 중..\'라고 나올것입니다.
-        실패할때 까지 기다리면 Gear Fit의 화면이 바뀝니다.
-        그러면 Open Fit 애플리케이션을 열어 검색하고, Gear Fit을 선택한 후 Gear Fit에 연결하십시오.
-        \n\n<b>주의사항 ! : </b> 블루투스 설정의 페어링된 기기 목록에서 Gear Fit을 지우고 다시 페어링할 경우
-        Gear Fit이 초기화 될 수 있습니다!
-    </string>
     <string name="dialog_close_help">닫기</string>
     <string name="dialog_title_fitness">피트니스</string>
     <string name="dialog_close_fitness">닫기</string>

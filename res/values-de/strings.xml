@@ -8,21 +8,6 @@
     <string name="dialog_title_add">App Hinzufügen</string>
     <string name="dialog_title_del">App Entfernen</string>
     <string name="dialog_title_help">Open Fit Hilfe</string>
-    <string name="dialog_message_help"><b>App Benachrichtigung:</b>
-        \n\nDamit App Benachrichtigungen funktionieren,
- müssen Sie den "Benachrichtigungszugriff" für Open Fit aktivieren.
-Dies ist standardmäßig zu finden unter: Einstellungen>Ton und Benachrichtigung>Benachrichtigungszugriff.
-        \n\n<b>Verbindungsprobleme:</b>
-        \n\nWenn Sie Probleme haben ihr Gerät mit Open Fit zu verbinden,
-        stellen Sie sicher, dass sich das Gear Fit nicht in der Liste der bereits gekoppelten Geräte befindet.
-        Falls dem so ist, müssen Sie es möglicherweise vorher entfernen (siehe Hinweis unten).
-        Danach suchen Sie nach dem Gear Fit und koppeln Sie es.
-        Das Koppeln sollte erfolgreich sein, jedoch wird Ihr Gear Fit \'waiting for confirmation..\' anzeigen.
-        Warten Sie bis es fehlschlägt, woraufhin sich der Bildschirm des Gear Fit verändert.
-        Öffnen Sie dann die Open Fit app und suchen Sie nach dem Gerät, wählen Sie dann das Gerät aus und verbinden Sie sich damit.
-        \n\n<b>Hinweis:</b> Das Löschen der Gear Fit von Ihren gekoppelten Geräten
-        führt zu einem Reset des Armbands.
-    </string>
     <string name="dialog_close_help">Schließen</string>
     <string name="dialog_title_fitness">Fitness</string>
     <string name="dialog_close_fitness">Schließen</string>

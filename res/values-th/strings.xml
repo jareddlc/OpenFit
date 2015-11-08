@@ -8,21 +8,6 @@
     <string name="dialog_title_add">เพิ่ม แอปพลิเคชัน</string>
     <string name="dialog_title_del">ลบ แอปพลิเคชัน</string>
     <string name="dialog_title_help">ความช่วยเหลือใน Open Fit</string>
-    <string name="dialog_message_help"><b>การแจ้งเตือนแอปพลิเคชัน:</b>
-        \n\nเพื่อเปิดการแจ้งเตือนแอปผ่านนาฬิกา
-        คุณจะต้องเลือกเปิดให้แอป Open Fit สามารถเข้าถึงการแจ้งเตือนของระบบได้
-        โดยเข้าไปที่: \nการตั้งค่าระบบ>การแจ้งเตือน>การเข้าถึงการแจ้งเตือน \nSettings>Notifications>Notification Access
-        \n\n<b>ปัญหาการเชื่อมต่อ:</b>
-        \n\nถ้าคุณไม่สามารถเชื่อมต่อ Gear Fit ผ่านแอป Open Fit ได้
-        ให้ไปที่การตั้งค่าบลูทูธ ดูในแน่ใจว่า Gear Fit ไม่ได้อยู่ในรายชื่อของอุปกรณ์ที่จับคู่ (paired devices)
-        ถ้ามีอยู่ คุณอาจจะต้องลบมันออกไป(ดูหมายเหตุ ด้านล่าง)
-        จากนั้นสั่งค้นหา(scan) และจับคู่(pair) Gear Fit 
-        เมื่อจับคู่สำเร็จแต่ Gear Fit แสดงข้อความ \'waiting for confirmation..\' กำลังรอการยืนยันจาก Gear Fit Manager..
-        ให้รอจนล้มเหลว และหน้าจอ Gear Fit เปลี่ยนไป
-        จากนั้นเปิดแอป Open Fit สั่งค้นหา เลือกอุปกรณ์ และเชื่อมต่อ
-        \n\n<b>หมายเหตุ:</b> การลบ Gear Fit ออกจากอุปกรณ์ที่จับคู่ในการตั้งค่าบลูทูธ
-        อาจทำให้ Gear Fit รีเซทตัวเองได้
-    </string>
     <string name="dialog_close_help">ปิด</string>
     <string name="dialog_title_fitness">ฟิตเนส</string>
     <string name="dialog_close_fitness">ปิด</string>

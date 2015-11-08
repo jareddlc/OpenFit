@@ -4,6 +4,20 @@ import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 
 public class OpenFitData {
+    // Application type
+    public static final byte FEATURE_EXCHANGE = 0;
+    public static final byte HOME = 1;
+    public static final byte HEALTH = 2;
+    public static final byte NOTIFICATION = 3;
+    public static final byte STATUS_MANAGER = 4;
+    public static final byte FIND_MY_WINGTIP = 5;
+    public static final byte MEDIA_CONTROLLER = 6;
+    public static final byte GESTURE_SERVICE = 7;
+    public static final byte SENSORDATA_SVC = 8;
+    public static final byte CALL_APP = 9;
+    public static final byte ALARM_APP = 10;
+    public static final byte SPLANNER_APP = 11;
+    
     // Data Type
     public static final byte PORT_CM = 99;
     public static final byte PORT_CM_FEATURE = 100;
@@ -66,6 +80,54 @@ public class OpenFitData {
     public static byte NOTIFICATION_TYPE_SMARTRELAY = 28;
     public static byte NOTIFICATION_TYPE_VZW_CMAS = 29;
 
+    // Fitness type
+    public static byte DATA_TYPE_USER_PROFILE = 0;
+    public static byte DATA_TYPE_PEDOMETER_PROFILE = 1;
+    public static byte DATA_TYPE_COACHING_PROFILE = 2;
+    public static byte DATA_TYPE_PEDO_RESULTRECORD = 3;
+    public static byte DATA_TYPE_PEDO_INFO = 4;
+    public static byte DATA_TYPE_SLEEP_RESULTRECORD = 5;
+    public static byte DATA_TYPE_SLEEP_INFO = 6;
+    public static byte DATA_TYPE_HEARTRATE_RESULTRECORD = 7;
+    public static byte DATA_TYPE_COACHING_VARS = 8;
+    public static byte DATA_TYPE_COACHING_EXERCISERESULT = 9;
+    public static byte DATA_TYPE_COACHING_RUNNINGEXERCISE = 10;
+    public static byte DATA_TYPE_COACHING_ENERGYEXERCISE = 11;
+    public static byte DATA_TYPE_COACHING_RESULTRECORD = 12;
+    public static byte DATA_TYPE_GPS_INFO = 13;
+    public static byte STRUCT_TYPE_DASHBOARD_PEDO_RESULT = 14;
+    public static byte STRUCT_TYPE_DASHBOARD_COACHING_RESULT = 15;
+    public static byte STRUCT_TYPE_DASHBOARD_HRM_RESULT = 16;
+    public static byte STRUCT_TYPE_DASHBOARD_SLEEP_RESULT = 17;
+
+    // ActivityType
+    public static final int TYPE_ACTIVITY_HEAVY = 180004;
+    public static final int TYPE_ACTIVITY_LIGHT = 180002;
+    public static final int TYPE_ACTIVITY_LITTLE_TO_NO = 180001;
+    public static final int TYPE_ACTIVITY_MODERATE = 180003;
+    public static final int TYPE_ACTIVITY_VERY_HEAVY = 180005;
+
+    // Gender
+    public static final int FEMALE = 190006;
+    public static final int MALE = 190005;
+
+    // DistanceUnit
+    public static final int KILLOMETERS = 170001;
+    public static final int MILES = 170003;
+    public static final int YARDS = 170002;
+
+    // HeightUnit
+    public static final int CM = 150001;
+    public static final int FEET = 150002;
+
+    // WeightUnit
+    public static final int KILOGRAM = 130001;
+    public static final int LBS = 130002;
+
+    public static final int FITNESS_MENU = 27;
+    public static final int FITNESS_CANCEL = 10;
+    public static final int FITNESS_UNKOWN = 5;
+
     // Find device
     public static final byte FIND_START = 0;
     public static final byte FIND_STOP  = 1;
@@ -86,7 +148,7 @@ public class OpenFitData {
     public static final byte REQUEST_STOP = 4;
     public static final byte VOLUME = 1;
 
-    // Weather
+    // Weather Type
     public static final int WEATHER_TYPE_CLEAR = 0;
     public static final int WEATHER_TYPE_COLD = 1;
     public static final int WEATHER_TYPE_FLURRIES = 2;
@@ -158,4 +220,55 @@ public class OpenFitData {
     public static final byte TEXT_DATE_FORMAT_TYPE = 1; // 0,1,2
     public static final byte NUMBER_DATE_FORMAT_TYPE = 2; // 0,1,2
     public static final boolean IS_TIME_DISPLAY_24 = false; // 0,1
+
+    public static String getGender(int i) {
+        if(i == FEMALE) {
+            return "Female";
+        }
+        else if(i == MALE) {
+            return "Male";
+        }
+        else {
+            return null;
+        }
+    }
+
+    public static String getDistanceUnit(int i) {
+        if(i == KILLOMETERS) {
+            return "Km";
+        }
+        else if(i == MILES) {
+            return "Mi";
+        }
+        else if(i == YARDS) {
+            return "Yd";
+        }
+        else {
+            return null;
+        }
+    }
+
+    public static String getHeightUnit(int i) {
+        if(i == CM) {
+            return "cm";
+        }
+        else if(i == FEET) {
+            return "ft";
+        }
+        else {
+            return null;
+        }
+    }
+    
+    public static String getWeightUnit(int i) {
+        if(i == KILOGRAM) {
+            return "Kg";
+        }
+        else if(i == LBS) {
+            return "lbs";
+        }
+        else {
+            return null;
+        }
+    }
 }

@@ -127,6 +127,10 @@ public class OpenFitService extends Service {
             bluetoothLeService.setHandler(mHandler);
             sendServiceStarted();
             sendUIPreferences();
+
+            // auto connect
+            bluetoothLeService.connectRfcomm();
+            isReconnect = true;
         }
 
         @Override
@@ -402,14 +406,26 @@ public class OpenFitService extends Service {
         if(Arrays.equals(data, OpenFitApi.getOpenAlarmSnoozed())) {
             //snoozeAlarm();
         }
-        if(Arrays.equals(data, OpenFitApi.getFitnessSyncRes())) {
-            sendFitnessRequest();
+        if(OpenFitApi.byteArrayToHexString(data).contains(OpenFitApi.byteArrayToHexString(OpenFitApi.getOpenRejectCall()))) {
+            endCall();
         }
+        if(Arrays.equals(data, OpenFitApi.getOpenWeatherReq())) {
+            Log.d(LOG_TAG, "Requesting weather");
+        }
+        if(Arrays.equals(data, OpenFitApi.getFitnessMenu())) {
+            sendFitnessMenuResponse();
+        }
+        if(OpenFitApi.byteArrayToHexString(data).contains(OpenFitApi.byteArrayToHexString(OpenFitApi.getFitnessCycling()))) {
+            sendFitnessCycling();
+        }
+        if(OpenFitApi.byteArrayToHexString(data).contains(OpenFitApi.byteArrayToHexString(OpenFitApi.getFitnessRunning()))) {
+            sendFitnessRunning();
+        }
+
         if(Fitness.isPendingData()) {
             handleFitnessData(data);
         }
         if(OpenFitApi.byteArrayToHexString(data).startsWith(OpenFitApi.byteArrayToHexString(OpenFitApi.getFitness()))) {
-            Log.d(LOG_TAG, "Fitness Received: " + data.length);
             if(Fitness.isFitnessData(data)) {
                 Log.d(LOG_TAG, "Fitness data found setting listener");
                 handleFitnessData(data);
@@ -417,9 +433,6 @@ public class OpenFitService extends Service {
             else {
                 Log.d(LOG_TAG, "Fitness data false");
             }
-        }
-        if(OpenFitApi.byteArrayToHexString(data).contains(OpenFitApi.byteArrayToHexString(OpenFitApi.getOpenRejectCall()))) {
-            endCall();
         }
     }
 
@@ -554,8 +567,40 @@ public class OpenFitService extends Service {
 
     public void sendFitnessRequest() {
         Log.d(LOG_TAG, "sendFitnessRequest");
-        byte[] bytes = OpenFitApi.getFitnessHeartBeat();
+        byte[] bytes = OpenFitApi.getFitnessRequest();
         sendBluetoothBytes(bytes);
+    }
+
+    public void sendFitnessMenuResponse() {
+        Log.d(LOG_TAG, "Fitness Menu");
+        byte[] bytes = OpenFitApi.getFitnessMenuResponse();
+        sendBluetoothBytes(bytes);
+    }
+
+    public void sendFitnessCycling() {
+        Log.d(LOG_TAG, "Cycling");
+
+        if(LocationInfo.getLat() != 0 && LocationInfo.getLon() != 0) {
+            int lat = Float.floatToIntBits((float) LocationInfo.getLat());
+            int lon = Float.floatToIntBits((float) LocationInfo.getLon());
+            String query = "lat=" + lat + "&lon=" + lon;
+            Log.d(LOG_TAG, query);
+            //byte[] bytes = OpenFitApi.getFitnessCyclingResponse(lat, lon);
+            //sendBluetoothBytes(bytes);
+            byte[] bytes = OpenFitApi.hexStringToByteArray("020400000010000000");
+            sendBluetoothBytes(bytes);
+            bytes = OpenFitApi.hexStringToByteArray("01020000000a01");
+            sendBluetoothBytes(bytes);
+            bytes = OpenFitApi.hexStringToByteArray("013d0000000914fffe4e0069006500640065007200720061006400034006000001005348ec5503a4060000e803000003000000000000000003000000000000000000");
+            sendBluetoothBytes(bytes);
+            bytes = OpenFitApi.hexStringToByteArray("020c2011000d0045000bef1302040000000c0000009a");
+            sendBluetoothBytes(bytes);
+        }
+        
+    }
+
+    public void sendFitnessRunning() {
+        Log.d(LOG_TAG, "Running");
     }
 
     public void sendMediaTrack() {

@@ -8,21 +8,6 @@
     <string name="dialog_title_add">Dodaj aplikacje</string>
     <string name="dialog_title_del">Usuń aplikacje</string>
     <string name="dialog_title_help">Open Fit Pomoc</string>
-    <string name="dialog_message_help"><b>Powiadomienia aplikacji:</b>
-        \n\nAby powiadomienia z aplikacji działały,
-        musisz zaznaczyć aplikację Open Fit w ustawieniach "Dostęp do powiadomień".
-        Znajdziesz je w: "Ustawienia > Dźwięk i powiadomienie > Dostęp do powiadomień".
-        \n\n<b>Problemy z połączeniem:</b>
-        \n\nJeśli nie możesz sparować Gear Fit z aplikacji Open Fit,
-        przejdź do ustawień bluetooth, upewnij się, że Gear Fit nie jest na liście sparowanych urządzeń,
-        jeśli jest, będziesz musiał go usunąć (zobacz uwaga poniżej).
-        Potem wyszukaj i sparuj z Gear Fit.
-        Parowanie zakończy się sukcesem, ale Gear Fit wyświetli \ "czekam na potwierdzenie.." \.
-        Poczekaj aż wyświetli się komunikat o niepowodzeniu, po czym ekran się zmieni.
-        Potem otwórz aplikację Open Fit i wyszukaj urządzenie. Wybierz znalezione urządzenie i naciśnij połącz.
-        \n\n<b>Uwaga:</b> Usunięcie Gear Fit z listy sparowanych urządzeń w ustawieniach bluetooth
-        spowoduje reset urządzenia Gear Fit.
-    </string>
     <string name="dialog_close_help">Zamknij</string>
     <string name="dialog_title_fitness">Ćwiczenia</string>
     <string name="dialog_close_fitness">Zamknij</string>

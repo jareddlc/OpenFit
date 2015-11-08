@@ -8,21 +8,6 @@
     <string name="dialog_title_add">Añadir aplicación</string>
     <string name="dialog_title_del">Quitar aplicación</string>
     <string name="dialog_title_help">Ayuda para Open Fit</string>
-    <string name="dialog_message_help"><b>Notificaciones de la aplicación:</b>
-        \n\nPara que funcionen las aplicaciones,
-        debes habilitar el Acceso a Notificaciones para la aplicación de Open Fit.
-        Este acceso se encuentra en: Ajustes>Sonido y notificaciones>Acceso a notificaciones.
-        \n\n<b>Problemas de conexión:</b>
-        \n\nSi no puedes emparejar tu Gear Fit con la aplicación Open fit,
-        ve a ajustes de bluetooth y comprueba que la Gear Fit no está en la lista de dispositivos emparejados
-        Si está emparejada necesitas quitarla de la lista (mira la nota de abajo),
-        Luego escanea y empareja el Gear Fit. 
-        el emparejamiento tendrá éxito pero el Gear Fit mostrará \'Esperando confirmación..\'
-        Espere a que falle y la pantalla en el Fit Gear va a cambiar.
-        Luego abra la aplicación Open Fit y escanea, selecciona el dispositivo y conectase.
-        \n\n<b>Nota:</b>Eliminación del ajuste del dispositivos vinculados en la configuración de Bluetooth,
-        causará un reset a la Fit Gear.
-    </string>
     <string name="dialog_close_help">Cerrar</string>
     <string name="dialog_title_fitness">Física</string>
     <string name="dialog_close_fitness">Cerrar</string>

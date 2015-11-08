@@ -177,51 +177,6 @@ public class OpenFitApi {
         return oVariableDataComposer.toByteArray();
     }
 
-    public static byte[] getFitnessSync() {
-        //02
-        //94000000 size of msg ?
-        //02 type?
-        //01000000 size?
-        //ff
-        //08000000
-        //32000000 size? 50 + 2?
-        //000000000000
-        //00000070
-        //4c44214f
-        //010000ff
-        //ffffff00
-        //00000000
-        //000000ff
-        //ffffffff
-        //ffffffff
-        //00000000
-        //00000000
-        //0a000000
-        //01000000
-        //c0b7c855 time stamp 1439217600 Monday, August 10, 2015 7:40:00 AM 
-        //00000000
-        //0a000000
-        //00000000
-        //00003b40
-        //00000000
-        //01000000
-        //46b5c855 time stamp 1439216966 Monday, August 10, 2015 7:29:26 AM
-        //10270000
-        //00000000
-        //45b5c855 time stamp 1439216965 Monday, August 10, 2015 7:29:25 AM
-        //23000000 size? 35 + 2? - 4?
-        //00002a43
-        //00008242
-        //35e60200
-        //f1490200
-        //d1fb0100
-        //11980200
-        //22bf0200
-        //cd7fcf12
-        String str = "02940000000201000000ff0800000032000000000000000000000000704c44214f010000ffffffff0000000000000000ffffffffffffffffff00000000000000000a00000001000000c0b7c855000000000a0000000000000000003b40000000000100000046b5c855102700000000000045b5c8552300000000002a430000824235e60200f1490200d1fb01001198020022bf0200cd7fcf12";
-        return hexStringToByteArray(str);
-    }
-
     public static byte[] getFitnessSyncRes() {
         //02080000000300000001000000
         OpenFitVariableDataComposer oVariableDataComposer = new OpenFitVariableDataComposer();
@@ -232,7 +187,7 @@ public class OpenFitApi {
         return oVariableDataComposer.toByteArray();
     }
 
-    public static byte[] getFitnessHeartBeat() {
+    public static byte[] getFitnessRequest() {
         //02050000000001000000
         OpenFitVariableDataComposer oVariableDataComposer = new OpenFitVariableDataComposer();
         oVariableDataComposer.writeByte((byte)2);
@@ -240,6 +195,68 @@ public class OpenFitApi {
         oVariableDataComposer.writeByte((byte)0);
         oVariableDataComposer.writeInt(1);
         return oVariableDataComposer.toByteArray();
+    }
+    
+    public static byte[] getFitnessMenu() {
+        //02040000001b000000
+        OpenFitVariableDataComposer oVariableDataComposer = new OpenFitVariableDataComposer();
+        oVariableDataComposer.writeByte((byte)2);
+        oVariableDataComposer.writeInt(4);
+        oVariableDataComposer.writeInt(27);
+        return oVariableDataComposer.toByteArray();
+    }
+
+    public static byte[] getFitnessMenuResponse() {
+        //02010000001c
+        OpenFitVariableDataComposer oVariableDataComposer = new OpenFitVariableDataComposer();
+        oVariableDataComposer.writeByte((byte)2);
+        oVariableDataComposer.writeInt(1);
+        oVariableDataComposer.writeInt(28);
+        return oVariableDataComposer.toByteArray();
+    }
+
+    public static byte[] getFitnessCycling() {
+        //02040000001200000002100000001300000003000000 3D8A2C4359DAC742
+        OpenFitVariableDataComposer oVariableDataComposer = new OpenFitVariableDataComposer();
+        oVariableDataComposer.writeByte((byte)2);
+        oVariableDataComposer.writeInt(4);
+        oVariableDataComposer.writeInt(18);
+        oVariableDataComposer.writeByte((byte)2);
+        oVariableDataComposer.writeInt(16);
+        oVariableDataComposer.writeInt(19);
+        oVariableDataComposer.writeInt(3);
+        return oVariableDataComposer.toByteArray();
+    }
+
+    public static byte[] getFitnessCyclingResponse(int lat, int lon) {
+        //02240000001600000000000000268fbb42b4ecb6420000000000000000000000000000000000000000
+        OpenFitVariableDataComposer oVariableDataComposer = new OpenFitVariableDataComposer();
+        oVariableDataComposer.writeByte((byte)2);
+        oVariableDataComposer.writeInt(36);
+        oVariableDataComposer.writeInt(22);
+        oVariableDataComposer.writeInt(0);
+        oVariableDataComposer.writeInt(lat);
+        oVariableDataComposer.writeInt(lon);
+        oVariableDataComposer.writeInt(0);
+        oVariableDataComposer.writeInt(0);
+        oVariableDataComposer.writeInt(0);
+        oVariableDataComposer.writeInt(0);
+        oVariableDataComposer.writeInt(0);
+        return oVariableDataComposer.toByteArray();
+    }
+
+    public static byte[] getFitnessRunning() {
+        //02040000001200000002100000001300000002000000 3D8A2C4359DAC742
+        OpenFitVariableDataComposer oVariableDataComposer = new OpenFitVariableDataComposer();
+        oVariableDataComposer.writeByte((byte)2);
+        oVariableDataComposer.writeInt(4);
+        oVariableDataComposer.writeInt(18);
+        oVariableDataComposer.writeByte((byte)2);
+        oVariableDataComposer.writeInt(16);
+        oVariableDataComposer.writeInt(19);
+        oVariableDataComposer.writeInt(2);
+        //return oVariableDataComposer.toByteArray();
+        return hexStringToByteArray("02040000000c000000");
     }
 
     public static byte[] getCurrentTimeInfo(boolean is24Hour) {
@@ -546,6 +563,16 @@ public class OpenFitApi {
         oDatacomposer.writeInt(2);
         oDatacomposer.writeByte((byte)3);
         oDatacomposer.writeByte((byte)1);
+
+        return oDatacomposer.toByteArray();
+    }
+
+    public static byte[] getOpenWeatherReq() {
+        //01010000000C
+        OpenFitVariableDataComposer oDatacomposer = new OpenFitVariableDataComposer();
+        oDatacomposer.writeByte((byte)1);
+        oDatacomposer.writeInt(1);
+        oDatacomposer.writeByte((byte)12);
 
         return oDatacomposer.toByteArray();
     }

@@ -8,21 +8,6 @@
     <string name="dialog_title_add">Aggiungi Applicazione</string>
     <string name="dialog_title_del">Del Application</string>
     <string name="dialog_title_help">Open Fit Help</string>
-    <string name="dialog_message_help"><b>Notifiche delle applicazioni:</b>
-        \n\nPer far funzionare le notifiche delle applicazioni,
-        devi attivare "Accesso alle notifiche" per l\'applicazione Open Fit.
-        Questo normalmente si trova in: Impostazioni>Notifiche>Accesso alle notifiche.
-        \n\n<b>Problemi di Connessione:</b>
-        \n\nSe non riesci ad associare il tuo Gear Fit dall\'applicazione Open Fit,
-        vai nelle impostazioni bluetooth, assicurati che il tuo Gear Fit non sia nella lista dei dispositivi associati,
-        nel caso fosse già associato potrebbe essere necessario rimuoverlo (vedi la nota sotto),
-        quindi cerca e associa il Gear Fit.
-        L\'associazione su android avrà successo ma il Gear Fit mostrerà il messaggio \'In attesa di conferma..\".
-        Attendi che sul Gear Fit l\'associazione fallisca e lo schermo cambierà.
-        Quindi apri l\'app Open Fit e cerca dispositivi, seleziona il tuo dispositivo e connetti.
-        \n\n<b>Nota:</b> Cancellare il Gear Fit dalla lista dei dispositivi associati tramite le impostazioni bluetooth,
-        comporterà il reset del Gear Fit.
-    </string>
     <string name="dialog_close_help">Chiudi</string>
     <string name="dialog_title_fitness">Fitness</string>
     <string name="dialog_close_fitness">Chiudi</string>

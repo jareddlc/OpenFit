@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="preference_list_devices_entries">
-        <item >No dispositivos emparejados</item>
+        <item >Geen verbonden apparaten</item>
     </string-array>
     <string-array name="preference_list_devices_values">
         <item >none</item>
     </string-array>
     <string-array name="preference_list_weather_entries">
-        <item >No Actualizar</item>
-        <item >Cada Hora Fahrenheit</item>
-        <item >Cada Hora Celsius</item>
+        <item >Geen Updates</item>
+        <item >Ieder uur Fahrenheit</item>
+        <item >Ieder uur Celsius</item>
     </string-array>
     <string-array name="preference_list_weather_values">
         <item >none</item>

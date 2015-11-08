@@ -10,26 +10,6 @@
     <string name="dialog_title_del">Del Application</string>
     <string name="dialog_close_del">Close</string>
     <string name="dialog_title_help">Open Fit Help</string>
-    <string name="dialog_message_help"><b>Application Notifications:</b>
-        \n\nFor applications notifications to work,
-        you must turn on "Notification Access" for the Open Fit application.
-        This is commonly found at: Settings>Notifications>Notification Access.
-        \n\n<b>Connection Problems:</b>
-        \n\nIf you cannot pair with Gear Fit from Open Fit application,
-        go to bluetooth settings, make sure the Gear Fit is not on the list of paired devices,
-        If it is you may need to remove it(see note below),
-        Then scan and pair to the Gear Fit.
-        the pairing will succeed but the Gear Fit will show \'waiting for confirmation..\'.
-        Wait for it to fail and the screen on the Gear Fit will change.
-        Then open the Open Fit app and scan, select device, and connect.
-        \n\n<b>Contributing:</b>
-        \n\nIf you want to help translating Open Fit, please visit:
-        \nhttps://goo.gl/fdzPMC
-        \nFor other contributions please visit the official XDA forum at:
-        \nhttp://goo.gl/y2Fkmt
-        \n\n<b>Note:</b> Deleting the Gear Fit from the paired devices in bluetooth settings,
-        will cause a reset to the Gear Fit.
-    </string>
     <string name="dialog_close_help">Close</string>
     <string name="dialog_title_fitness">Fitness</string>
     <string name="dialog_close_fitness">Close</string>

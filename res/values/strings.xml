@@ -11,38 +11,36 @@
     <string name="dialog_close_del">Close</string>
     <string name="dialog_title_help">Open Fit Help</string>
     <string name="dialog_message_help"><b>Application Notifications:</b>
-        \n\nFor applications notifications to work,
+        \nFor applications notifications to work,
         you must turn on "Notification Access" for the Open Fit application.
         This is commonly found at: Settings>Notifications>Notification Access.
+        Alternatively, you can open the phone settings and search for \'Notification\' and should show you \'Notification Access\'.
         \n\n<b>Connection Problems:</b>
-        \n\nIf you cannot pair with Gear Fit from Open Fit application,
-        go to bluetooth settings, make sure the Gear Fit is not on the list of paired devices,
-        If it is you may need to remove it(see note below),
-        Then scan and pair to the Gear Fit.
-        the pairing will succeed but the Gear Fit will show \'waiting for confirmation..\'.
-        Wait for it to fail and the screen on the Gear Fit will change.
-        Then open the Open Fit app and scan, select device, and connect.
+        \nIf you cannot pair with Gear Fit from Open Fit application,
+        go to bluetooth settings, and remove the Gear Fit from the list of paired devices,
+        then scan and pair to the Gear Fit via the Open Fit app. 
+        \n<b>Note:</b> You may need to reset the Gear Fit.
         \n\n<b>Contributing:</b>
-        \n\nIf you want to help translating Open Fit, please visit:
+        \nIf you want to help translating Open Fit, please visit:
         \nhttps://goo.gl/fdzPMC
         \nFor other contributions please visit the official XDA forum at:
         \nhttp://goo.gl/y2Fkmt
-        \n\n<b>Note:</b> Deleting the Gear Fit from the paired devices in bluetooth settings,
-        will cause a reset to the Gear Fit.
     </string>
     <string name="dialog_close_help">Close</string>
     <string name="dialog_title_fitness">Fitness</string>
     <string name="dialog_close_fitness">Close</string>
     <string name="dialog_title_news">Open Fit News</string>
-    <string name="dialog_message_news"><b>v1.5.0</b>
-        \n• Major code refactor
-        \n• Fix time sync (12hr/24hr)
-        \n• Bug fix random crash
-        \n• New languages. Thanks to those who helped!
+    <string name="dialog_message_news"><b>IMPORTANT!</b>
+        \nLooks like I broke the save file :(
+        \nIf you are having issues with notifications, please clear data and cache for Open Fit.
+        To clear, go to: Phone settings > Applications > Open Fit
+        \n\n<b>v1.5.1</b>
+        \n• Exercise data (not visible yet)
+        \n• Fixed exercise menu crash
+        \n• Auto connect on open
         \n\n<b>Upcoming</b>
-        \n• Better support for media controller
-        \n• Exercise data
-        \n• Pedometer sync with Google Fit
+        \n• Media controller improvements
+        \n• Sync with Google Fit
     </string>
     <string name="dialog_close_news">Close</string>
     <string name="preference_category_connectivity_title">Connectivity</string>

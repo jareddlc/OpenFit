@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
+import com.solderbyte.openfit.util.OpenFitData;
+
 
 import android.util.Log;
 
@@ -63,13 +65,25 @@ public class Fitness {
         buffer = buffer.order(ByteOrder.LITTLE_ENDIAN);
         byte type = buffer.get();
 
+        if(OpenFitApi.byteArrayToHexString(data).contains(OpenFitApi.byteArrayToHexString(OpenFitApi.getFitnessCycling()))) {
+            return false;
+        }
+        if(OpenFitApi.byteArrayToHexString(data).contains(OpenFitApi.byteArrayToHexString(OpenFitApi.getFitnessRunning()))) {
+            return false;
+        }
+
         if(type == 2) {
             if(data.length <= 6) {
                 return false;
             }
-            pendingData = true;
             size = buffer.getInt();
-            Log.d(LOG_TAG, "Fitness data size: " + size);
+
+            int msgType = buffer.getInt();
+            Log.d(LOG_TAG, "msgType: " + msgType);
+            if(msgType == OpenFitData.FITNESS_MENU || msgType == OpenFitData.FITNESS_CANCEL) {
+                return false;
+            }
+            pendingData = true;
             clearFitnessData();
             return true;
         }
@@ -103,6 +117,7 @@ public class Fitness {
         if(buffer.capacity() < 14) {
             return;
         }
+
         byte msgType = buffer.get();
         int msgSize = buffer.getInt();
         int byte4 = buffer.getInt();
@@ -113,17 +128,35 @@ public class Fitness {
 
         while(buffer.hasRemaining()) {
             byte fitnessType = buffer.get();
-            Log.d(LOG_TAG, "fitnessType: " + fitnessType);
-            if(fitnessType ==  4) {
-                Log.d(LOG_TAG, "Pedemeter Data");
-                parsePedometer(buffer);
+            Log.d(LOG_TAG, "Fitness type: " + fitnessType);
+            if(fitnessType ==  OpenFitData.DATA_TYPE_USER_PROFILE) {
+                Log.d(LOG_TAG, "User Profile");
+                parseUserProfile(buffer);
             }
-            else if(fitnessType == 6) {
-                Log.d(LOG_TAG, "Sleep Data");
-                parseSleep(buffer);
+            if(fitnessType ==  OpenFitData.DATA_TYPE_PEDO_INFO) {
+                Log.d(LOG_TAG, "Pedemeter Info");
+                parsePedoInfo(buffer);
+            }
+            else if(fitnessType == OpenFitData.DATA_TYPE_SLEEP_INFO) {
+                Log.d(LOG_TAG, "Sleep Info");
+                parseSleepInfo(buffer);
+            }
+            else if(fitnessType == OpenFitData.DATA_TYPE_COACHING_VARS) {
+                Log.d(LOG_TAG, "Coaching Vars");
+                parseCoachingVars(buffer);
+            }
+            else if(fitnessType == OpenFitData.DATA_TYPE_COACHING_EXERCISERESULT) {
+                Log.d(LOG_TAG, "Coaching Excercise Result");
+                parseCoachingExerciseResult(buffer);
+            }
+            else if(fitnessType == OpenFitData.DATA_TYPE_COACHING_RESULTRECORD) {
+                Log.d(LOG_TAG, "Coaching Result Record");
+                parseCoachingResultRecord(buffer);
+
             }
             else {
-                Log.d(LOG_TAG, "unsupported");
+                Log.d(LOG_TAG, "Unsupported: " + fitnessType);
+                //logBuffer(buffer);
                 depleteBuffer(buffer);
             }
         }
@@ -131,27 +164,37 @@ public class Fitness {
         Log.d(LOG_TAG, "remaining buffer: " + buffer.remaining());
     }
 
-
-    @SuppressWarnings("unused")
-    public static void parseSleep(ByteBuffer buffer) {
-        int sleepSize = buffer.getInt();
-        Log.d(LOG_TAG, "Sleep size: " + sleepSize);
-
-        for(int i = 0; i < sleepSize; i++) {
-            int index = buffer.getInt();
+    public static void parseUserProfile(ByteBuffer buffer) {
+        int userProfileSize = buffer.getInt();
+        Log.d(LOG_TAG, "User profile size: " + userProfileSize);
+        for(int i = 0; i < userProfileSize; i++) {
             long timeStamp = buffer.getInt() * 1000L;
-            int status = buffer.getInt();
-            Date date = new Date(timeStamp);
+            int age = buffer.getInt();
+            float height = Float.intBitsToFloat(buffer.getInt());
+            float weight = Float.intBitsToFloat(buffer.getInt());
+            int gender = buffer.getInt();
+            int birthday = buffer.getInt();
+            int heightUnit = buffer.getInt();
+            int weightUnit = buffer.getInt();
+            int distanceUnit = buffer.getInt();
+            int activity = buffer.getInt();
 
-            //Log.d(LOG_TAG, "idex: " + index);
-            //Log.d(LOG_TAG, "date: " + date.toString());
-            //Log.d(LOG_TAG, "status: " + status);
+            Date date = new Date(timeStamp);
+            Log.d(LOG_TAG, "time stamp: " + timeStamp);
+            Log.d(LOG_TAG, "date: " + date);
+            Log.d(LOG_TAG, "age: " + age);
+            Log.d(LOG_TAG, "height: " + height + OpenFitData.getHeightUnit(heightUnit));
+            Log.d(LOG_TAG, "weight: " + weight + OpenFitData.getWeightUnit(weightUnit));
+            Log.d(LOG_TAG, "gender: " + OpenFitData.getGender(gender));
+            Log.d(LOG_TAG, "activity: " + activity);
+            Log.d(LOG_TAG, "birthday: " + birthday);
+            Log.d(LOG_TAG, "distanceUnit: " + OpenFitData.getDistanceUnit(distanceUnit));
         }
     }
 
-    public static void parsePedometer(ByteBuffer buffer) {
+    public static void parsePedoInfo(ByteBuffer buffer) {
         int pedometerSize = buffer.getInt();
-        Log.d(LOG_TAG, "Pedometer size: " + pedometerSize);
+        Log.d(LOG_TAG, "Pedometer info size: " + pedometerSize);
         Calendar cal = Calendar.getInstance();
         int pedometerTotalSteps = 0;
         float pedometerTotalDistance = 0;
@@ -202,12 +245,6 @@ public class Fitness {
             pedometerTotalCalorie += calorie;
 
             pedometerList.add(new PedometerData(timeStamp, step, distance, calorie));
-            //Log.d(LOG_TAG, "day: " + day);
-            //Log.d(LOG_TAG, "i: " + i);
-            //Log.d(LOG_TAG, "date: " + date.toString());
-            //Log.d(LOG_TAG, "step: " + step);
-            //Log.d(LOG_TAG, "distance: " + distance);
-            //Log.d(LOG_TAG, "calorie: " + calorie);
         }
 
         pedometerTotal = new PedometerTotal(pedometerTotalSteps, pedometerTotalDistance, pedometerTotalCalorie);
@@ -216,14 +253,101 @@ public class Fitness {
         Log.d(LOG_TAG, "totalCalorie: " + pedometerTotal.getCalories());
     }
 
-    public static void parseExercise(ByteBuffer buffer) {
-        
-        //0801000000320000000000000000040000002861462F50010000010000000000000000000000FFFFFFFFFFFFFFFF012861462F5001000009010000002861462F500100001F85EB51B85E30408B36000000000000040000000C01000000C93210560F0500000000803F52000000C3F582410153460000E41B4F3C52B8863F00000000000000008200000000000000000000000501000000C3EB0C56814A0D560A509E4201000000150000000001000000AD3210561C0000007A142F4359DAC74235E6020080FB911FF2490200D2FB01001398020021BF02000101000000EDAC105610270000EBAC105603050000005D150A56102700000D370A56102700008B880B561027000003DA0C5610270000EE2B0E5610270000
-        /*int exerciseSize = buffer.getInt();
-        Log.d(LOG_TAG, "Excercise size: " + exerciseSize);
+    @SuppressWarnings("unused")
+    public static void parseSleepInfo(ByteBuffer buffer) {
+        int sleepSize = buffer.getInt();
+        Log.d(LOG_TAG, "Sleep info size: " + sleepSize);
+
+        for(int i = 0; i < sleepSize; i++) {
+            int index = buffer.getInt();
+            long timeStamp = buffer.getInt() * 1000L;
+            int status = buffer.getInt();
+            Date date = new Date(timeStamp);
+
+            //Log.d(LOG_TAG, "idex: " + index);
+            //Log.d(LOG_TAG, "date: " + date.toString());
+            //Log.d(LOG_TAG, "status: " + status);
+        }
+    }
+
+    public static void parseCoachingVars(ByteBuffer buffer) {
+        Log.d(LOG_TAG, "Coaching vars");
+
+        int ac = buffer.getInt();
+        byte maxHeartrate = buffer.get();
+        long maxMET = buffer.getLong();
+        int recovery = buffer.getInt();
+        long startDate = buffer.getLong();
+        int trainingLevel = buffer.getInt();
+        long lastTrainingLevel = buffer.getLong();
+        int previousToPrevious = buffer.getInt();
+        int previousTrainingLevel = buffer.getInt();
+        int lastestFeedbackPhraseNumber = buffer.get();
+        long lastestExerciseTime = buffer.getLong();
+
+        Log.d(LOG_TAG, "ac: " + ac);
+        Log.d(LOG_TAG, "maxHeartrate: " + maxHeartrate);
+        Log.d(LOG_TAG, "maxMET: " + maxMET);
+        Log.d(LOG_TAG, "recovery: " + recovery);
+        Log.d(LOG_TAG, "timeStamp: " + startDate);
+        Log.d(LOG_TAG, "trainingLevel: " + trainingLevel);
+        Log.d(LOG_TAG, "lastTrainingLevel: " + lastTrainingLevel);
+        Log.d(LOG_TAG, "previousToPrevious: " + previousToPrevious);
+        Log.d(LOG_TAG, "previousTrainingLevel: " + previousTrainingLevel);
+        Log.d(LOG_TAG, "lastestFeedbackPhraseNumber: " + lastestFeedbackPhraseNumber);
+        Log.d(LOG_TAG, "lastestExerciseTime: " + lastestExerciseTime);
+    }
+
+    public static void parseCoachingExerciseResult(ByteBuffer buffer) {
+        int exerciseSize = buffer.getInt();
+        Log.d(LOG_TAG, "Coaching exercise result size: " + exerciseSize);
 
         for(int i = 0; i < exerciseSize; i++) {
-        }*/
+            long endTime = buffer.getLong();
+            double distance = buffer.getDouble();
+            int trainingLoadPeak = buffer.getInt();
+            int maxMET = buffer.getInt();
+            int recovery = buffer.getInt();
+
+            Log.d(LOG_TAG, "endTime: " + endTime);
+            Log.d(LOG_TAG, "distance: " + distance);
+            Log.d(LOG_TAG, "trainingLoadPeak: " + trainingLoadPeak);
+            Log.d(LOG_TAG, "maxMET: " + maxMET);
+            Log.d(LOG_TAG, "recovery: " + recovery);
+        }
+    }
+
+    public static void parseCoachingResultRecord(ByteBuffer buffer) {
+        int exerciseSize = buffer.getInt();
+        Log.d(LOG_TAG, "Coaching result record size: " + exerciseSize);
+
+        for(int i = 0; i < exerciseSize; i++) {
+            int timeStamp = buffer.getInt();
+            long duration = buffer.getLong();
+            double calorie = buffer.getDouble();
+            double heartrate = buffer.getDouble();
+            double distance = buffer.getDouble();
+            byte fitnessLevel = buffer.get();
+            int type = buffer.getInt();
+            float avgSpeed = Float.intBitsToFloat(buffer.getInt());
+            float maxSpeed = Float.intBitsToFloat(buffer.getInt());
+            float maxAlt = Float.intBitsToFloat(buffer.getInt());
+            float minAlt = Float.intBitsToFloat(buffer.getInt());
+            byte maxHeartrate = buffer.get();
+
+            Log.d(LOG_TAG, "timeStamp: " + timeStamp);
+            Log.d(LOG_TAG, "duration: " + duration);
+            Log.d(LOG_TAG, "calorie: " + calorie);
+            Log.d(LOG_TAG, "heartrate: " + heartrate);
+            Log.d(LOG_TAG, "distance: " + distance);
+            Log.d(LOG_TAG, "fitnessLevel: " + fitnessLevel);
+            Log.d(LOG_TAG, "type: " + type);
+            Log.d(LOG_TAG, "avgSpeed: " + avgSpeed);
+            Log.d(LOG_TAG, "maxSpeed: " + maxSpeed);
+            Log.d(LOG_TAG, "maxAlt: " + maxAlt);
+            Log.d(LOG_TAG, "minAlt: " + minAlt);
+            Log.d(LOG_TAG, "maxHeartrate: " + maxHeartrate);
+        }
     }
 
     @SuppressWarnings("unused")
@@ -231,5 +355,15 @@ public class Fitness {
         while(buffer.hasRemaining()) {
             byte b = buffer.get();
         }
+    }
+
+    public static void logBuffer(ByteBuffer buffer) {
+        int remaining = buffer.capacity() - buffer.position();
+        Log.d(LOG_TAG, "Remaining" + remaining);
+        byte[] b = new byte[remaining];
+        for(int i = 0; i < remaining; i++) {
+            b[i] = buffer.get();
+        }
+        Log.d(LOG_TAG, "logBuffer" + OpenFitApi.byteArrayToHexString(b));
     }
 }

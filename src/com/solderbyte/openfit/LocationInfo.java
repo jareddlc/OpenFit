@@ -111,6 +111,7 @@ public class LocationInfo {
         LocationListener locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
+                locationManager.removeUpdates(this);
                 if(location != null) {
                     latitude = location.getLatitude();
                     longitude = location.getLongitude();
@@ -136,7 +137,6 @@ public class LocationInfo {
                         Log.e(LOG_TAG, "Error: "+ e);
                     }
                 }
-                locationManager.removeUpdates(this);
             }
             @Override
             public void onStatusChanged(String provider, int status, Bundle extras) {}

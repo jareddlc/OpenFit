@@ -8,21 +8,6 @@
     <string name="dialog_title_add">增加通知程式</string>
     <string name="dialog_title_del">移除通知程式</string>
     <string name="dialog_title_help">Open Fit 帮助</string>
-    <string name="dialog_message_help"><b>程式通知:</b>
-        \n\n如要令应用程式通知生效,
-        你必须授权 "通知存取权" 予 Open Fit
-        你可以在: 设定 > 通知 > 通知存取权 中找到相关设定
-        \n\n<b>连接问题:</b>
-        \n\n如果你的 Open Fit 不能与 Gear Fit 配对,
-        前往装置中的蓝牙程定, 设查 Gear Fit 并不在已配对装置列表,
-        如果你的装置已配对, 请先取消配对你的装置 (之后接着以下步骤),
-        使用装置中的蓝牙程定寻找并配对你的 Gear Fit
-        配对将会成功但 Gear Fit 将会显示 \'正在等待确认\'
-        等待直至确认失败, 然后 Gear Fit 的画面将会改变
-        然后开启 Open Fit 程式并寻找你的装置, 选择你的装置, 最后选择连接
-        \n\n<b>注意:</b> 从你的装置中移除 Gear Fit 的蓝牙配对,
-        将会重置你的 Gear Fit
-    </string>
     <string name="dialog_close_help">关闭</string>
     <string name="dialog_title_fitness">健康</string>
     <string name="dialog_close_fitness">关闭</string>

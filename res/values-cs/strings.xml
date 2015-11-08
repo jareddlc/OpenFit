@@ -8,21 +8,6 @@
     <string name="dialog_title_add">Přidat aplikaci</string>
     <string name="dialog_title_del">Smazat aplikaci</string>
     <string name="dialog_title_help">Open Fit nápověda</string>
-    <string name="dialog_message_help"><b>Upozornění aplikací:</b>
-        \n\nAby upozornění aplikací fungovalo,
-        musíte zapnout "Přístup k upozornění" pro Open Fit aplikaci.
-        Nastavení najdete zde: Nastavení>Upozornění>Přístup k upozornění.
-        \n\n<b>Problémy s připojením:</b>
-        \n\nPokud se vám nedaří připojit k Gear Fit z Open Fit aplikace,
-        přejděte do nastavení bluetoothu, ujistěte se, že Gear Fit není na seznamu připojených zařízení,
-        Pokud je, zařízení odstraňte(viz. níže),
-        Potom vyhledejte a připojte Gear Fit.
-        Spojení proběhne v pořádku, ale Gear Fit zobrazí \'čekání na potvrzení..\'.
-        Počekjte na chybu připojení. Gear Fit obrazovka se změní.
-
-        \n\n<b>Poznámka:</b> Smazání Gear Fit z připojených zařízení v nasatvení bluetooth,
-        resetuje nastavení Gear Fit.
-    </string>
     <string name="dialog_close_help">Zavřít</string>
     <string name="dialog_title_fitness">Fitnes data</string>
     <string name="dialog_close_fitness">Zavřít</string>

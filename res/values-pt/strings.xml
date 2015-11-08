@@ -8,21 +8,6 @@
     <string name="dialog_title_add">Adicionar Aplicativo</string>
     <string name="dialog_title_del">Apagar Aplicativo</string>
     <string name="dialog_title_help">Ajuda do Open Fit</string>
-    <string name="dialog_message_help"><b>Notificações de Aplicativos:</b>
-        \n\nPara funcionar as notificações de aplicativos,
-        você de ligar "Acesso a Notificações" para o Open Fit.
-        Encontra-se em: Configuração>Notificações>Acesso à Notificações.
-        \n\n<b>Problema na Conexão:</b>
-        \n\nCaso não consiga parear com o Gear Fit pelo Open Fit,
-        vá nas Configurações de Bluetooth e certifique-se que o Gear Fit não esteja na lista de dispositivos pareados,
-        Caso esteja, você deve remove-lo (veja a nota abaixo),
-        Então busque e pareie o Gear Fit. 
-        o pareamento irá finalizar mas o Gear Fit irá mostrar \'aguardando confirmação..\'.
-        Aguarde o Gear Fit falhar e trocar de tela.
-        Abra o Open Fit e pesquise, selecione o dispositivo e efetue a conexão.
-        \n\n<b>Nota:</b> Apagar o Gear Fit da lista de dispositivos pareados nas configurações do Bluetooth,
-        irá apagar todos os dados e confirgurações do Gear Fit.
-    </string>
     <string name="dialog_close_help">Fechar</string>
     <string name="dialog_title_fitness">Fitness</string>
     <string name="dialog_close_fitness">Fechar</string>

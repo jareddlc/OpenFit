@@ -80,7 +80,7 @@ public class Fitness {
 
             int msgType = buffer.getInt();
             Log.d(LOG_TAG, "msgType: " + msgType);
-            if(msgType == OpenFitData.FITNESS_MENU || msgType == OpenFitData.FITNESS_CANCEL) {
+            if(msgType == OpenFitData.FITNESS_MENU || msgType == OpenFitData.FITNESS_CANCEL || msgType == OpenFitData.FITNESS_UNKOWN) {
                 return false;
             }
             pendingData = true;

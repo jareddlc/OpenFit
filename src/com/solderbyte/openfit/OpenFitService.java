@@ -81,7 +81,7 @@ public class OpenFitService extends Service {
         this.registerReceiver(phoneReceiver, new IntentFilter(OpenFitIntent.INTENT_SERVICE_PHONE));
         this.registerReceiver(phoneIdleReceiver, new IntentFilter(OpenFitIntent.INTENT_SERVICE_PHONE_IDLE));
         this.registerReceiver(phoneOffhookReceiver, new IntentFilter(OpenFitIntent.INTENT_SERVICE_PHONE_OFFHOOK));
-        this.registerReceiver(mediaReceiver, MediaController.getIntentFilter());
+        this.registerReceiver(mediaReceiver, new IntentFilter(OpenFitIntent.INTENT_SERVICE_MEDIA));
         this.registerReceiver(alarmReceiver, Alarm.getIntentFilter());
         this.registerReceiver(weatherReceiver, new IntentFilter(OpenFitIntent.INTENT_SERVICE_WEATHER));
         this.registerReceiver(locationReceiver, new IntentFilter(OpenFitIntent.INTENT_SERVICE_LOCATION));
@@ -411,6 +411,7 @@ public class OpenFitService extends Service {
         }
         if(Arrays.equals(data, OpenFitApi.getOpenWeatherReq())) {
             Log.d(LOG_TAG, "Requesting weather");
+            getWeather();
         }
         if(Arrays.equals(data, OpenFitApi.getFitnessMenu())) {
             sendFitnessMenuResponse();
@@ -579,23 +580,14 @@ public class OpenFitService extends Service {
 
     public void sendFitnessCycling() {
         Log.d(LOG_TAG, "Cycling");
-
-        if(LocationInfo.getLat() != 0 && LocationInfo.getLon() != 0) {
+        /*if(LocationInfo.getLat() != 0 && LocationInfo.getLon() != 0) {
             int lat = Float.floatToIntBits((float) LocationInfo.getLat());
             int lon = Float.floatToIntBits((float) LocationInfo.getLon());
             String query = "lat=" + lat + "&lon=" + lon;
             Log.d(LOG_TAG, query);
             //byte[] bytes = OpenFitApi.getFitnessCyclingResponse(lat, lon);
             //sendBluetoothBytes(bytes);
-            byte[] bytes = OpenFitApi.hexStringToByteArray("020400000010000000");
-            sendBluetoothBytes(bytes);
-            bytes = OpenFitApi.hexStringToByteArray("01020000000a01");
-            sendBluetoothBytes(bytes);
-            bytes = OpenFitApi.hexStringToByteArray("013d0000000914fffe4e0069006500640065007200720061006400034006000001005348ec5503a4060000e803000003000000000000000003000000000000000000");
-            sendBluetoothBytes(bytes);
-            bytes = OpenFitApi.hexStringToByteArray("020c2011000d0045000bef1302040000000c0000009a");
-            sendBluetoothBytes(bytes);
-        }
+        }*/
         
     }
 
@@ -610,25 +602,17 @@ public class OpenFitService extends Service {
 
     public void sendMediaPrev() {
         Log.d(LOG_TAG, "Media Prev");
-        sendOrderedBroadcast(MediaController.spotifyPrevious(), null);
-        sendOrderedBroadcast(MediaController.prevTrackDown(), null);
-        sendOrderedBroadcast(MediaController.prevTrackUp(), null);
+        sendBroadcast(MediaController.prevTrack(), null);
     }
 
     public void sendMediaNext() {
         Log.d(LOG_TAG, "Media Next");
-        //If using Spotify
-        sendOrderedBroadcast(MediaController.spotifyNext(), null);
-        //else
-        sendOrderedBroadcast(MediaController.nextTrackDown(), null);
-        sendOrderedBroadcast(MediaController.nextTrackUp(), null);
+        sendBroadcast(MediaController.nextTrack(), null);
     }
 
     public void sendMediaPlay() {
         Log.d(LOG_TAG, "Media Play/Pause");
-        sendOrderedBroadcast(MediaController.spotifyPlayPause(), null);
-        sendOrderedBroadcast(MediaController.playTrackDown(), null);
-        sendOrderedBroadcast(MediaController.playTrackUp(), null);
+        sendBroadcast(MediaController.playTrack(), null);
     }
 
     public void sendMediaVolume(byte vol, boolean req) {
@@ -811,9 +795,8 @@ public class OpenFitService extends Service {
             else {
                 location = LocationInfo.getCityName();
             }
-            if(weatherEnabled) {
-                Weather.getWeather(query, location);
-            }
+
+            Weather.getWeather(query, location);
         }
     }
 
@@ -951,12 +934,8 @@ public class OpenFitService extends Service {
     private BroadcastReceiver mediaReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            String artist = MediaController.getArtist(intent);
-            //String album = MediaController.getAlbum(intent);
-            String track = MediaController.getTrack(intent);
-            String mediaTrack = artist + " - " + track;
+            String mediaTrack = intent.getStringExtra("mediaTrack");
             Log.d(LOG_TAG, "Media sending: " + mediaTrack);
-            MediaController.setTrack(mediaTrack);
             sendMediaTrack();
         }
     };
@@ -996,8 +975,8 @@ public class OpenFitService extends Service {
 
             String weatherInfo = location + ": " + tempCur + tempUnit + "\nWeather: " + description;
             Log.d(LOG_TAG, weatherInfo);
-            sendWeatherNotifcation(weatherInfo, icon);
             sendWeatherClock(location, tempCur, tempUnit, icon);
+            sendWeatherNotifcation(weatherInfo, icon);
         }
     };
 
@@ -1005,7 +984,9 @@ public class OpenFitService extends Service {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d(LOG_TAG, "locationReceiver updated");
-            getWeather();
+            if(weatherEnabled) {
+                getWeather();
+            }
         }
     };
 

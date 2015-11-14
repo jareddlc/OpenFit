@@ -68,10 +68,11 @@ public class DialogFitness extends DialogFragment {
 
             String subitem = "Steps: " + steps + ", " + distance + "m, " + calories + "cal";
             subitems.add(subitem);
+
+            Drawable icon = context.getResources().getDrawable(R.drawable.open_walk);
+            icon.setBounds(0, 0, 144, 144);
+            iDraw.add(icon);
         }
-        Drawable icon = context.getResources().getDrawable(R.drawable.open_walk);
-        icon.setBounds(0, 0, 144, 144);
-        iDraw.add(icon);
         adapter = new ArrayAdapterFitness(context, items, subitems, iDraw);
     }
 }

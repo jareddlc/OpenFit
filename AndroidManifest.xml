@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest package="com.solderbyte.openfit"
-    android:versionCode="151"
-    android:versionName="1.5.1" xmlns:android="http://schemas.android.com/apk/res/android">
+    android:versionCode="152"
+    android:versionName="1.5.2" xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-sdk
         android:minSdkVersion="19"
@@ -22,6 +22,8 @@
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.INTERNET"/>
+
+    <uses-feature android:name="android.hardware.telephony" android:required="false"/>
 
     <application
         android:allowBackup="true"

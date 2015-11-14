@@ -100,6 +100,42 @@ public class OpenFitData {
     public static byte STRUCT_TYPE_DASHBOARD_HRM_RESULT = 16;
     public static byte STRUCT_TYPE_DASHBOARD_SLEEP_RESULT = 17;
 
+    public static byte RUN = 0;
+    public static byte WALK = 1;
+    public static byte CYCLING = 2;
+    public static byte HIKING = 3;
+
+    public static byte DATA_TYPE_HOST_TO_WINGTIP_SYNC_REQUEST = 0;
+    public static byte DATA_TYPE_HOST_TO_WINGTUP_SYNC_DONE = 1;
+    public static byte DATA_TYPE_HOST_TO_WINGTIP_SYNC_DATA = 2;
+    public static byte DATA_TYPE_WINGTIP_TO_HOST_SYNC_DONE = 3;
+    public static byte DATA_TYPE_WINGTIP_TO_HOST_SYNC_DATA = 4;
+    public static byte DATA_TYPE_WINGTIP_TO_HOST_SYNC_REQUEST = 5;
+    public static byte DATA_TYPE_WINGTIP_TO_HOST_GPS_HIKING_START = 6;
+    public static byte DATA_TYPE_WINGTIP_TO_HOST_GPS_CYCLING_START = 7;
+    public static byte DATA_TYPE_WINGTIP_TO_HOST_GPS_WALKING_START = 8;
+    public static byte DATA_TYPE_WINGTIP_TO_HOST_GPS_RUNNING_START = 9;
+    public static byte DATA_TYPE_WINGTIP_TO_HOST_GPS_END = 10;
+    public static byte DATA_TYPE_WINGTIP_TO_HOST_GPS_REQUEST = 11;
+    public static byte DATA_TYPE_HOST_TO_WINGTIP_GPS_READY = 12;
+    public static byte DATA_TYPE_HOST_TO_WINGTIP_GPS_DATA = 13;
+    public static byte DATA_TYPE_WINGTIP_TO_HOST_GPS_SUBSCRIBE = 14;
+    public static byte DATA_TYPE_WINGTIP_TO_HOST_GPS_UNSUBSCRIBE = 15;
+    public static byte DATA_TYPE_HOST_TO_WINGTIP_GPS_GPSON = 16;
+    public static byte DATA_TYPE_HOST_TO_WINGTIP_GPS_GPSOFF = 17;
+    public static byte DATA_TYPE_WINGTIP_TO_HOST_GPS_READY = 18;
+    public static byte DATA_TYPE_WINGTIP_TO_HOST_GPS_EXERCISE_START = 19;
+    public static byte DATA_TYPE_HOST_TO_WINGTIP_SET_HEALTH_APP = 20;
+    public static byte DATA_TYPE_WINGTIP_TO_HOST_SET_HEALTH_APP_DONE = 21;
+    public static byte DATA_TYPE_HOST_TO_WINGTIP_GPS_RESULT = 22;
+    public static byte DATA_TYPE_HOST_TO_WINGTIP_DASHBOARD_SYNC_REQUEST = 23;
+    public static byte DATA_TYPE_HOST_TO_WINGTIP_DASHBOARD_SYNC_DATA = 24;
+    public static byte DATA_TYPE_WINGTIP_TO_HOST_DASHBOARD_SYNC_DATA = 25;
+    public static byte DATA_TYPE_WINGTIP_TO_HOST_DASHBOARD_SYNC_DONE = 26;
+    public static byte DATA_TYPE_WINGTIP_TO_HOST_BAROMETER_READY = 27;
+    public static byte DATA_TYPE_HOST_TO_WINGTIP_BAROMETER_ON = 28;
+    public static byte DATA_TYPE_HOST_TO_WINGTIP_BAROMETER_OFF = 29;
+
     // ActivityType
     public static final int TYPE_ACTIVITY_HEAVY = 180004;
     public static final int TYPE_ACTIVITY_LIGHT = 180002;

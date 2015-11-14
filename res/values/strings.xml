@@ -30,17 +30,13 @@
     <string name="dialog_title_fitness">Fitness</string>
     <string name="dialog_close_fitness">Close</string>
     <string name="dialog_title_news">Open Fit News</string>
-    <string name="dialog_message_news"><b>IMPORTANT!</b>
-        \nLooks like I broke the save file :(
-        \nIf you are having issues with notifications, please clear data and cache for Open Fit.
-        To clear, go to: Phone settings > Applications > Open Fit
-        \n\n<b>v1.5.1</b>
-        \n• Exercise data (not visible yet)
-        \n• Fixed exercise menu crash
-        \n• Auto connect on open
+    <string name="dialog_message_news"><b>v1.5.2</b>
+        \n• Better media controller support
+        \n\t◦ Play Music, Spotify, and more
+        \n• Tablet support
+        \n• Improved Fitness dialog
         \n\n<b>Upcoming</b>
-        \n• Media controller improvements
-        \n• Sync with Google Fit
+        \n• Pedometer sync with Google Fit
     </string>
     <string name="dialog_close_news">Close</string>
     <string name="preference_category_connectivity_title">Connectivity</string>

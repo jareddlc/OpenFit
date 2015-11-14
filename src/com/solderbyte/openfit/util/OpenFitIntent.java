@@ -14,6 +14,7 @@ public class OpenFitIntent {
     public static final String INTENT_SERVICE_PHONE = "com.solderbyte.openfit.service.phone";
     public static final String INTENT_SERVICE_PHONE_IDLE = "com.solderbyte.openfit.service.phone.idle";
     public static final String INTENT_SERVICE_PHONE_OFFHOOK = "com.solderbyte.openfit.service.phone.offhook";
+    public static final String INTENT_SERVICE_MEDIA = "com.solderbyte.openfit.service.media";
     public static final String INTENT_SERVICE_WEATHER = "com.solderbyte.openfit.service.weather";
     public static final String INTENT_SERVICE_LOCATION = "com.solderbyte.openfit.service.location";
     public static final String INTENT_SERVICE_CRONJOB = "com.solderbyte.openfit.service.cronjob";

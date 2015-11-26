@@ -10,8 +10,7 @@ import android.os.Bundle;
 
 public class DialogNews extends DialogFragment {
 
-    public DialogNews() {
-    }
+    public DialogNews() {}
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {

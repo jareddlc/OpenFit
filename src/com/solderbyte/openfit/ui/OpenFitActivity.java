@@ -3,6 +3,7 @@ package com.solderbyte.openfit.ui;
 import java.util.ArrayList;
 
 import com.solderbyte.openfit.ApplicationManager;
+import com.solderbyte.openfit.GoogleFit;
 import com.solderbyte.openfit.OpenFitSavedPreferences;
 import com.solderbyte.openfit.OpenFitService;
 import com.solderbyte.openfit.PedometerData;
@@ -12,6 +13,7 @@ import com.solderbyte.openfit.util.OpenFitIntent;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -23,6 +25,7 @@ import android.preference.Preference;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.SwitchPreference;
+import android.provider.Settings;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.Menu;
@@ -34,6 +37,7 @@ public class OpenFitActivity extends Activity {
     private static final String LOG_TAG = "OpenFit:OpenFitActivity";
 
     static ApplicationManager appManager;
+    static GoogleFit googleFit;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -48,12 +52,12 @@ public class OpenFitActivity extends Activity {
         // Handle item selection
         if(item.getTitle().equals(getResources().getString(R.string.menu_add))) {
             Log.d(LOG_TAG, "Add selected: "+ item);
-            DialogAddApplication d = new DialogAddApplication(appManager.getInstalledAdapter(getBaseContext()), appManager.getInstalledPackageNames(), appManager.getInstalledAppNames());
+            DialogAddApplication d = new DialogAddApplication(appManager.getInstalledAdapter(), appManager.getInstalledPackageNames(), appManager.getInstalledAppNames());
             d.show(getFragmentManager(), getString(R.string.menu_add));
         }
         if(item.getTitle().equals(getResources().getString(R.string.menu_del))) {
             Log.d(LOG_TAG, "Remove selected: "+ item);
-            DialogDelApplication d = new DialogDelApplication(appManager.getListeningAdapter(getBaseContext()), appManager.getListeningPackageNames(), appManager.getListeningAppNames());
+            DialogDelApplication d = new DialogDelApplication(appManager.getNotificationAdapter(), appManager.getListeningPackageNames(), appManager.getListeningAppNames());
             d.show(getFragmentManager(), getString(R.string.menu_del));
         }
         if(item.getTitle().equals(getResources().getString(R.string.menu_help))) {
@@ -69,7 +73,8 @@ public class OpenFitActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         appManager = new ApplicationManager();
-        appManager.getInstalledAdapter(getBaseContext());
+        appManager.setContext(getBaseContext());
+
         // load the PreferenceFragment
         Log.d(LOG_TAG, "Loading PreferenceFragment");
 
@@ -92,6 +97,7 @@ public class OpenFitActivity extends Activity {
         private static Preference preference_scan;
         private static Preference preference_fitness;
         private static Preference preference_donate;
+        private static CheckBoxPreference preference_checkbox_googlefit;
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
@@ -111,6 +117,9 @@ public class OpenFitActivity extends Activity {
             DialogNews d = new DialogNews();
             d.show(getFragmentManager(), getString(R.string.dialog_title_news));
 
+            // check notification access
+            this.checkNotificationAccess();
+
             // start service
             Intent serviceIntent = new Intent(this.getActivity(), OpenFitService.class);
             this.getActivity().startService(serviceIntent);
@@ -127,6 +136,22 @@ public class OpenFitActivity extends Activity {
         public void onResume() {
             Log.d(LOG_TAG, "onResume");
             super.onResume();
+        }
+
+        private void checkNotificationAccess() {
+            ContentResolver contentResolver = getActivity().getContentResolver();
+            String notificationListeners = Settings.Secure.getString(contentResolver, "enabled_notification_listeners");
+            String packageName = getActivity().getPackageName();
+
+            if(notificationListeners == null || !notificationListeners.contains(packageName)){
+                Log.d(LOG_TAG, "no Notification Access");
+                DialogNotificationAccess d = new DialogNotificationAccess();
+                d.show(getFragmentManager(), getString(R.string.dialog_title_notification_access));
+
+            }
+            else {
+                Log.d(LOG_TAG, "Notification Access");
+            }
         }
 
         private void setupUIListeners() {
@@ -271,6 +296,25 @@ public class OpenFitActivity extends Activity {
                 }
             });
 
+            preference_checkbox_googlefit = (CheckBoxPreference) getPreferenceManager().findPreference("preference_checkbox_googlefit");
+            preference_checkbox_googlefit.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    if((Boolean)newValue) {
+                        Intent i = new Intent(getActivity(), GoogleFit.class);
+                        startActivity(i);
+
+                        //oPrefs.saveBoolean("preference_checkbox_googlefit", true);
+                        return true;
+                    }
+                    else {
+                        //oPrefs.saveBoolean("preference_checkbox_googlefit", false);
+                        return true;
+                    }
+                }
+            });
+            preference_checkbox_googlefit.setEnabled(false);
+
             preference_donate = (Preference) getPreferenceManager().findPreference("preference_donate");
             preference_donate.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
@@ -394,8 +438,9 @@ public class OpenFitActivity extends Activity {
                     for(int i = 0; i < listeningListPackageNames.size(); i++) {
                         Preference app = createAppPreference(listeningListPackageNames.get(i), listeningListAppNames.get(i));
                         category.addPreference(app);
-                        appManager.addInstalledApp(listeningListPackageNames.get(i));
+                        appManager.addNotificationApp(listeningListPackageNames.get(i));
                     }
+                    sendNotificationApplications();
                 }
             }
         }
@@ -404,7 +449,7 @@ public class OpenFitActivity extends Activity {
             Preference app = new Preference(getActivity());
             app.setTitle(appName);
             app.setKey(packageName);
-            app.setIcon(appManager.getIcon(packageName));
+            app.setIcon(appManager.loadIcon(packageName));
             return app;
         }
 
@@ -469,7 +514,7 @@ public class OpenFitActivity extends Activity {
                 final String packageName = intent.getStringExtra(OpenFitIntent.EXTRA_PACKAGE_NAME);
                 final String appName = intent.getStringExtra(OpenFitIntent.EXTRA_APP_NAME);
                 Log.d(LOG_TAG, "Recieved add application: "+appName+" : "+packageName);
-                appManager.addInstalledApp(packageName);
+                appManager.addNotificationApp(packageName);
                 oPrefs.saveSet(packageName);
                 oPrefs.saveString(packageName, appName);
                 Preference app = createAppPreference(packageName, appName);
@@ -490,7 +535,7 @@ public class OpenFitActivity extends Activity {
                 final String packageName = intent.getStringExtra(OpenFitIntent.EXTRA_PACKAGE_NAME);
                 final String appName = intent.getStringExtra(OpenFitIntent.EXTRA_APP_NAME);
                 Log.d(LOG_TAG, "Recieved del application: "+appName+" : "+packageName);
-                appManager.delInstalledApp(packageName);
+                appManager.delNotificationApp(packageName);
                 oPrefs.removeSet(packageName);
                 oPrefs.removeString(packageName);
                 PreferenceCategory category = (PreferenceCategory) findPreference("preference_category_apps");

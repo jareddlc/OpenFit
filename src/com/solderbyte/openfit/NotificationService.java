@@ -34,9 +34,10 @@ public class NotificationService extends NotificationListenerService {
 
     @Override
     public void onNotificationPosted(StatusBarNotification sbn) {
+        Log.d(LOG_TAG, "onNotificationPosted");
         String packageName = sbn.getPackageName();
 
-        if(!ListPackageNames.contains(packageName)) { 
+        if(!ListPackageNames.contains(packageName)) {
             return;
         }
 
@@ -44,8 +45,8 @@ public class NotificationService extends NotificationListenerService {
         Notification notification = sbn.getNotification();
         Bundle extras = notification.extras;
         //String category = notification.category; API v21
-
-        if((notification.flags & Notification.FLAG_ONGOING_EVENT) != 0) { 
+        if((notification.flags & Notification.FLAG_ONGOING_EVENT) != 0) {
+            Log.d(LOG_TAG, "filtered by flags");
             return;
         }
 
@@ -80,6 +81,9 @@ public class NotificationService extends NotificationListenerService {
         if(extras.getCharSequence("android.infoText") != null) {
             info = extras.getCharSequence("android.infoText").toString();
         }
+        if(extras.getCharSequence("android.infoText") != null) {
+            info = extras.getCharSequence("android.infoText").toString();
+        }
 
         Log.d(LOG_TAG, "Captured notification message: " + message + " from source:" + packageName);
         Log.d(LOG_TAG, "ticker: " + ticker);
@@ -110,6 +114,7 @@ public class NotificationService extends NotificationListenerService {
 
     @Override
     public void onNotificationRemoved(StatusBarNotification sbn) {
+        Log.d(LOG_TAG, "onNotificationRemoved");
         String packageName = sbn.getPackageName();
         String shortMsg = "";
         try {
@@ -138,9 +143,9 @@ public class NotificationService extends NotificationListenerService {
     private BroadcastReceiver applicationsReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            ArrayList<String> applications = intent.getStringArrayListExtra("data");
+            ArrayList<String> applications = intent.getStringArrayListExtra(OpenFitIntent.INTENT_EXTRA_DATA);
             setPackageNames(applications);
-            Log.d(LOG_TAG, "Recieved listeningApps");
+            Log.d(LOG_TAG, "Recieved listeningApps: " + applications.size());
         }
     };
 }

@@ -21,11 +21,13 @@ public class ApplicationManager {
     private CharSequence[] installedAppNames = new CharSequence[0];
     ArrayList<Drawable> installedPackageIcons = new ArrayList<Drawable>();
 
-    private CharSequence[] listeningPackageNames = new CharSequence[0];
-    private CharSequence[] listeningAppNames = new CharSequence[0];
-    ArrayList<Drawable> listeningPackageIcons = new ArrayList<Drawable>();
+    private CharSequence[] notificationPackageNames = new CharSequence[0];
+    private CharSequence[] notificationAppNames = new CharSequence[0];
+    ArrayList<Drawable> notificationPackageIcons = new ArrayList<Drawable>();
 
-    ArrayList<String> listeningListPackageNames = new ArrayList<String>();
+    ArrayList<String> notificationListPackageNames = new ArrayList<String>();
+
+    private Context context = null;
 
     private CharSequence[] whitelist = new CharSequence[] {
         "com.google.android",
@@ -38,24 +40,29 @@ public class ApplicationManager {
         Log.d(LOG_TAG, "Creating ApplicationManager");
     }
 
-    public ListAdapter getListeningAdapter(Context context) {
+    public void setContext(Context cntxt) {
+        Log.d(LOG_TAG, "Setting context");
+        context = cntxt;
+    }
+
+    public ListAdapter getNotificationAdapter() {
         ArrayList<String> aName = new ArrayList<String>();
         ArrayList<String> pName = new ArrayList<String>();
         ArrayList<Drawable> iDraw = new ArrayList<Drawable>();
-        Collections.sort(listeningListPackageNames);
+        Collections.sort(notificationListPackageNames);
 
-        for(int i = 0; i < listeningListPackageNames.size(); i++) {
+        for(int i = 0; i < notificationListPackageNames.size(); i++) {
             //Log.d(LOG_TAG, "installed:" + listeningListPackageNames.get(i));
             PackageManager pm = context.getPackageManager();
             Drawable icon;
             try {
-                icon = pm.getApplicationIcon(listeningListPackageNames.get(i));
+                icon = pm.getApplicationIcon(notificationListPackageNames.get(i));
                 icon.setBounds(0, 0, 144, 144);
             }
             catch(NameNotFoundException e) {
                 icon = null;
             }
-            String packageName = listeningListPackageNames.get(i);
+            String packageName = notificationListPackageNames.get(i);
             ApplicationInfo packageInfo;
             try {
                 packageInfo = pm.getApplicationInfo(packageName, PackageManager.GET_META_DATA);
@@ -74,16 +81,18 @@ public class ApplicationManager {
             aName.add(appName);
             iDraw.add(icon);
         }
-        listeningPackageNames = pName.toArray(new CharSequence[pName.size()]);
-        listeningAppNames = aName.toArray(new CharSequence[aName.size()]);
-        listeningPackageIcons = iDraw;
+        notificationPackageNames = pName.toArray(new CharSequence[pName.size()]);
+        notificationAppNames = aName.toArray(new CharSequence[aName.size()]);
+        notificationPackageIcons = iDraw;
         ListAdapter adapter = new ArrayAdapterWithIcon(context, aName, iDraw);
         return adapter;
     }
 
-    public ListAdapter getInstalledAdapter(Context context) {
+    public ListAdapter getInstalledAdapter() {
+        Log.d(LOG_TAG, "getInstalledAdapter");
         PackageManager pm = context.getPackageManager();
         List<ApplicationInfo> packages = pm.getInstalledApplications(PackageManager.GET_META_DATA);
+        Log.d(LOG_TAG, "getInstalledAdapter done");
         ArrayList<String> aName = new ArrayList<String>();
         ArrayList<String> pName = new ArrayList<String>();
         ArrayList<Drawable> iDraw = new ArrayList<Drawable>();
@@ -93,7 +102,7 @@ public class ApplicationManager {
             // filter out system apps
             if((packageInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 1 || checkWhitelist(packageInfo.packageName)) {
                 String appName = (String) pm.getApplicationLabel(packageInfo);
-                //Log.d(LOG_TAG, "Installed package :" + packageInfo.packageName);
+                Log.d(LOG_TAG, "Installed package :" + packageInfo.packageName);
                 //Log.d(LOG_TAG, "Installed package :" + appName);
                 Drawable icon;
                 try {
@@ -116,6 +125,23 @@ public class ApplicationManager {
         return adapter;
     }
 
+    public Drawable loadIcon(String packageName) {
+        if(context == null) {
+            return null;
+        }
+
+        PackageManager pm = context.getPackageManager();
+        Drawable icon;
+        try {
+            icon = pm.getApplicationIcon(packageName);
+            icon.setBounds(0, 0, 144, 144);
+        }
+        catch(NameNotFoundException e) {
+            icon = null;
+        }
+        return icon;
+    }
+
     public boolean checkWhitelist(String packageName) {
         boolean found = false;
         for(int i = 0; i < whitelist.length; i++) {
@@ -127,11 +153,11 @@ public class ApplicationManager {
     }
 
     public CharSequence[] getListeningPackageNames() {
-        return listeningPackageNames;
+        return notificationPackageNames;
     }
 
     public CharSequence[] getListeningAppNames() {
-        return listeningAppNames;
+        return notificationAppNames;
     }
 
     public CharSequence[] getInstalledPackageNames() {
@@ -154,20 +180,20 @@ public class ApplicationManager {
         return icon;
     }
 
-    public void addInstalledApp(String packageName) {
-        listeningListPackageNames.add(packageName);
+    public void addNotificationApp(String packageName) {
+        notificationListPackageNames.add(packageName);
     }
 
-    public void delInstalledApp(String packageName) {
-        listeningListPackageNames.remove(packageName);
+    public void delNotificationApp(String packageName) {
+        notificationListPackageNames.remove(packageName);
     }
 
     public ArrayList<String> getNotificationApplications() {
-        return listeningListPackageNames;
+        return notificationListPackageNames;
     }
 
     public void clearNotificationApplications() {
-        listeningListPackageNames = new ArrayList<String>();
+        notificationListPackageNames = new ArrayList<String>();
     }
 }
 

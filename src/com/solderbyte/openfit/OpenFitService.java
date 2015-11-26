@@ -104,7 +104,6 @@ public class OpenFitService extends Service {
         // load saved preferences
         oPrefs = new OpenFitSavedPreferences(this);
         appManager = new ApplicationManager();
-        appManager.getInstalledAdapter(this);
         this.sendNotificationApplications();
         return super.onStartCommand(intent, flags, startId);
     }
@@ -211,7 +210,7 @@ public class OpenFitService extends Service {
             listeningListAppNames.add(oPrefs.getString(packageName));
             listeningListPackageNames.add(packageName);
             Log.d(LOG_TAG, "Listening Package: " + packageName);
-            appManager.addInstalledApp(packageName);
+            appManager.addNotificationApp(packageName);
         }
         
         Intent i = new Intent(OpenFitIntent.INTENT_UI_BT);
@@ -219,7 +218,11 @@ public class OpenFitService extends Service {
         i.putStringArrayListExtra(OpenFitIntent.EXTRA_APPLICATIONS_PACKAGE_NAME, listeningListPackageNames);
         i.putStringArrayListExtra(OpenFitIntent.EXTRA_APPLICATIONS_APP_NAME, listeningListAppNames);
         sendBroadcast(i);
-        appManager.getNotificationApplications();
+
+        Intent a = new Intent(OpenFitIntent.INTENT_SERVICE_NOTIFICATION_APPLICATIONS);
+        a.putExtra(OpenFitIntent.INTENT_EXTRA_MSG, OpenFitIntent.INTENT_SERVICE_NOTIFICATION_APPLICATIONS);
+        a.putExtra(OpenFitIntent.INTENT_EXTRA_DATA, appManager.getNotificationApplications());
+        sendBroadcast(a);
     }
 
     public void sendServiceStarted() {

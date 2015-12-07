@@ -2,12 +2,23 @@ package com.solderbyte.openfit.ui;
 
 import java.util.ArrayList;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.common.Scopes;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Scope;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.fitness.Fitness;
 import com.solderbyte.openfit.ApplicationManager;
 import com.solderbyte.openfit.GoogleFit;
 import com.solderbyte.openfit.OpenFitSavedPreferences;
 import com.solderbyte.openfit.OpenFitService;
 import com.solderbyte.openfit.PedometerData;
 import com.solderbyte.openfit.PedometerTotal;
+import com.solderbyte.openfit.ProfileData;
 import com.solderbyte.openfit.R;
 import com.solderbyte.openfit.util.OpenFitIntent;
 
@@ -17,6 +28,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.IntentSender;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
@@ -37,7 +49,11 @@ public class OpenFitActivity extends Activity {
     private static final String LOG_TAG = "OpenFit:OpenFitActivity";
 
     static ApplicationManager appManager;
-    static GoogleFit googleFit;
+    private static GoogleFit gFit = null;
+
+    private static GoogleApiClient mClient = null;
+    private static final int REQUEST_OAUTH = 1;
+    private static boolean GFIT_CONNECTED = false;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -75,10 +91,35 @@ public class OpenFitActivity extends Activity {
         appManager = new ApplicationManager();
         appManager.setContext(getBaseContext());
 
+        // load google fit
+        buildFitnessClient();
+
         // load the PreferenceFragment
         Log.d(LOG_TAG, "Loading PreferenceFragment");
 
         this.getFragmentManager().beginTransaction().replace(android.R.id.content, new OpenFitFragment()).commitAllowingStateLoss();
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d(LOG_TAG, "onActivityResult");
+        if(requestCode == REQUEST_OAUTH) {
+            if(resultCode == RESULT_OK) {
+                if(!mClient.isConnecting() && !mClient.isConnected()) {
+                    this.connectGoogleFit();
+                }
+            }
+        }
+    }
+
+    public void connectGoogleFit() {
+        if(!mClient.isConnecting() && !mClient.isConnected()) {
+            Log.d(LOG_TAG, "Connecting to GoogleFit");
+            mClient.connect();
+        }
+        else {
+            Log.d(LOG_TAG, "GoogleFit already connected: " + GFIT_CONNECTED);
+        }
     }
 
     public static class OpenFitFragment extends PreferenceFragment {
@@ -120,6 +161,9 @@ public class OpenFitActivity extends Activity {
             // check notification access
             this.checkNotificationAccess();
 
+            // start google fit
+            this.restoreGoogleFit();
+
             // start service
             Intent serviceIntent = new Intent(this.getActivity(), OpenFitService.class);
             this.getActivity().startService(serviceIntent);
@@ -130,12 +174,7 @@ public class OpenFitActivity extends Activity {
             this.getActivity().registerReceiver(btReceiver, new IntentFilter(OpenFitIntent.INTENT_UI_BT));
             this.getActivity().registerReceiver(serviceStopReceiver, new IntentFilter(OpenFitIntent.INTENT_SERVICE_STOP));
             this.getActivity().registerReceiver(serviceNotificationReceiver, new IntentFilter(OpenFitIntent.INTENT_SERVICE_NOTIFICATION));
-        }
-
-        @Override
-        public void onResume() {
-            Log.d(LOG_TAG, "onResume");
-            super.onResume();
+            this.getActivity().registerReceiver(googleFitReceiver, new IntentFilter(OpenFitIntent.INTENT_GOOGLE_FIT));
         }
 
         private void checkNotificationAccess() {
@@ -301,19 +340,19 @@ public class OpenFitActivity extends Activity {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
                     if((Boolean)newValue) {
-                        Intent i = new Intent(getActivity(), GoogleFit.class);
-                        startActivity(i);
-
-                        //oPrefs.saveBoolean("preference_checkbox_googlefit", true);
-                        return true;
+                        Toast.makeText(getActivity(), R.string.toast_google_fit_connect, Toast.LENGTH_SHORT).show();
+                        connectGoogleFit();
+                        return false;
                     }
                     else {
-                        //oPrefs.saveBoolean("preference_checkbox_googlefit", false);
-                        return true;
+                        Toast.makeText(getActivity(), R.string.toast_google_fit_disconnect, Toast.LENGTH_SHORT).show();
+                        disconnectGoogleFit();
+                        return false;
                     }
                 }
             });
-            preference_checkbox_googlefit.setEnabled(false);
+            //preference_checkbox_googlefit.setChecked(false);
+            //oPrefs.saveBoolean("preference_checkbox_googlefit", false);
 
             preference_donate = (Preference) getPreferenceManager().findPreference("preference_donate");
             preference_donate.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -421,8 +460,10 @@ public class OpenFitActivity extends Activity {
                     PedometerTotal pedometerTotal = intent.getParcelableExtra(OpenFitIntent.EXTRA_PEDOMETER_TOTAL);
                     ArrayList<PedometerData> pedometerList = intent.getParcelableArrayListExtra(OpenFitIntent.EXTRA_PEDOMETER_LIST);
                     ArrayList<PedometerData> pedometerDailyList = intent.getParcelableArrayListExtra(OpenFitIntent.EXTRA_PEDOMETER_DAILY_LIST);
+                    ProfileData profileData = intent.getParcelableExtra(OpenFitIntent.EXTRA_PROFILE_DATA);
+                    gFit.setData(pedometerList);
 
-                    DialogFitness d = new DialogFitness(getActivity(), pedometerDailyList, pedometerList, pedometerTotal);
+                    DialogFitness d = new DialogFitness(getActivity(), pedometerDailyList, pedometerList, pedometerTotal, profileData);
                     d.show(getFragmentManager(), OpenFitIntent.EXTRA_FITNESS);
                 }
                 if(message.equals(OpenFitIntent.EXTRA_APPLICATIONS)) {
@@ -458,6 +499,49 @@ public class OpenFitActivity extends Activity {
             ph.setSummary(R.string.preference_applications_summary);
             ph.setKey("preference_apps_placeholder");
             return ph;
+        }
+
+        public void restoreGoogleFit() {
+            boolean preference_checkbox_googlefit = oPrefs.getBoolean("preference_checkbox_googlefit");
+            if(preference_checkbox_googlefit) {
+                connectGoogleFit();
+            }
+        }
+
+        public void connectGoogleFit() {
+            if(!mClient.isConnecting() && !mClient.isConnected()) {
+                Log.d(LOG_TAG, "Connecting to GoogleFit");
+                mClient.connect();
+            }
+            else {
+                Log.d(LOG_TAG, "GoogleFit already connected: " + GFIT_CONNECTED);
+            }
+        }
+
+        public void disconnectGoogleFit() {
+            if(mClient.isConnected()) {
+                Log.d(LOG_TAG, "Disconnecting to GoogleFit");
+                PendingResult<Status> pendingResult = Fitness.ConfigApi.disableFit(mClient);
+
+                pendingResult.setResultCallback(new ResultCallback<Status>() {
+                    @Override
+                    public void onResult(Status status) {
+                        if(status.isSuccess()) {
+                            GFIT_CONNECTED = false;
+                            Log.d(LOG_TAG, "Google Fit disabled");
+                            Intent msg = new Intent(OpenFitIntent.INTENT_GOOGLE_FIT);
+                            msg.putExtra(OpenFitIntent.INTENT_EXTRA_MSG, OpenFitIntent.INTENT_GOOGLE_FIT);
+                            msg.putExtra(OpenFitIntent.INTENT_EXTRA_DATA, false);
+                            getActivity().sendBroadcast(msg);
+
+                            mClient.disconnect();
+                        }
+                        else {
+                            Log.e(LOG_TAG, "Google Fit wasn't disabled " + status);
+                        }
+                    }
+                });
+            }
         }
 
         public void clearNotificationApplications() {
@@ -502,6 +586,7 @@ public class OpenFitActivity extends Activity {
             this.getActivity().unregisterReceiver(btReceiver);
             this.getActivity().unregisterReceiver(serviceStopReceiver);
             this.getActivity().unregisterReceiver(serviceNotificationReceiver);
+            this.getActivity().unregisterReceiver(googleFitReceiver);
             LocalBroadcastManager.getInstance(this.getActivity()).unregisterReceiver(addApplicationReceiver);
             LocalBroadcastManager.getInstance(this.getActivity()).unregisterReceiver(delApplicationReceiver);
             super.onDestroy();
@@ -569,5 +654,105 @@ public class OpenFitActivity extends Activity {
                 getActivity().finish();
             }
         };
+
+        private BroadcastReceiver googleFitReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                final String message = intent.getStringExtra(OpenFitIntent.INTENT_EXTRA_MSG);
+                Log.d(LOG_TAG, "Received Google Fit: " + message);
+                if(message.equals(OpenFitIntent.INTENT_GOOGLE_FIT)) {
+                    Boolean enabled = intent.getBooleanExtra(OpenFitIntent.INTENT_EXTRA_DATA, false);
+                    if(enabled) {
+                        Log.d(LOG_TAG, "Google Fit Enabled");
+                        preference_checkbox_googlefit.setChecked(true);
+                        oPrefs.saveBoolean("preference_checkbox_googlefit", true);
+                    }
+                    else {
+                        Log.d(LOG_TAG, "Google Fit Disabled");
+                        preference_checkbox_googlefit.setChecked(false);
+                        oPrefs.saveBoolean("preference_checkbox_googlefit", false);
+                    }
+                }
+                if(message.equals(OpenFitIntent.INTENT_GOOGLE_FIT_SYNC)) {
+                    Log.d(LOG_TAG, "Google Fit Sync requested");
+                    Toast.makeText(getActivity(), R.string.toast_google_fit_sync, Toast.LENGTH_SHORT).show();
+                    //gFit.delData();
+                    //gFit.getData();
+                    gFit.writeData();
+                }
+                if(message.equals(OpenFitIntent.INTENT_GOOGLE_FIT_SYNC_STATUS)) {
+                    Boolean status = intent.getBooleanExtra(OpenFitIntent.INTENT_EXTRA_DATA, false);
+                    if(status) {
+                        Log.d(LOG_TAG, "Google Fit Sync completed");
+                        Toast.makeText(getActivity(), R.string.toast_google_fit_sync_success, Toast.LENGTH_SHORT).show();
+                    }
+                    else {
+                        Log.d(LOG_TAG, "Google Fit Sync failed");
+                        Toast.makeText(getActivity(), R.string.toast_google_fit_sync_failure, Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+        };
+    }
+
+    // Google Fit
+    private void buildFitnessClient() {
+        mClient = new GoogleApiClient.Builder(this)
+        .addApi(Fitness.CONFIG_API)
+        .addApi(Fitness.HISTORY_API)
+        .addApi(Fitness.SESSIONS_API)
+        .addScope(new Scope(Scopes.FITNESS_ACTIVITY_READ_WRITE))
+        .addConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks() {
+            @Override
+            public void onConnected(Bundle bundle) {
+                Log.d(LOG_TAG, "Google Fit connected");
+                GFIT_CONNECTED = true;
+
+                Intent msg = new Intent(OpenFitIntent.INTENT_GOOGLE_FIT);
+                msg.putExtra(OpenFitIntent.INTENT_EXTRA_MSG, OpenFitIntent.INTENT_GOOGLE_FIT);
+                msg.putExtra(OpenFitIntent.INTENT_EXTRA_DATA, true);
+                sendBroadcast(msg);
+                gFit = new GoogleFit(getBaseContext(), mClient);
+            }
+
+            @Override
+            public void onConnectionSuspended(int i) {
+                GFIT_CONNECTED = false;
+                Intent msg = new Intent(OpenFitIntent.INTENT_GOOGLE_FIT);
+                msg.putExtra(OpenFitIntent.INTENT_EXTRA_MSG, OpenFitIntent.INTENT_GOOGLE_FIT);
+                msg.putExtra(OpenFitIntent.INTENT_EXTRA_DATA, false);
+                sendBroadcast(msg);
+                
+                if(i == ConnectionCallbacks.CAUSE_NETWORK_LOST) {
+                    Log.d(LOG_TAG, "Google Fit connection lost. Network Lost");
+                } 
+                else if(i == ConnectionCallbacks.CAUSE_SERVICE_DISCONNECTED) {
+                    Log.d(LOG_TAG, "Google Fit connection lost. Service Disconnected");
+                }
+            }
+        }).addOnConnectionFailedListener(new GoogleApiClient.OnConnectionFailedListener() {
+            @Override
+            public void onConnectionFailed(ConnectionResult result) {
+                Log.d(LOG_TAG, "Google Fit connection failed. Cause: " + result.toString());
+                GFIT_CONNECTED = false;
+                Intent msg = new Intent(OpenFitIntent.INTENT_GOOGLE_FIT);
+                msg.putExtra(OpenFitIntent.INTENT_EXTRA_MSG, OpenFitIntent.INTENT_GOOGLE_FIT);
+                msg.putExtra(OpenFitIntent.INTENT_EXTRA_DATA, false);
+                sendBroadcast(msg);
+
+                if(!result.hasResolution()) {
+                    GooglePlayServicesUtil.getErrorDialog(result.getErrorCode(), OpenFitActivity.this, 0).show();
+                    return;
+                }
+
+                try {
+                    Log.d(LOG_TAG, "Google Fit attempting to resolve failed connection");
+                    result.startResolutionForResult(OpenFitActivity.this, REQUEST_OAUTH);
+                }
+                catch(IntentSender.SendIntentException e) {
+                    Log.e(LOG_TAG, "Google Fit exception while starting resolution activity", e);
+                }
+            }
+        }).build();
     }
 }

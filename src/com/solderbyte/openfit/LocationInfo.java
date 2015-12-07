@@ -63,7 +63,7 @@ public class LocationInfo {
                 }
             }
         }
-        
+
         //criteria = new Criteria();
         //locationManager.getBestProvider(criteria, true);
         //location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, true));
@@ -146,7 +146,7 @@ public class LocationInfo {
             public void onProviderEnabled(String provider) {}
            };
 
-         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 10, locationListener);
     }
 
     public static String getCityName() {

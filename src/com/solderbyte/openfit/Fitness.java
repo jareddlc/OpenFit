@@ -20,9 +20,10 @@ public class Fitness {
     private static int size = 0;
     private static boolean pendingData = false;
 
-    private static PedometerTotal pedometerTotal;
+    private static PedometerTotal pedometerTotal = null;
     private static ArrayList<PedometerData> pedometerList = new ArrayList<PedometerData>();
     private static ArrayList<PedometerData> pedometerDailyList = new ArrayList<PedometerData>();
+    private static ProfileData profileData = null;
 
     public static int getSize() {
         return size;
@@ -46,6 +47,10 @@ public class Fitness {
             p[i] = pedometerList.get(i);
         }
         return p;
+    }
+
+    public static ProfileData getProfileData() {
+        return profileData;
     }
 
     public static void clearFitnessData() {
@@ -178,6 +183,8 @@ public class Fitness {
             int weightUnit = buffer.getInt();
             int distanceUnit = buffer.getInt();
             int activity = buffer.getInt();
+
+            profileData = new ProfileData(timeStamp, age, height, weight, gender, birthday, heightUnit, weightUnit, distanceUnit, activity);
 
             Date date = new Date(timeStamp);
             Log.d(LOG_TAG, "time stamp: " + timeStamp);

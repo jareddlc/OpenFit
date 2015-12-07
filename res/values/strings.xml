@@ -29,6 +29,7 @@
     <string name="dialog_close_help">Close</string>
     <string name="dialog_title_fitness">Fitness</string>
     <string name="dialog_close_fitness">Close</string>
+    <string name="dialog_sync_fitness">Sync</string>
     <string name="dialog_title_news">Open Fit News</string>
     <string name="dialog_message_news"><b>v1.5.3</b>
         \n• Fixed notification bugs
@@ -71,8 +72,8 @@
     <string name="preference_fitness_dialog">Fitness</string>
     <string name="preference_fitness_summary">Request Fitness Data</string>
     <string name="preference_checkbox_googlefit_title">Google Fit Sync</string>
-    <string name="preference_checkbox_googlefit_on">Disabled. Coming soon</string>
-    <string name="preference_checkbox_googlefit_off">Disabled. Coming soon</string>
+    <string name="preference_checkbox_googlefit_on">Sync Enabled</string>
+    <string name="preference_checkbox_googlefit_off">Sync Disabled</string>
     <string name="preference_category_apps_title">Applications</string>
     <string name="preference_donate_title">Donate</string>
     <string name="preference_donate_summary">Make a donation via PayPal</string>
@@ -88,6 +89,11 @@
     <string name="toast_bluetooth_disconnected">Gear Fit disconnected</string>
     <string name="toast_bluetooth_connect_failed">Gear Fit connect failed</string>
     <string name="toast_bluetooth_devices_failed">Gear Fit connect failed</string>
+    <string name="toast_google_fit_connect">Connecting to Google Fit</string>
+    <string name="toast_google_fit_disconnect">Disconnecting To Google Fit</string>
+    <string name="toast_google_fit_sync">Syncing to Google Fit&#8230;</string>
+    <string name="toast_google_fit_sync_success">Sync complete</string>
+    <string name="toast_google_fit_sync_failure">Sync failed</string>
     <string name="notification_title">Open Fit</string>
     <string name="notification_connected">Connected to Gear Fit</string>
     <string name="notification_disconnected">Disconnected to Gear Fit</string>

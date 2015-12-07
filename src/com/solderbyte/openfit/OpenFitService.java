@@ -450,6 +450,7 @@ public class OpenFitService extends Service {
             i.putExtra(OpenFitIntent.EXTRA_PEDOMETER_TOTAL, Fitness.getPedometerTotal());
             i.putParcelableArrayListExtra(OpenFitIntent.EXTRA_PEDOMETER_LIST, Fitness.getPedometerList());
             i.putParcelableArrayListExtra(OpenFitIntent.EXTRA_PEDOMETER_DAILY_LIST, Fitness.getPedometerDailyList());
+            i.putExtra(OpenFitIntent.EXTRA_PROFILE_DATA, Fitness.getProfileData());
             sendBroadcast(i);
         }
     }

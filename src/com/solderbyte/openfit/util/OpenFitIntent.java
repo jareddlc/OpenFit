@@ -21,6 +21,9 @@ public class OpenFitIntent {
     public static final String INTENT_NOTIFICATION = "com.solderbyte.openfit.notification";
     public static final String INTENT_ANDROID_SMS = "android.provider.Telephony.SMS_RECEIVED";
     public static final String INTENT_ANDROID_MMS = "android.provider.Telephony.WAP_PUSH_RECEIVED";
+    public static final String INTENT_GOOGLE_FIT = "com.solderbyte.openfit.google.fit";
+    public static final String INTENT_GOOGLE_FIT_SYNC = "com.solderbyte.openfit.google.fit.sync";
+    public static final String INTENT_GOOGLE_FIT_SYNC_STATUS = "com.solderbyte.openfit.google.fit.sync.status";
 
     public static final String INTENT_EXTRA_MSG = "message";
     public static final String INTENT_EXTRA_DATA = "data";
@@ -72,6 +75,7 @@ public class OpenFitIntent {
     public static final String EXTRA_PEDOMETER_TOTAL = "pedometerTotal";
     public static final String EXTRA_PEDOMETER_LIST = "pedometerArrayList";
     public static final String EXTRA_PEDOMETER_DAILY_LIST = "pedometerDailyArrayList";
+    public static final String EXTRA_PROFILE_DATA = "profileData";
     public static final String EXTRA_APPLICATIONS = "applications";
     public static final String EXTRA_APPLICATIONS_PACKAGE_NAME = "packageName";
     public static final String EXTRA_APPLICATIONS_APP_NAME = "appName";

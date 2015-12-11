@@ -23,6 +23,7 @@ import com.solderbyte.openfit.R;
 import com.solderbyte.openfit.util.OpenFitIntent;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -126,6 +127,7 @@ public class OpenFitActivity extends Activity {
         private static final String LOG_TAG = "OpenFit:OpenFitFragment";
 
         private OpenFitSavedPreferences oPrefs;
+        private ProgressDialog progressDailog = null;
 
         // UI preferences
         private static SwitchPreference preference_switch_bluetooth;
@@ -676,12 +678,17 @@ public class OpenFitActivity extends Activity {
                 if(message.equals(OpenFitIntent.INTENT_GOOGLE_FIT_SYNC)) {
                     Log.d(LOG_TAG, "Google Fit Sync requested");
                     Toast.makeText(getActivity(), R.string.toast_google_fit_sync, Toast.LENGTH_SHORT).show();
+                    progressDailog = new ProgressDialog(getActivity());
+                    progressDailog.setMessage("Syncing to Google Fit.\nPlease allow a few minutes");
+                    progressDailog.show();
+                    gFit.syncData();
                     //gFit.delData();
                     //gFit.getData();
-                    gFit.writeData();
+                    //gFit.writeData();
                 }
                 if(message.equals(OpenFitIntent.INTENT_GOOGLE_FIT_SYNC_STATUS)) {
                     Boolean status = intent.getBooleanExtra(OpenFitIntent.INTENT_EXTRA_DATA, false);
+                    progressDailog.dismiss();
                     if(status) {
                         Log.d(LOG_TAG, "Google Fit Sync completed");
                         Toast.makeText(getActivity(), R.string.toast_google_fit_sync_success, Toast.LENGTH_SHORT).show();
@@ -702,6 +709,7 @@ public class OpenFitActivity extends Activity {
         .addApi(Fitness.HISTORY_API)
         .addApi(Fitness.SESSIONS_API)
         .addScope(new Scope(Scopes.FITNESS_ACTIVITY_READ_WRITE))
+        .addScope(new Scope(Scopes.FITNESS_LOCATION_READ_WRITE))
         .addConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks() {
             @Override
             public void onConnected(Bundle bundle) {

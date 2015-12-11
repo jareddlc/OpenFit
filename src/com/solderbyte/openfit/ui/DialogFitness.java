@@ -80,7 +80,7 @@ public class DialogFitness extends DialogFragment {
             String calories = String.format(Locale.getDefault(), "%.2f", pedometerTotal.getCalories());
             String item = "Total steps: " + steps;
             items.add(item);
-            String subitem = distance + "m, " + calories + "cal";
+            String subitem = distance + "m, " + calories + "kcal";
             subitems.add(subitem);
 
             Drawable icon = context.getResources().getDrawable(R.drawable.open_walk);
@@ -103,7 +103,7 @@ public class DialogFitness extends DialogFragment {
             String distance = String.format(Locale.getDefault(), "%.2f", pedometerDailyList.get(i).getDistance());
             String calories = String.format(Locale.getDefault(), "%.2f", pedometerDailyList.get(i).getCalories());
 
-            String subitem = "Steps: " + steps + ", " + distance + "m, " + calories + "cal";
+            String subitem = "Steps: " + steps + ", " + distance + "m, " + calories + "kcal";
             subitems.add(subitem);
 
             Drawable icon = context.getResources().getDrawable(R.drawable.open_walk);

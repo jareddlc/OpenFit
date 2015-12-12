@@ -463,7 +463,9 @@ public class OpenFitActivity extends Activity {
                     ArrayList<PedometerData> pedometerList = intent.getParcelableArrayListExtra(OpenFitIntent.EXTRA_PEDOMETER_LIST);
                     ArrayList<PedometerData> pedometerDailyList = intent.getParcelableArrayListExtra(OpenFitIntent.EXTRA_PEDOMETER_DAILY_LIST);
                     ProfileData profileData = intent.getParcelableExtra(OpenFitIntent.EXTRA_PROFILE_DATA);
-                    gFit.setData(pedometerList);
+                    if(gFit != null) {
+                        gFit.setData(pedometerList);
+                    }
 
                     DialogFitness d = new DialogFitness(getActivity(), pedometerDailyList, pedometerList, pedometerTotal, profileData);
                     d.show(getFragmentManager(), OpenFitIntent.EXTRA_FITNESS);
@@ -677,11 +679,17 @@ public class OpenFitActivity extends Activity {
                 }
                 if(message.equals(OpenFitIntent.INTENT_GOOGLE_FIT_SYNC)) {
                     Log.d(LOG_TAG, "Google Fit Sync requested");
-                    Toast.makeText(getActivity(), R.string.toast_google_fit_sync, Toast.LENGTH_SHORT).show();
-                    progressDailog = new ProgressDialog(getActivity());
-                    progressDailog.setMessage("Syncing to Google Fit.\nPlease allow a few minutes");
-                    progressDailog.show();
-                    gFit.syncData();
+                    if(mClient.isConnected()) {
+                        Toast.makeText(getActivity(), R.string.toast_google_fit_sync, Toast.LENGTH_SHORT).show();
+                        progressDailog = new ProgressDialog(getActivity());
+                        progressDailog.setMessage("Syncing to Google Fit.\nPlease allow a few minutes");
+                        progressDailog.show();
+                        gFit.syncData();
+                    }
+                    else {
+                        Log.d(LOG_TAG, "Google Fit Sync not connected");
+                        Toast.makeText(getActivity(), R.string.toast_google_fit_sync_failure, Toast.LENGTH_SHORT).show();
+                    }
                 }
                 if(message.equals(OpenFitIntent.INTENT_GOOGLE_FIT_SYNC_STATUS)) {
                     Boolean status = intent.getBooleanExtra(OpenFitIntent.INTENT_EXTRA_DATA, false);

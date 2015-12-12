@@ -31,11 +31,14 @@
     <string name="dialog_close_fitness">Close</string>
     <string name="dialog_sync_fitness">Sync</string>
     <string name="dialog_title_news">Open Fit News</string>
-    <string name="dialog_message_news"><b>v1.5.3</b>
-        \n• Fixed notification bugs
-        \n• Improved startup speed
-        \n\n<b>Upcoming</b>
+    <string name="dialog_message_news"><b>v1.6.0</b>
         \n• Pedometer sync with Google Fit
+        \n\nHow to Sync with Goolge Fit:
+        \n\t◦ Enable Google Fit Sync
+        \n\t◦ Request Fitness Data
+        \n\t◦ Wait for the Fitness dialog
+        \n\t◦ Press the Sync button
+        \n\nEnjoy a free trial of Google Fit Sync. The trial will expire Dec 31, 2015. After the trial ends, Google Fit Sync will be a paid feature. Happy Holidays!
     </string>
     <string name="dialog_close_news">Close</string>
     <string name="dialog_title_notification_access">Notification Access</string>

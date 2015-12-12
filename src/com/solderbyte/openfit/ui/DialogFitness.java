@@ -21,16 +21,29 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Button;
 import android.widget.ListAdapter;
 
 public class DialogFitness extends DialogFragment {
     private static final String LOG_TAG = "OpenFit:DialogFitness";
 
+    private AlertDialog dialog = null;
+    private Date trialDate = null;
     private ListAdapter adapter;
     private Context context;
+
     public DialogFitness(Context cntxt, ArrayList<PedometerData> pedometerDailyList, ArrayList<PedometerData> pedometerList, PedometerTotal pedometerTotal, ProfileData profileData) {
         context = cntxt;
         buildAdapter(pedometerDailyList, pedometerList, pedometerTotal, profileData);
+        Calendar cal = Calendar.getInstance();
+
+        cal.set(Calendar.YEAR, 2015);
+        cal.set(Calendar.MONTH, 12);
+        cal.set(Calendar.DAY_OF_MONTH, 31);
+        cal.set(Calendar.HOUR_OF_DAY, 23);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        trialDate = cal.getTime();
     }
 
     @Override
@@ -54,8 +67,25 @@ public class DialogFitness extends DialogFragment {
                 getActivity().sendBroadcast(msg);
             }
         });
+        dialog = builder.create();
 
-        return builder.create();
+        return dialog;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        Log.d(LOG_TAG, "Sync onstart");
+        if(dialog != null) {
+            Button syncButton = dialog.getButton(Dialog.BUTTON_POSITIVE);
+            if(syncButton != null) {
+                Date now = new Date();
+                Log.d(LOG_TAG, "trail: " + trialDate + " current: " + now);
+                if(trialDate.getTime() < now.getTime()) {
+                    syncButton.setEnabled(false);
+                }
+            }
+        }
     }
 
     public void buildAdapter(ArrayList<PedometerData> pedometerDailyList, ArrayList<PedometerData> pedometerList, PedometerTotal pedometerTotal, ProfileData profileData) {
@@ -120,7 +150,6 @@ public class DialogFitness extends DialogFragment {
             Drawable icon = context.getResources().getDrawable(R.drawable.open_info);
             icon.setBounds(0, 0, 144, 144);
             iDraw.add(icon);
-
         }
 
         adapter = new ArrayAdapterFitness(context, items, subitems, iDraw);

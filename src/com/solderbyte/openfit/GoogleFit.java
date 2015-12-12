@@ -126,7 +126,7 @@ public class GoogleFit {
 
             SessionReadResult sessionReadResult = Fitness.SessionsApi.readSession(mClient, readRequest).await(1, TimeUnit.MINUTES);
 
-            Log.i(LOG_TAG, "Session read was successful. Number of returned sessions is: " + sessionReadResult.getSessions().size());
+            Log.d(LOG_TAG, "Session read was successful. Number of returned sessions is: " + sessionReadResult.getSessions().size());
             for(Session session : sessionReadResult.getSessions()) {
                 //Date start = new Date(session.getStartTime(TimeUnit.MILLISECONDS));
                 //Date end = new Date(session.getEndTime(TimeUnit.MILLISECONDS));
@@ -204,7 +204,7 @@ public class GoogleFit {
 
 
                 if(lastSession != null && lastSession.getTime() >= startDate.getTime()) {
-                    Log.i(LOG_TAG, "Data already Synced");
+                    //Log.d(LOG_TAG, "Data already Synced");
                     continue;
                 }
 
@@ -263,7 +263,7 @@ public class GoogleFit {
 
                 if(!insertStatus.isSuccess()) {
                     success = false;
-                    Log.i(LOG_TAG, "There was a problem inserting the session: " + insertStatus);
+                    Log.d(LOG_TAG, "There was a problem inserting the session: " + insertStatus);
                 }
                 else {
                     success = true;
@@ -280,7 +280,7 @@ public class GoogleFit {
                 Log.d(LOG_TAG, "Data insert was successful! ");
                 msg.putExtra(OpenFitIntent.INTENT_EXTRA_DATA, true);
             }
-            Log.i(LOG_TAG, "Sending cotext");
+            Log.d(LOG_TAG, "Sending cotext");
             context.sendBroadcast(msg);
 
             return null;

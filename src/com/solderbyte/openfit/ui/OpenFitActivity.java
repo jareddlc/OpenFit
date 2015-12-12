@@ -682,9 +682,6 @@ public class OpenFitActivity extends Activity {
                     progressDailog.setMessage("Syncing to Google Fit.\nPlease allow a few minutes");
                     progressDailog.show();
                     gFit.syncData();
-                    //gFit.delData();
-                    //gFit.getData();
-                    //gFit.writeData();
                 }
                 if(message.equals(OpenFitIntent.INTENT_GOOGLE_FIT_SYNC_STATUS)) {
                     Boolean status = intent.getBooleanExtra(OpenFitIntent.INTENT_EXTRA_DATA, false);

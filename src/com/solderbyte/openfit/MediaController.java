@@ -154,25 +154,34 @@ public class MediaController {
     }
 
     public static String getArtist(Intent intent) {
-        String artist = intent.getStringExtra("artist");
-        if(artist == null) {
-            artist = "OpenFit Artist";
+        String artist = "Unsupported Player Artist";
+        if(intent.hasExtra("artist")) {
+            artist = intent.getStringExtra("artist");
+            if(artist == null) {
+                artist = "OpenFit Artist";
+            }
         }
         return artist;
     }
 
     public static String getAlbum(Intent intent) {
-        String album = intent.getStringExtra("album");
-        if(album == null) {
-            album = "OpenFit Album";
+        String album = "Unsupported Player Album";
+        if(intent.hasExtra("album")) {
+            album = intent.getStringExtra("album");
+            if(album == null) {
+                album = "OpenFit Album";
+            }
         }
         return album;
     }
 
     public static String getTrack(Intent intent) {
-        String track = intent.getStringExtra("track");
-        if(track == null) {
-            track = "OpenFit Track";
+        String track = "Unsupported Player Track";
+        if(intent.hasExtra("track")) {
+            track = intent.getStringExtra("track");
+            if(track == null) {
+                track = "OpenFit Track";
+            }
         }
         return track;
     }

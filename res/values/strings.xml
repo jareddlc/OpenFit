@@ -33,13 +33,14 @@
     <string name="dialog_close_fitness">Close</string>
     <string name="dialog_sync_fitness">Sync</string>
     <string name="dialog_title_news">Open Fit News</string>
-    <string name="dialog_message_news"><b>v1.6.1</b>
+    <string name="dialog_message_news"><b>v1.6.2</b>
         \n• Weather Clock Bug Fix
         \n• New Weather Update type
         \n\t◦ Notification
         \n\t◦ Clock Style
         \n\t◦ Notification + Clock
         \n• Removed App Filtering
+        \n\nPlease reselect a weather update
         \n\nGoogle Fit Sync trail extended to Jan 31, 2016.
     </string>
     <string name="dialog_close_news">Close</string>

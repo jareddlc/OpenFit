@@ -172,6 +172,10 @@ public class Fitness {
     public static void parseUserProfile(ByteBuffer buffer) {
         int userProfileSize = buffer.getInt();
         Log.d(LOG_TAG, "User profile size: " + userProfileSize);
+        if(userProfileSize < 40) {
+            return;
+        }
+
         for(int i = 0; i < userProfileSize; i++) {
             long timeStamp = buffer.getInt() * 1000L;
             int age = buffer.getInt();

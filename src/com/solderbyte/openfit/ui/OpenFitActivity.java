@@ -512,6 +512,10 @@ public class OpenFitActivity extends Activity {
         }
 
         public void connectGoogleFit() {
+            if(mClient == null) {
+                Log.d(LOG_TAG, "GoogleFit is null");
+                return;
+            }
             if(!mClient.isConnecting() && !mClient.isConnected()) {
                 Log.d(LOG_TAG, "Connecting to GoogleFit");
                 mClient.connect();

@@ -563,20 +563,26 @@ public class OpenFitService extends Service {
         }
         else {
             String[] values = weatherValue.split(",");
-            String type = values[0];
-            String unit = values[1];
-            Weather.setUnits(unit);
-            if(type.equals("combo")) {
+            if(values.length > 0) {
+                String type = values[0];
+                String unit = values[1];
+                Weather.setUnits(unit);
+                if(type.equals("combo")) {
+                    weatherNotificationEnabled = true;
+                    weatherClockEnabled = true;
+                }
+                else if(type.equals("notification")) {
+                    weatherNotificationEnabled = true;
+                    weatherClockEnabled = false;
+                }
+                else if(type.equals("clock")) {
+                    weatherClockEnabled = true;
+                    weatherNotificationEnabled = false;
+                }
+            }
+            else {
                 weatherNotificationEnabled = true;
                 weatherClockEnabled = true;
-            }
-            else if(type.equals("notification")) {
-                weatherNotificationEnabled = true;
-                weatherClockEnabled = false;
-            }
-            else if(type.equals("clock")) {
-                weatherClockEnabled = true;
-                weatherNotificationEnabled = false;
             }
         }
     }

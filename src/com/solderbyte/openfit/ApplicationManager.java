@@ -26,6 +26,7 @@ public class ApplicationManager {
     ArrayList<Drawable> notificationPackageIcons = new ArrayList<Drawable>();
 
     ArrayList<String> notificationListPackageNames = new ArrayList<String>();
+    List<ApplicationInfo> installedPackages = null;
 
     private Context context = null;
 
@@ -33,7 +34,8 @@ public class ApplicationManager {
         "com.google.android",
         "com.android.deskclock",
         "com.android.email",
-        "com.asus.email"
+        "com.asus.email",
+        "com.whatsapp"
     };
 
     public ApplicationManager() {
@@ -91,16 +93,19 @@ public class ApplicationManager {
     public ListAdapter getInstalledAdapter() {
         Log.d(LOG_TAG, "getInstalledAdapter");
         PackageManager pm = context.getPackageManager();
-        List<ApplicationInfo> packages = pm.getInstalledApplications(PackageManager.GET_META_DATA);
+        if(installedPackages == null) {
+            installedPackages = pm.getInstalledApplications(PackageManager.GET_META_DATA);
+        }
+        //installedPackages = pm.getInstalledApplications(PackageManager.GET_META_DATA);
         Log.d(LOG_TAG, "getInstalledAdapter done");
         ArrayList<String> aName = new ArrayList<String>();
         ArrayList<String> pName = new ArrayList<String>();
         ArrayList<Drawable> iDraw = new ArrayList<Drawable>();
-        Collections.sort(packages, new ApplicationInfo.DisplayNameComparator(pm));
+        Collections.sort(installedPackages, new ApplicationInfo.DisplayNameComparator(pm));
 
-        for(ApplicationInfo packageInfo : packages) {
+        for(ApplicationInfo packageInfo : installedPackages) {
             // filter out system apps
-            if((packageInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 1 || checkWhitelist(packageInfo.packageName)) {
+            //if((packageInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 1 || checkWhitelist(packageInfo.packageName)) {
                 String appName = (String) pm.getApplicationLabel(packageInfo);
                 Log.d(LOG_TAG, "Installed package :" + packageInfo.packageName);
                 //Log.d(LOG_TAG, "Installed package :" + appName);
@@ -115,7 +120,7 @@ public class ApplicationManager {
                 pName.add(packageInfo.packageName);
                 aName.add(appName);
                 iDraw.add(icon);
-            }
+            //}
         }
         installedPackageNames = pName.toArray(new CharSequence[pName.size()]);
         installedAppNames = aName.toArray(new CharSequence[aName.size()]);

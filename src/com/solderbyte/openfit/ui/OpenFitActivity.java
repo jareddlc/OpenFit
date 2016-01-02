@@ -135,12 +135,13 @@ public class OpenFitActivity extends Activity {
         private static CheckBoxPreference preference_checkbox_phone;
         private static CheckBoxPreference preference_checkbox_sms;
         private static CheckBoxPreference preference_checkbox_time;
+        private static CheckBoxPreference preference_checkbox_googlefit;
         private static ListPreference preference_list_weather;
         private static ListPreference preference_list_devices;
         private static Preference preference_scan;
         private static Preference preference_fitness;
         private static Preference preference_donate;
-        private static CheckBoxPreference preference_checkbox_googlefit;
+        
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
@@ -353,8 +354,6 @@ public class OpenFitActivity extends Activity {
                     }
                 }
             });
-            //preference_checkbox_googlefit.setChecked(false);
-            //oPrefs.saveBoolean("preference_checkbox_googlefit", false);
 
             preference_donate = (Preference) getPreferenceManager().findPreference("preference_donate");
             preference_donate.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {

@@ -609,6 +609,8 @@ public class OpenFitApi {
         //0600
         //00000000
         //00000000
+        
+        //usage 9 = 0, 90 = 1, 900 = 9, 9000 = 90
         List<OpenFitDataTypeAndString> mDataList = new ArrayList<OpenFitDataTypeAndString>();
         mDataList.add(new OpenFitDataTypeAndString(OpenFitDataType.BYTE, location));
 
@@ -618,7 +620,7 @@ public class OpenFitApi {
         float t = Float.parseFloat(temp);
         int tempInt = Math.round(t);
         if(tempInt < 10) {
-            tempInt = tempInt * 1000;
+            tempInt = tempInt * 100;
         }
         else if(tempInt < 100) {
             tempInt = tempInt * 100;
@@ -631,7 +633,7 @@ public class OpenFitApi {
         if(unit.contains("F")) {
             tempUnit = 0;
         }
-        
+
         int i = getOpenWeatherClockIcon(icon);
         byte[] msg = OpenFitNotificationProtocol.createWeatherClockProtocol(9, mDataList, tempInt, tempUnit, i, System.currentTimeMillis());
         OpenFitVariableDataComposer oDatacomposer = new OpenFitVariableDataComposer();

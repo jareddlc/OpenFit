@@ -8,12 +8,20 @@
     </string-array>
     <string-array name="preference_list_weather_entries">
         <item >No Updates</item>
-        <item >Every Hour Fahrenheit</item>
-        <item >Every Hour Celsius</item>
+        <item >Notification °F</item>
+        <item >Clock Style °F</item>
+        <item >Notification + Clock °F</item>
+        <item >Notification °C</item>
+        <item >Clock Style °C</item>
+        <item >Notification + Clock °C</item>
     </string-array>
     <string-array name="preference_list_weather_values">
         <item >none</item>
-        <item >imperial</item>
-        <item >metric</item>
+        <item >notification,imperial</item>
+        <item >clock,imperial</item>
+        <item >combo,imperial</item>
+        <item >notification,metric</item>
+        <item >clock,metric</item>
+        <item >combo,metric</item>
     </string-array>
 </resources>

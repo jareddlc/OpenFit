@@ -52,7 +52,8 @@ public class OpenFitService extends Service {
     private int notificationId = 28518;
     private boolean smsEnabled = false;
     private boolean phoneEnabled = false;
-    private boolean weatherEnabled = false;
+    private boolean weatherClockEnabled = false;
+    private boolean weatherNotificationEnabled = false;
     private boolean isReconnect = false;
     private boolean reconnecting = false;
     private boolean isStopping = false;
@@ -93,6 +94,7 @@ public class OpenFitService extends Service {
         LocationInfo.init(this);
         Weather.init(this);
         Cronjob.init(this);
+        startCronJob();
 
         // start service
         this.createNotification(false);
@@ -349,8 +351,8 @@ public class OpenFitService extends Service {
                 sendTime(value);
             }
             if(message.equals(OpenFitIntent.ACTION_WEATHER)) {
-                String unit = intent.getStringExtra(OpenFitIntent.INTENT_EXTRA_DATA);
-                startWeather(unit);
+                String weatherValue = intent.getStringExtra(OpenFitIntent.INTENT_EXTRA_DATA);
+                startWeather(weatherValue);
             }
             if(message.equals(OpenFitIntent.ACTION_FITNESS)) {
                 sendFitnessRequest();
@@ -554,15 +556,29 @@ public class OpenFitService extends Service {
         }
     }
 
-    public void startWeather(String unit) {
-        if(unit.equals(OpenFitIntent.NONE)) {
-            weatherEnabled = false;
+    public void startWeather(String weatherValue) {
+        if(weatherValue.equals(OpenFitIntent.NONE)) {
+            weatherNotificationEnabled = false;
+            weatherClockEnabled = false;
         }
         else {
+            String[] values = weatherValue.split(",");
+            String type = values[0];
+            String unit = values[1];
             Weather.setUnits(unit);
-            weatherEnabled = true;
+            if(type.equals("combo")) {
+                weatherNotificationEnabled = true;
+                weatherClockEnabled = true;
+            }
+            else if(type.equals("notification")) {
+                weatherNotificationEnabled = true;
+                weatherClockEnabled = false;
+            }
+            else if(type.equals("clock")) {
+                weatherClockEnabled = true;
+                weatherNotificationEnabled = false;
+            }
         }
-        startWeatherCronJob();
     }
 
     public void sendTime(boolean is24Hour) {
@@ -765,21 +781,20 @@ public class OpenFitService extends Service {
         byte[] bytes = OpenFitApi.getOpenWeather(weather, icon, id);
         sendBluetoothBytes(bytes);
     }
-    
+
     public void sendWeatherClock(String location, String tempCur, String tempUnit, String icon) {
         byte[] bytes = OpenFitApi.getOpenWeatherClock(location, tempCur, tempUnit, icon);
         sendBluetoothBytes(bytes);
     }
 
-    public void startWeatherCronJob() {
-        if(weatherEnabled) {
-            Log.d(LOG_TAG, "Starting Weather Cronjob");
-            Cronjob.start();
-        }
-        else {
-            Log.d(LOG_TAG, "Stopping Weather Cronjob");
-            Cronjob.stop();
-        }
+    public void startCronJob() {
+        Log.d(LOG_TAG, "Starting Cronjob");
+        Cronjob.start();
+    }
+
+    public void stopCronJob() {
+        Log.d(LOG_TAG, "Stopping Cronjob");
+        Cronjob.stop();
     }
 
     public void getWeather() {
@@ -979,8 +994,12 @@ public class OpenFitService extends Service {
 
             String weatherInfo = location + ": " + tempCur + tempUnit + "\nWeather: " + description;
             Log.d(LOG_TAG, weatherInfo);
-            sendWeatherClock(location, tempCur, tempUnit, icon);
-            sendWeatherNotifcation(weatherInfo, icon);
+            if(weatherClockEnabled) {
+                sendWeatherClock(location, tempCur, tempUnit, icon);
+            }
+            if(weatherNotificationEnabled) {
+                sendWeatherNotifcation(weatherInfo, icon);
+            }
         }
     };
 
@@ -988,7 +1007,7 @@ public class OpenFitService extends Service {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d(LOG_TAG, "locationReceiver updated");
-            if(weatherEnabled) {
+            if(weatherClockEnabled || weatherNotificationEnabled) {
                 getWeather();
             }
         }
@@ -998,7 +1017,7 @@ public class OpenFitService extends Service {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d(LOG_TAG, "#####CronJob#####");
-            if(weatherEnabled) {
+            if(weatherClockEnabled || weatherNotificationEnabled) {
                 LocationInfo.listenForLocation();
             }
         }

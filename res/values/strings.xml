@@ -13,17 +13,19 @@
     <string name="dialog_message_help"><b>Application Notifications:</b>
         \nFor applications notifications to work,
         you must turn on "Notification Access" for the Open Fit application.
-        This is commonly found at: Settings>Notifications>Notification Access.
-        Alternatively, you can open the phone settings and search for \'Notification\' and should show you \'Notification Access\'.
+        Open the phone settings and search for \'Notification\' and it should show \'Notification Access\'.
         \n\n<b>Connection Problems:</b>
         \nIf you cannot pair with Gear Fit from Open Fit application,
         go to bluetooth settings, and remove the Gear Fit from the list of paired devices,
         then scan and pair to the Gear Fit via the Open Fit app. 
         \n<b>Note:</b> You may need to reset the Gear Fit.
+        \n\n<b>How to Sync with Goolge Fit:</b>
+        \n\t◦ Enable Google Fit Sync
+        \n\t◦ Request Fitness Data
+        \n\t◦ Wait for the Fitness dialog
+        \n\t◦ Press the Sync button
         \n\n<b>Contributing:</b>
-        \nIf you want to help translating Open Fit, please visit:
-        \nhttps://goo.gl/fdzPMC
-        \nFor other contributions please visit the official XDA forum at:
+        \nTo contribute please visit the official XDA forum at:
         \nhttp://goo.gl/y2Fkmt
     </string>
     <string name="dialog_close_help">Close</string>
@@ -31,14 +33,14 @@
     <string name="dialog_close_fitness">Close</string>
     <string name="dialog_sync_fitness">Sync</string>
     <string name="dialog_title_news">Open Fit News</string>
-    <string name="dialog_message_news"><b>v1.6.0</b>
-        \n• Pedometer sync with Google Fit
-        \n\nHow to Sync with Goolge Fit:
-        \n\t◦ Enable Google Fit Sync
-        \n\t◦ Request Fitness Data
-        \n\t◦ Wait for the Fitness dialog
-        \n\t◦ Press the Sync button
-        \n\nEnjoy a free trial of Google Fit Sync. The trial will expire Dec 31, 2015. After the trial ends, Google Fit Sync will be a paid feature. Happy Holidays!
+    <string name="dialog_message_news"><b>v1.6.1</b>
+        \n• Weather Clock Bug Fix
+        \n• New Weather Update type
+        \n\t◦ Notification
+        \n\t◦ Clock Style
+        \n\t◦ Notification + Clock
+        \n• Removed App Filtering
+        \n\nGoogle Fit Sync trail extended to Jan 31, 2016.
     </string>
     <string name="dialog_close_news">Close</string>
     <string name="dialog_title_notification_access">Notification Access</string>
@@ -70,7 +72,7 @@
     <string name="preference_list_weather_title">Weather Updates</string>
     <string name="preference_list_weather_dialog">Select Weather</string>
     <string name="preference_list_weather_summary">Select Option</string>
-    <string name="preference_list_weather_default">No Updates</string>
+    <string name="preference_list_weather_default">none</string>
     <string name="preference_fitness_title">Fitness</string>
     <string name="preference_fitness_dialog">Fitness</string>
     <string name="preference_fitness_summary">Request Fitness Data</string>

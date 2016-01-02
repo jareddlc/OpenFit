@@ -37,8 +37,8 @@ public class DialogFitness extends DialogFragment {
         buildAdapter(pedometerDailyList, pedometerList, pedometerTotal, profileData);
         Calendar cal = Calendar.getInstance();
 
-        cal.set(Calendar.YEAR, 2015);
-        cal.set(Calendar.MONTH, 12);
+        cal.set(Calendar.YEAR, 2016);
+        cal.set(Calendar.MONTH, 0);
         cal.set(Calendar.DAY_OF_MONTH, 31);
         cal.set(Calendar.HOUR_OF_DAY, 23);
         cal.set(Calendar.MINUTE, 0);

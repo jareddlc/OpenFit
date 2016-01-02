@@ -36,7 +36,7 @@
     <string name="preference_checkbox_time_off">12-uurs klok</string>
     <string name="preference_list_weather_title">Weer Instellingen</string>
     <string name="preference_list_weather_dialog">Kies Weeropties</string>
-    <string name="preference_list_weather_summary">Kier optie</string>
+    <string name="preference_list_weather_summary">Kies optie</string>
     <string name="preference_list_weather_default">Geen meldingen</string>
     <string name="preference_fitness_title">Fitness</string>
     <string name="preference_fitness_dialog">Fitness</string>

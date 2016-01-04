@@ -685,7 +685,7 @@ public class OpenFitActivity extends Activity {
                     if(mClient.isConnected()) {
                         Toast.makeText(getActivity(), R.string.toast_google_fit_sync, Toast.LENGTH_SHORT).show();
                         progressDailog = new ProgressDialog(getActivity());
-                        progressDailog.setMessage("Syncing to Google Fit.\nPlease allow a few minutes");
+                        progressDailog.setMessage(getString(R.string.progress_dialog_syncing));
                         progressDailog.show();
                         gFit.syncData();
                     }

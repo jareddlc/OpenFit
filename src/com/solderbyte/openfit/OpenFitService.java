@@ -563,7 +563,7 @@ public class OpenFitService extends Service {
         }
         else {
             String[] values = weatherValue.split(",");
-            if(values.length > 0) {
+            if(values.length > 1) {
                 String type = values[0];
                 String unit = values[1];
                 Weather.setUnits(unit);

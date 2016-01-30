@@ -54,6 +54,7 @@ public class OpenFitService extends Service {
     private boolean phoneEnabled = false;
     private boolean weatherClockEnabled = false;
     private boolean weatherNotificationEnabled = false;
+    private boolean weatherClockReq = false;
     private boolean isReconnect = false;
     private boolean reconnecting = false;
     private boolean isStopping = false;
@@ -416,6 +417,7 @@ public class OpenFitService extends Service {
         }
         if(Arrays.equals(data, OpenFitApi.getOpenWeatherReq())) {
             Log.d(LOG_TAG, "Requesting weather");
+            weatherClockReq = true;
             getWeather();
         }
         if(Arrays.equals(data, OpenFitApi.getFitnessMenu())) {
@@ -1000,7 +1002,7 @@ public class OpenFitService extends Service {
 
             String weatherInfo = location + ": " + tempCur + tempUnit + "\nWeather: " + description;
             Log.d(LOG_TAG, weatherInfo);
-            if(weatherClockEnabled) {
+            if(weatherClockEnabled || weatherClockReq) {
                 sendWeatherClock(location, tempCur, tempUnit, icon);
             }
             if(weatherNotificationEnabled) {

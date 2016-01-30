@@ -81,10 +81,10 @@ public class Weather {
                         }
 
                         if(units.equals("imperial")) {
-                            tempUnit = "°F";
+                            tempUnit = "Â°F";
                         }
                         else if(units.equals("metric")) {
-                            tempUnit = "°C";
+                            tempUnit = "Â°C";
                         }
                         else {
                             tempUnit = "K";

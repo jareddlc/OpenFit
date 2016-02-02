@@ -38,8 +38,8 @@ public class DialogFitness extends DialogFragment {
         Calendar cal = Calendar.getInstance();
 
         cal.set(Calendar.YEAR, 2016);
-        cal.set(Calendar.MONTH, 0);
-        cal.set(Calendar.DAY_OF_MONTH, 31);
+        cal.set(Calendar.MONTH, 1);
+        cal.set(Calendar.DAY_OF_MONTH, 7);
         cal.set(Calendar.HOUR_OF_DAY, 23);
         cal.set(Calendar.MINUTE, 0);
         cal.set(Calendar.SECOND, 0);
@@ -96,7 +96,7 @@ public class DialogFitness extends DialogFragment {
 
         if(profileData != null) {
             String item = OpenFitData.getGender(profileData.getGender()) + ", " + profileData.getAge() + " years";
-            String subitem = profileData.getHeight() + "cm, " + String.format(Locale.getDefault(), "%.2f", profileData.getWeight()) + "kg";
+            String subitem = String.format(Locale.getDefault(), "%.2f", profileData.getHeight()) + "cm, " + String.format(Locale.getDefault(), "%.2f", profileData.getWeight()) + "kg";
             Drawable icon = context.getResources().getDrawable(R.drawable.open_stand);
             icon.setBounds(0, 0, 144, 144);
             items.add(item);

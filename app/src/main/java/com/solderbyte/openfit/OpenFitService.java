@@ -4,6 +4,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Set;
 
 import com.solderbyte.openfit.R;
@@ -44,6 +45,7 @@ public class OpenFitService extends Service {
     private OpenFitSavedPreferences oPrefs;
     private ApplicationManager appManager;
     private BluetoothLeService bluetoothLeService;
+    private GoogleFit gFit = null;
     private Handler mHandler;
     private PackageManager pManager;
     private static ReconnectBluetoothThread reconnectThread;
@@ -55,10 +57,13 @@ public class OpenFitService extends Service {
     private boolean weatherClockEnabled = false;
     private boolean weatherNotificationEnabled = false;
     private boolean weatherClockReq = false;
+    private boolean googleFitEnabled = false;
+    private boolean googleFitSyncing = false;
     private boolean isReconnect = false;
     private boolean reconnecting = false;
     private boolean isStopping = false;
     private boolean isFinding = false;
+    private boolean isPaid = false;
     private SmsListener smsListener;
     private MmsListener mmsListener;
     private TelephonyManager telephony;
@@ -88,6 +93,7 @@ public class OpenFitService extends Service {
         this.registerReceiver(weatherReceiver, new IntentFilter(OpenFitIntent.INTENT_SERVICE_WEATHER));
         this.registerReceiver(locationReceiver, new IntentFilter(OpenFitIntent.INTENT_SERVICE_LOCATION));
         this.registerReceiver(cronReceiver, new IntentFilter(OpenFitIntent.INTENT_SERVICE_CRONJOB));
+        this.registerReceiver(googleFitReceiver, new IntentFilter(OpenFitIntent.INTENT_GOOGLE_FIT));
 
         // start modules
         pManager = this.getPackageManager();
@@ -102,6 +108,7 @@ public class OpenFitService extends Service {
         this.startBluetoothHandler();
         this.startBluetoothService();
         this.startNotificationListenerService();
+        this.startGoogleApiClient();
         this.startForeground(notificationId, notification);
 
         // load saved preferences
@@ -166,7 +173,7 @@ public class OpenFitService extends Service {
             sendBroadcast(i);
             createNotification(false);
         }
-        
+
         if(oPrefs.preference_list_devices_value != OpenFitIntent.DEFAULT) {
             Intent i = new Intent(OpenFitIntent.INTENT_UI_BT);
             i.putExtra(OpenFitIntent.INTENT_EXTRA_MSG, OpenFitIntent.EXTRA_DEVICE_NAME);
@@ -215,7 +222,7 @@ public class OpenFitService extends Service {
             Log.d(LOG_TAG, "Listening Package: " + packageName);
             appManager.addNotificationApp(packageName);
         }
-        
+
         Intent i = new Intent(OpenFitIntent.INTENT_UI_BT);
         i.putExtra(OpenFitIntent.INTENT_EXTRA_MSG, OpenFitIntent.EXTRA_APPLICATIONS);
         i.putStringArrayListExtra(OpenFitIntent.EXTRA_APPLICATIONS_PACKAGE_NAME, listeningListPackageNames);
@@ -456,6 +463,9 @@ public class OpenFitService extends Service {
             i.putParcelableArrayListExtra(OpenFitIntent.EXTRA_PEDOMETER_DAILY_LIST, Fitness.getPedometerDailyList());
             i.putExtra(OpenFitIntent.EXTRA_PROFILE_DATA, Fitness.getProfileData());
             sendBroadcast(i);
+            if(googleFitSyncing) {
+                startFitnessSync(Fitness.getPedometerList());
+            }
         }
     }
 
@@ -589,6 +599,24 @@ public class OpenFitService extends Service {
         }
     }
 
+    public void startGoogleApiClient() {
+        Log.d(LOG_TAG, "startGoogleApiClient");
+        gFit = new GoogleFit(this);
+    }
+
+    public void startFitnessSync(ArrayList<PedometerData> pedometerList) {
+        Log.d(LOG_TAG, "startFitnessSync");
+        if(gFit != null) {
+            Log.d(LOG_TAG, "gFit.setData");
+            gFit.setData(pedometerList);
+            Log.d(LOG_TAG, "gFit.syncData");
+            gFit.syncData();
+        }
+        else {
+            Log.d(LOG_TAG, "Google Api Client not initialized");
+        }
+    }
+
     public void sendTime(boolean is24Hour) {
         byte[] bytes = OpenFitApi.getCurrentTimeInfo(is24Hour);
         sendBluetoothBytes(bytes);
@@ -616,7 +644,7 @@ public class OpenFitService extends Service {
             //byte[] bytes = OpenFitApi.getFitnessCyclingResponse(lat, lon);
             //sendBluetoothBytes(bytes);
         }*/
-        
+
     }
 
     public void sendFitnessRunning() {
@@ -870,6 +898,7 @@ public class OpenFitService extends Service {
             unregisterReceiver(weatherReceiver);
             unregisterReceiver(locationReceiver);
             unregisterReceiver(cronReceiver);
+            unregisterReceiver(googleFitReceiver);
             unbindService(mServiceConnection);
             Cronjob.stop();
             clearNotification();
@@ -1027,6 +1056,56 @@ public class OpenFitService extends Service {
             Log.d(LOG_TAG, "#####CronJob#####");
             if(weatherClockEnabled || weatherNotificationEnabled) {
                 LocationInfo.listenForLocation();
+            }
+
+            Calendar cal = Calendar.getInstance();
+            cal.set(Calendar.YEAR, 2016);
+            cal.set(Calendar.MONTH, 1);
+            cal.set(Calendar.DAY_OF_MONTH, 7);
+            cal.set(Calendar.HOUR_OF_DAY, 23);
+            cal.set(Calendar.MINUTE, 0);
+            cal.set(Calendar.SECOND, 0);
+            Date trialDate = cal.getTime();
+            Date now = new Date();
+
+            if(trialDate.getTime() > now.getTime()) {
+                if(googleFitEnabled) {
+                    googleFitSyncing = true;
+                    sendFitnessRequest();
+                }
+            }
+        }
+    };
+
+    private BroadcastReceiver googleFitReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final String message = intent.getStringExtra(OpenFitIntent.INTENT_EXTRA_MSG);
+            Log.d(LOG_TAG, "Received Google Fit: " + message);
+            if(message.equals(OpenFitIntent.INTENT_GOOGLE_FIT)) {
+                Boolean enabled = intent.getBooleanExtra(OpenFitIntent.INTENT_EXTRA_DATA, false);
+                if(enabled) {
+                    Log.d(LOG_TAG, "Google Fit Enabled");
+                    startGoogleApiClient();
+                    googleFitEnabled = true;
+                }
+                else {
+                    Log.d(LOG_TAG, "Google Fit Disabled");
+                    googleFitEnabled = false;
+                }
+            }
+            if(message.equals(OpenFitIntent.INTENT_GOOGLE_FIT_SYNC)) {
+                Log.d(LOG_TAG, "Google Fit Sync requested");
+            }
+            if(message.equals(OpenFitIntent.INTENT_GOOGLE_FIT_SYNC_STATUS)) {
+                Boolean status = intent.getBooleanExtra(OpenFitIntent.INTENT_EXTRA_DATA, false);
+                googleFitSyncing = false;
+                if(status) {
+                    Log.d(LOG_TAG, "Google Fit Sync completed");
+                }
+                else {
+                    Log.d(LOG_TAG, "Google Fit Sync failed");
+                }
             }
         }
     };

@@ -141,7 +141,8 @@ public class OpenFitActivity extends Activity {
         private static Preference preference_scan;
         private static Preference preference_fitness;
         private static Preference preference_donate;
-        
+
+        private static boolean fitnessRequeted = false;
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
@@ -171,7 +172,7 @@ public class OpenFitActivity extends Activity {
             Intent serviceIntent = new Intent(this.getActivity(), OpenFitService.class);
             this.getActivity().startService(serviceIntent);
 
-            // App Listener 
+            // App Listener
             LocalBroadcastManager.getInstance(this.getActivity()).registerReceiver(addApplicationReceiver, new IntentFilter(OpenFitIntent.INTENT_UI_ADDAPPLICATION));
             LocalBroadcastManager.getInstance(this.getActivity()).registerReceiver(delApplicationReceiver, new IntentFilter(OpenFitIntent.INTENT_UI_DELAPPLICATION));
             this.getActivity().registerReceiver(btReceiver, new IntentFilter(OpenFitIntent.INTENT_UI_BT));
@@ -334,6 +335,7 @@ public class OpenFitActivity extends Activity {
                 public boolean onPreferenceClick(Preference preference) {
                     sendIntent(OpenFitIntent.INTENT_SERVICE_BT, OpenFitIntent.ACTION_FITNESS);
                     Toast.makeText(getActivity(), R.string.toast_bluetooth_fitness, Toast.LENGTH_SHORT).show();
+                    fitnessRequeted = true;
                     return true;
                 }
             });
@@ -371,6 +373,14 @@ public class OpenFitActivity extends Activity {
             // setup message handler
             if(message != null && !message.isEmpty()) {
                 if(message.equals(OpenFitIntent.INTENT_SERVICE_START)) {
+                    Log.d(LOG_TAG, "Service started");
+
+                    if(mClient != null) {
+                        Intent msg = new Intent(OpenFitIntent.INTENT_GOOGLE_FIT);
+                        msg.putExtra(OpenFitIntent.INTENT_EXTRA_MSG, OpenFitIntent.INTENT_GOOGLE_FIT);
+                        msg.putExtra(OpenFitIntent.INTENT_EXTRA_DATA, true);
+                        getActivity().sendBroadcast(msg);
+                    }
                 }
                 if(message.equals(OpenFitIntent.EXTRA_IS_ENABLED)) {
                     Toast.makeText(getActivity(), R.string.toast_bluetooth_enabled, Toast.LENGTH_SHORT).show();
@@ -466,8 +476,11 @@ public class OpenFitActivity extends Activity {
                         gFit.setData(pedometerList);
                     }
 
-                    DialogFitness d = new DialogFitness(getActivity(), pedometerDailyList, pedometerList, pedometerTotal, profileData);
-                    d.show(getFragmentManager(), OpenFitIntent.EXTRA_FITNESS);
+                    if(fitnessRequeted) {
+                        DialogFitness d = new DialogFitness(getActivity(), pedometerDailyList, pedometerList, pedometerTotal, profileData);
+                        d.show(getFragmentManager(), OpenFitIntent.EXTRA_FITNESS);
+                        fitnessRequeted = false;
+                    }
                 }
                 if(message.equals(OpenFitIntent.EXTRA_APPLICATIONS)) {
                     Log.d(LOG_TAG, "Applications");
@@ -623,7 +636,6 @@ public class OpenFitActivity extends Activity {
         private BroadcastReceiver delApplicationReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-
                 final String packageName = intent.getStringExtra(OpenFitIntent.EXTRA_PACKAGE_NAME);
                 final String appName = intent.getStringExtra(OpenFitIntent.EXTRA_APP_NAME);
                 Log.d(LOG_TAG, "Recieved del application: "+appName+" : "+packageName);
@@ -696,7 +708,9 @@ public class OpenFitActivity extends Activity {
                 }
                 if(message.equals(OpenFitIntent.INTENT_GOOGLE_FIT_SYNC_STATUS)) {
                     Boolean status = intent.getBooleanExtra(OpenFitIntent.INTENT_EXTRA_DATA, false);
-                    progressDailog.dismiss();
+                    if(progressDailog != null) {
+                        progressDailog.dismiss();
+                    }
                     if(status) {
                         Log.d(LOG_TAG, "Google Fit Sync completed");
                         Toast.makeText(getActivity(), R.string.toast_google_fit_sync_success, Toast.LENGTH_SHORT).show();
@@ -738,10 +752,10 @@ public class OpenFitActivity extends Activity {
                 msg.putExtra(OpenFitIntent.INTENT_EXTRA_MSG, OpenFitIntent.INTENT_GOOGLE_FIT);
                 msg.putExtra(OpenFitIntent.INTENT_EXTRA_DATA, false);
                 sendBroadcast(msg);
-                
+
                 if(i == ConnectionCallbacks.CAUSE_NETWORK_LOST) {
                     Log.d(LOG_TAG, "Google Fit connection lost. Network Lost");
-                } 
+                }
                 else if(i == ConnectionCallbacks.CAUSE_SERVICE_DISCONNECTED) {
                     Log.d(LOG_TAG, "Google Fit connection lost. Service Disconnected");
                 }
@@ -757,6 +771,7 @@ public class OpenFitActivity extends Activity {
                 sendBroadcast(msg);
 
                 if(!result.hasResolution()) {
+                    Log.d(LOG_TAG, "Google Fit error has no resolution");
                     GooglePlayServicesUtil.getErrorDialog(result.getErrorCode(), OpenFitActivity.this, 0).show();
                     return;
                 }

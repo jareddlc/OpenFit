@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest package="com.solderbyte.openfit"
-    android:versionCode="163"
-    android:versionName="1.6.3" xmlns:android="http://schemas.android.com/apk/res/android">
+    android:versionCode="164"
+    android:versionName="1.6.4" xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.RECEIVE_SMS"/>
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
@@ -41,13 +41,13 @@
             android:name="com.solderbyte.openfit.GoogleFit"
             android:label="@string/app_name" >
         </activity>
-        <service 
-            android:name=".BluetoothLeService" 
+        <service
+            android:name=".BluetoothLeService"
             android:enabled="true"
             android:exported="false" >
         </service>
-        <service 
-            android:name=".OpenFitService" 
+        <service
+            android:name=".OpenFitService"
             android:enabled="true"
             android:exported="false" >
         </service>

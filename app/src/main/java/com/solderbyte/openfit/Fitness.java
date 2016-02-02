@@ -101,7 +101,7 @@ public class Fitness {
         try {
             fitnessStream.write(data);
             //Log.d(LOG_TAG, "Adding data to buffer: " + data.length);
-        } 
+        }
         catch (IOException e) {
             Log.e(LOG_TAG, "Error writting fitness data to buffer");
             e.printStackTrace();
@@ -171,36 +171,68 @@ public class Fitness {
 
     public static void parseUserProfile(ByteBuffer buffer) {
         int userProfileSize = buffer.getInt();
-        Log.d(LOG_TAG, "User profile size: " + userProfileSize);
-        if(userProfileSize < 40) {
-            return;
+        Log.d(LOG_TAG, "User profile: " + userProfileSize);
+        long timeStamp = 0;
+        int age = 0;
+        float height = 0;
+        float weight = 0;
+        int gender = 0;
+        int birthday = 0;
+        int heightUnit = 0;
+        int weightUnit = 0;
+        int distanceUnit = 0;
+        int activity = 0;
+
+        for(int i = 0; i < 10; i++) {
+            if(buffer.hasRemaining()) {
+                if(i == 0) {
+                    timeStamp = buffer.getInt() * 1000L;
+                }
+                if(i == 1) {
+                    age = buffer.getInt();
+                }
+                if(i == 2) {
+                    height = Float.intBitsToFloat(buffer.getInt());
+                }
+                if(i == 2) {
+                    weight = Float.intBitsToFloat(buffer.getInt());
+                }
+                if(i == 2) {
+                    gender = buffer.getInt();
+                }
+                if(i == 2) {
+                    birthday = buffer.getInt();
+                }
+                if(i == 2) {
+                    heightUnit = buffer.getInt();
+                }
+                if(i == 2) {
+                    weightUnit = buffer.getInt();
+                }
+                if(i == 2) {
+                    distanceUnit = buffer.getInt();
+                }
+                if(i == 2) {
+                    activity = buffer.getInt();
+                }
+            }
+            else {
+                break;
+            }
         }
 
-        for(int i = 0; i < userProfileSize; i++) {
-            long timeStamp = buffer.getInt() * 1000L;
-            int age = buffer.getInt();
-            float height = Float.intBitsToFloat(buffer.getInt());
-            float weight = Float.intBitsToFloat(buffer.getInt());
-            int gender = buffer.getInt();
-            int birthday = buffer.getInt();
-            int heightUnit = buffer.getInt();
-            int weightUnit = buffer.getInt();
-            int distanceUnit = buffer.getInt();
-            int activity = buffer.getInt();
+        profileData = new ProfileData(timeStamp, age, height, weight, gender, birthday, heightUnit, weightUnit, distanceUnit, activity);
 
-            profileData = new ProfileData(timeStamp, age, height, weight, gender, birthday, heightUnit, weightUnit, distanceUnit, activity);
-
-            Date date = new Date(timeStamp);
-            Log.d(LOG_TAG, "time stamp: " + timeStamp);
-            Log.d(LOG_TAG, "date: " + date);
-            Log.d(LOG_TAG, "age: " + age);
-            Log.d(LOG_TAG, "height: " + height + OpenFitData.getHeightUnit(heightUnit));
-            Log.d(LOG_TAG, "weight: " + weight + OpenFitData.getWeightUnit(weightUnit));
-            Log.d(LOG_TAG, "gender: " + OpenFitData.getGender(gender));
-            Log.d(LOG_TAG, "activity: " + activity);
-            Log.d(LOG_TAG, "birthday: " + birthday);
-            Log.d(LOG_TAG, "distanceUnit: " + OpenFitData.getDistanceUnit(distanceUnit));
-        }
+        Date date = new Date(timeStamp);
+        Log.d(LOG_TAG, "time stamp: " + timeStamp);
+        Log.d(LOG_TAG, "date: " + date);
+        Log.d(LOG_TAG, "age: " + age);
+        Log.d(LOG_TAG, "height: " + height + OpenFitData.getHeightUnit(heightUnit));
+        Log.d(LOG_TAG, "weight: " + weight + OpenFitData.getWeightUnit(weightUnit));
+        Log.d(LOG_TAG, "gender: " + OpenFitData.getGender(gender));
+        Log.d(LOG_TAG, "activity: " + activity);
+        Log.d(LOG_TAG, "birthday: " + birthday);
+        Log.d(LOG_TAG, "distanceUnit: " + OpenFitData.getDistanceUnit(distanceUnit));
     }
 
     public static void parsePedoInfo(ByteBuffer buffer) {
@@ -375,6 +407,6 @@ public class Fitness {
         for(int i = 0; i < remaining; i++) {
             b[i] = buffer.get();
         }
-        Log.d(LOG_TAG, "logBuffer" + OpenFitApi.byteArrayToHexString(b));
+        Log.d(LOG_TAG, "logBuffer:" + OpenFitApi.byteArrayToHexString(b));
     }
 }

@@ -10,10 +10,15 @@ import java.util.concurrent.TimeUnit;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.util.Log;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.Scopes;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.fitness.Fitness;
 import com.google.android.gms.fitness.FitnessActivities;
@@ -34,6 +39,7 @@ public class GoogleFit {
 
     private static Context context = null;
     private static GoogleApiClient mClient = null;
+    private static boolean GAPI_CONNECTED = false;
     private static ArrayList<Session> sessions = null;
     private static ArrayList<DataSet> sessionsStepsDataSets = null;
     private static ArrayList<DataSet> sessionsDistanceDataSets = null;
@@ -42,6 +48,13 @@ public class GoogleFit {
     private static ArrayList<PedometerData> pedometerList = null;
 
     private static Date lastSession = null;
+
+    public GoogleFit(Context cntxt) {
+        Log.d(LOG_TAG, "Creating Google Fit without client");
+        context = cntxt;
+        this.buildFitnessClient(cntxt);
+        this.connectGoogleFit();
+    }
 
     public GoogleFit(Context cntxt, GoogleApiClient client) {
         Log.d(LOG_TAG, "Creating Google Fit");
@@ -107,6 +120,94 @@ public class GoogleFit {
                 }
             }
         });
+    }
+
+    private void buildFitnessClient(Context cntxt) {
+        Log.d(LOG_TAG, "buildFitnessClient");
+        mClient = new GoogleApiClient.Builder(cntxt)
+        .addApi(Fitness.CONFIG_API)
+        .addApi(Fitness.HISTORY_API)
+        .addApi(Fitness.SESSIONS_API)
+        .addScope(new Scope(Scopes.FITNESS_ACTIVITY_READ_WRITE))
+        .addScope(new Scope(Scopes.FITNESS_LOCATION_READ_WRITE))
+        .addConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks() {
+            @Override
+            public void onConnected(Bundle bundle) {
+                Log.d(LOG_TAG, "Google Fit connected");
+                GAPI_CONNECTED = true;
+
+                Intent msg = new Intent(OpenFitIntent.INTENT_GOOGLE_FIT);
+                msg.putExtra(OpenFitIntent.INTENT_EXTRA_MSG, OpenFitIntent.INTENT_GOOGLE_FIT);
+                msg.putExtra(OpenFitIntent.INTENT_EXTRA_DATA, true);
+                //sendBroadcast(msg);
+                //gFit = new GoogleFit(getBaseContext(), mClient);
+            }
+
+            @Override
+            public void onConnectionSuspended(int i) {
+                GAPI_CONNECTED = false;
+                Intent msg = new Intent(OpenFitIntent.INTENT_GOOGLE_FIT);
+                msg.putExtra(OpenFitIntent.INTENT_EXTRA_MSG, OpenFitIntent.INTENT_GOOGLE_FIT);
+                msg.putExtra(OpenFitIntent.INTENT_EXTRA_DATA, false);
+                //sendBroadcast(msg);
+
+                if(i == GoogleApiClient.ConnectionCallbacks.CAUSE_NETWORK_LOST) {
+                    Log.d(LOG_TAG, "Google Fit connection lost. Network Lost");
+                }
+                else if(i == GoogleApiClient.ConnectionCallbacks.CAUSE_SERVICE_DISCONNECTED) {
+                    Log.d(LOG_TAG, "Google Fit connection lost. Service Disconnected");
+                }
+            }
+        }).addOnConnectionFailedListener(new GoogleApiClient.OnConnectionFailedListener() {
+            @Override
+            public void onConnectionFailed(ConnectionResult result) {
+                Log.d(LOG_TAG, "Google Fit connection failed. Cause: " + result.toString());
+                GAPI_CONNECTED = false;
+                Intent msg = new Intent(OpenFitIntent.INTENT_GOOGLE_FIT);
+                msg.putExtra(OpenFitIntent.INTENT_EXTRA_MSG, OpenFitIntent.INTENT_GOOGLE_FIT);
+                msg.putExtra(OpenFitIntent.INTENT_EXTRA_DATA, false);
+                //sendBroadcast(msg);
+            }
+        }).build();
+    }
+
+    public void connectGoogleFit() {
+        if(mClient == null) {
+            Log.d(LOG_TAG, "GoogleFit is null");
+            return;
+        }
+        if(!mClient.isConnecting() && !mClient.isConnected()) {
+            Log.d(LOG_TAG, "Connecting to GoogleFit");
+            mClient.connect();
+        }
+        else {
+            Log.d(LOG_TAG, "GoogleFit already connected: ");
+        }
+    }
+
+    public void disconnectGoogleFit() {
+        if(mClient.isConnected()) {
+            Log.d(LOG_TAG, "Disconnecting to GoogleFit");
+            PendingResult<Status> pendingResult = Fitness.ConfigApi.disableFit(mClient);
+
+            pendingResult.setResultCallback(new ResultCallback<Status>() {
+                @Override
+                public void onResult(Status status) {
+                    if(status.isSuccess()) {
+                        //GFIT_CONNECTED = false;
+                        Log.d(LOG_TAG, "Google Fit disabled");
+                        Intent msg = new Intent(OpenFitIntent.INTENT_GOOGLE_FIT);
+                        msg.putExtra(OpenFitIntent.INTENT_EXTRA_MSG, OpenFitIntent.INTENT_GOOGLE_FIT);
+                        msg.putExtra(OpenFitIntent.INTENT_EXTRA_DATA, false);
+                        //getActivity().sendBroadcast(msg);
+
+                        mClient.disconnect();
+                    } else {
+                        Log.e(LOG_TAG, "Google Fit wasn't disabled " + status);
+                    }
+                }
+            });
+        }
     }
 
     private class readDataTask extends AsyncTask<Void, Void, Void> {

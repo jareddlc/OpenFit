@@ -39,7 +39,7 @@ public class Cronjob {
             Log.d(LOG_TAG, "Cronjob schedule to start at: " + cronDate);
             alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), AlarmManager.INTERVAL_HOUR, alarmPendingIntent);
             isAlarm = true;
-            //alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, 1000, 1000, alarmPendingIntent);
+            //alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, 1, 1, alarmPendingIntent);
         }
     }
 

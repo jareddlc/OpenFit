@@ -29,7 +29,7 @@ public class MediaController {
         CURRENT_VOLUME = (byte) ACT_VOLUME;
 
         // google play music
-        context.registerReceiver(playMusicReceiver, new IntentFilter("com.google.android.music.metachanged"));
+        // context.registerReceiver(playMusicReceiver, new IntentFilter("com.google.android.music.metachanged"));
         // stock android music
         IntentFilter stock = new IntentFilter("com.android.music.metachanged");
         stock.addAction("com.android.music.queuechanged");
@@ -96,7 +96,7 @@ public class MediaController {
     private static BroadcastReceiver serviceStopReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            context.unregisterReceiver(playMusicReceiver);
+            //context.unregisterReceiver(playMusicReceiver);
             context.unregisterReceiver(stockMusicReceiver);
             context.unregisterReceiver(samsungMusicReceiver);
             context.unregisterReceiver(spotifyReceiver);

@@ -25,6 +25,7 @@ public class LocationInfo {
     private static Location location = null;
     private static Location locationGPS = null;
     private static Location locationNet = null;
+    private static LocationListener locationListener = null;
     private static Geocoder geocoder = null;
     private static List<String> providers = null;
 
@@ -108,7 +109,7 @@ public class LocationInfo {
     }
 
     public static void listenForLocation() {
-        LocationListener locationListener = new LocationListener() {
+        locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
                 locationManager.removeUpdates(this);
@@ -146,7 +147,20 @@ public class LocationInfo {
             public void onProviderEnabled(String provider) {}
            };
 
-         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 10, locationListener);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 10, locationListener);
+        //locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, locationListener, null);
+        new android.os.Handler().postDelayed(
+            new Runnable() {
+                public void run() {
+                    if(locationListener != null) {
+                        Log.d(LOG_TAG, "Removing Location updates");
+                        locationManager.removeUpdates(locationListener);
+                        if(latitude == 0 && longitude == 0) {
+                            updateLastKnownLocation();
+                        }
+                    }
+                }
+        }, 20000);
     }
 
     public static String getCityName() {

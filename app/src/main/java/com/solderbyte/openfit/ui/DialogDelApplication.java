@@ -20,6 +20,8 @@ public class DialogDelApplication extends DialogFragment {
     private CharSequence[] appNames = new CharSequence[0];
     private ListAdapter addApplication;
 
+    public DialogDelApplication() {}
+
     public DialogDelApplication(ListAdapter adapter, CharSequence[] pNames, CharSequence[] aNames) {
         addApplication = adapter;
         packageNames = pNames;

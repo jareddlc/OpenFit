@@ -32,6 +32,8 @@ public class DialogFitness extends DialogFragment {
     private ListAdapter adapter;
     private Context context;
 
+    public DialogFitness() {}
+
     public DialogFitness(Context cntxt, ArrayList<PedometerData> pedometerDailyList, ArrayList<PedometerData> pedometerList, PedometerTotal pedometerTotal, ProfileData profileData) {
         context = cntxt;
         buildAdapter(pedometerDailyList, pedometerList, pedometerTotal, profileData);

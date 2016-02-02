@@ -10,8 +10,7 @@ import android.os.Bundle;
 
 public class DialogHelp extends DialogFragment {
 
-    public DialogHelp() {
-    }
+    public DialogHelp() {}
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {

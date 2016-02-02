@@ -49,6 +49,8 @@ public class GoogleFit {
 
     private static Date lastSession = null;
 
+    public GoogleFit() {}
+
     public GoogleFit(Context cntxt) {
         Log.d(LOG_TAG, "Creating Google Fit without client");
         context = cntxt;

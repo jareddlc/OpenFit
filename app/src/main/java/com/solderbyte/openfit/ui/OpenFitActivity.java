@@ -446,7 +446,6 @@ public class OpenFitActivity extends Activity {
                     return true;
                 }
             });
-            preference_purchase.setEnabled(false);
         }
 
         public void handleServiceMessage(String message, Intent intent) {

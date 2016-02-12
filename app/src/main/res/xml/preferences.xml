@@ -43,7 +43,7 @@
             android:key="preference_checkbox_time"
             android:title="@string/preference_checkbox_time_title"
             android:summaryOn="@string/preference_checkbox_time_on"
-            android:summaryOff="@string/preference_checkbox_time_off" 
+            android:summaryOff="@string/preference_checkbox_time_off"
             android:icon="@drawable/open_clock"
             android:defaultValue="false" />
         <ListPreference
@@ -65,7 +65,7 @@
             android:key="preference_checkbox_googlefit"
             android:title="@string/preference_checkbox_googlefit_title"
             android:summaryOn="@string/preference_checkbox_googlefit_on"
-            android:summaryOff="@string/preference_checkbox_googlefit_off" 
+            android:summaryOff="@string/preference_checkbox_googlefit_off"
             android:icon="@drawable/open_sync"
             android:defaultValue="false" />
     </PreferenceCategory>
@@ -75,9 +75,14 @@
         android:key="preference_category_apps">
     </PreferenceCategory>
 
+    <!--<Preference-->
+        <!--android:key="preference_donate"-->
+        <!--android:icon="@drawable/open_donate"-->
+        <!--android:title="@string/preference_donate_title"-->
+        <!--android:summary="@string/preference_donate_summary"/>-->
     <Preference
-        android:key="preference_donate"
+        android:key="preference_purchase"
         android:icon="@drawable/open_donate"
-        android:title="@string/preference_donate_title"
-        android:summary="@string/preference_donate_summary"/>
+        android:title="@string/preference_purchase_title"
+        android:summary="@string/preference_purchase_summary"/>
 </PreferenceScreen>

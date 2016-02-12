@@ -2,6 +2,7 @@ package com.solderbyte.openfit.ui;
 
 import java.util.ArrayList;
 
+import com.android.vending.billing.IInAppBillingService;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.Scopes;
@@ -13,6 +14,7 @@ import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.fitness.Fitness;
 import com.solderbyte.openfit.ApplicationManager;
+import com.solderbyte.openfit.Billing;
 import com.solderbyte.openfit.GoogleFit;
 import com.solderbyte.openfit.OpenFitSavedPreferences;
 import com.solderbyte.openfit.OpenFitService;
@@ -23,15 +25,19 @@ import com.solderbyte.openfit.R;
 import com.solderbyte.openfit.util.OpenFitIntent;
 
 import android.app.Activity;
+import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentSender;
+import android.content.ServiceConnection;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -51,9 +57,12 @@ public class OpenFitActivity extends Activity {
 
     static ApplicationManager appManager;
     private static GoogleFit gFit = null;
+    private static Billing billing = null;
 
+    private static IInAppBillingService billingService;
     private static GoogleApiClient mClient = null;
     private static final int REQUEST_OAUTH = 1;
+    private static final int BILLING_REQ = 1001;
     private static boolean GFIT_CONNECTED = false;
 
     @Override
@@ -89,8 +98,15 @@ public class OpenFitActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // load applications
         appManager = new ApplicationManager();
         appManager.setContext(getBaseContext());
+
+        // load billing
+        billing = new Billing();
+        billing.setContext(getBaseContext());
+        billing.setActivity(this);
+        connectBillingService();
 
         // load google fit
         buildFitnessClient();
@@ -102,6 +118,15 @@ public class OpenFitActivity extends Activity {
     }
 
     @Override
+    public void onDestroy() {
+        Log.d(LOG_TAG, "onDestroy Activity");
+        super.onDestroy();
+        if(billingService != null) {
+            unbindService(billingServiceConnection);
+        }
+    }
+
+    @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.d(LOG_TAG, "onActivityResult");
         if(requestCode == REQUEST_OAUTH) {
@@ -109,6 +134,17 @@ public class OpenFitActivity extends Activity {
                 if(!mClient.isConnecting() && !mClient.isConnected()) {
                     this.connectGoogleFit();
                 }
+            }
+        }
+
+        if(requestCode == BILLING_REQ) {
+            Log.d(LOG_TAG, "BILLING onActivityResult");
+            if(resultCode == RESULT_OK) {
+                Log.d(LOG_TAG, "Purchased");
+                Toast.makeText(this, R.string.toast_premium_purchased, Toast.LENGTH_SHORT).show();
+                DialogPurchase d = new DialogPurchase();
+                d.show(getFragmentManager(), getString(R.string.dialog_title_purchase));
+                billing.verifyPremium();
             }
         }
     }
@@ -122,6 +158,29 @@ public class OpenFitActivity extends Activity {
             Log.d(LOG_TAG, "GoogleFit already connected: " + GFIT_CONNECTED);
         }
     }
+
+    public void connectBillingService() {
+        Intent billingServiceIntent = new Intent("com.android.vending.billing.InAppBillingService.BIND");
+        billingServiceIntent.setPackage("com.android.vending");
+        bindService(billingServiceIntent, billingServiceConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    public ServiceConnection billingServiceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            Log.d(LOG_TAG, "Billing service disconnected");
+            billingService = null;
+        }
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            Log.d(LOG_TAG, "Billing service connected");
+            billingService = IInAppBillingService.Stub.asInterface(service);
+            billing.setService(billingService);
+            billing.getSkuDetails();
+            billing.verifyPremium();
+        }
+    };
 
     public static class OpenFitFragment extends PreferenceFragment {
         private static final String LOG_TAG = "OpenFit:OpenFitFragment";
@@ -140,7 +199,8 @@ public class OpenFitActivity extends Activity {
         private static ListPreference preference_list_devices;
         private static Preference preference_scan;
         private static Preference preference_fitness;
-        private static Preference preference_donate;
+        //private static Preference preference_donate;
+        private static Preference preference_purchase;
 
         private static boolean fitnessRequeted = false;
 
@@ -179,6 +239,7 @@ public class OpenFitActivity extends Activity {
             this.getActivity().registerReceiver(serviceStopReceiver, new IntentFilter(OpenFitIntent.INTENT_SERVICE_STOP));
             this.getActivity().registerReceiver(serviceNotificationReceiver, new IntentFilter(OpenFitIntent.INTENT_SERVICE_NOTIFICATION));
             this.getActivity().registerReceiver(googleFitReceiver, new IntentFilter(OpenFitIntent.INTENT_GOOGLE_FIT));
+            this.getActivity().registerReceiver(billingReceiver, new IntentFilter(OpenFitIntent.INTENT_BILLING));
         }
 
         private void checkNotificationAccess() {
@@ -204,12 +265,11 @@ public class OpenFitActivity extends Activity {
             preference_switch_bluetooth.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    if((Boolean)newValue) {
+                    if ((Boolean) newValue) {
                         sendIntent(OpenFitIntent.INTENT_SERVICE_BT, OpenFitIntent.ACTION_ENABLE);
                         preference_switch_bluetooth.setChecked(false);
                         Toast.makeText(getActivity(), R.string.toast_bluetooth_enable, Toast.LENGTH_SHORT).show();
-                    }
-                    else {
+                    } else {
                         sendIntent(OpenFitIntent.INTENT_SERVICE_BT, OpenFitIntent.ACTION_DISABLE);
                     }
                     return true;
@@ -344,12 +404,11 @@ public class OpenFitActivity extends Activity {
             preference_checkbox_googlefit.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    if((Boolean)newValue) {
+                    if ((Boolean) newValue) {
                         Toast.makeText(getActivity(), R.string.toast_google_fit_connect, Toast.LENGTH_SHORT).show();
                         connectGoogleFit();
                         return false;
-                    }
-                    else {
+                    } else {
                         Toast.makeText(getActivity(), R.string.toast_google_fit_disconnect, Toast.LENGTH_SHORT).show();
                         disconnectGoogleFit();
                         return false;
@@ -357,6 +416,7 @@ public class OpenFitActivity extends Activity {
                 }
             });
 
+            /*
             preference_donate = (Preference) getPreferenceManager().findPreference("preference_donate");
             preference_donate.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
@@ -364,9 +424,29 @@ public class OpenFitActivity extends Activity {
                     Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=2PLHGNYFEUYK8&lc=US&item_name=Open%20Fit%20Donations&item_number=Open%20Fit%20Donation&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_LG%2egif%3aNonHosted"));
                     //Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.paypal.me/jareddlc"));
                     startActivity(browserIntent);
+
                     return true;
                 }
             });
+            */
+
+            preference_purchase = (Preference) getPreferenceManager().findPreference("preference_purchase");
+            preference_purchase.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    if(billing != null) {
+                        //startIntentSenderForResult(pendingIntent.getIntentSender(), 1001, new Intent(), Integer.valueOf(0), Integer.valueOf(0), Integer.valueOf(0));
+                        try {
+                            billing.purchasePremium();
+                        }
+                        catch(Exception e) {
+                            Log.d(LOG_TAG, "Error: " + e.getMessage());
+                        }
+                    }
+                    return true;
+                }
+            });
+            preference_purchase.setEnabled(false);
         }
 
         public void handleServiceMessage(String message, Intent intent) {
@@ -602,13 +682,15 @@ public class OpenFitActivity extends Activity {
 
         @Override
         public void onDestroy() {
-            Log.d(LOG_TAG, "onDestroy");
+            Log.d(LOG_TAG, "onDestroy prefrenceFragement");
             this.getActivity().unregisterReceiver(btReceiver);
             this.getActivity().unregisterReceiver(serviceStopReceiver);
             this.getActivity().unregisterReceiver(serviceNotificationReceiver);
             this.getActivity().unregisterReceiver(googleFitReceiver);
+            this.getActivity().unregisterReceiver(billingReceiver);
             LocalBroadcastManager.getInstance(this.getActivity()).unregisterReceiver(addApplicationReceiver);
             LocalBroadcastManager.getInstance(this.getActivity()).unregisterReceiver(delApplicationReceiver);
+
             super.onDestroy();
         }
 
@@ -718,6 +800,29 @@ public class OpenFitActivity extends Activity {
                     else {
                         Log.d(LOG_TAG, "Google Fit Sync failed");
                         Toast.makeText(getActivity(), R.string.toast_google_fit_sync_failure, Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+        };
+
+        private BroadcastReceiver billingReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                final String message = intent.getStringExtra(OpenFitIntent.INTENT_EXTRA_MSG);
+                Log.d(LOG_TAG, "Received Billing: " + message);
+
+                if(message.equals(OpenFitIntent.INTENT_BILLING_VERIFIED)) {
+                    Boolean verified = intent.getBooleanExtra(OpenFitIntent.INTENT_EXTRA_DATA, false);
+                    if(verified) {
+                        Log.d(LOG_TAG, "Premium purchased");
+                        preference_purchase.setEnabled(false);
+                        preference_purchase.setSummary(R.string.preference_purchased_summary);
+                        oPrefs.saveBoolean("preference_purchase", true);
+                    }
+                    else {
+                        Log.d(LOG_TAG, "Premium not purchased");
+                        preference_purchase.setEnabled(true);
+                        oPrefs.saveBoolean("preference_purchase", false);
                     }
                 }
             }

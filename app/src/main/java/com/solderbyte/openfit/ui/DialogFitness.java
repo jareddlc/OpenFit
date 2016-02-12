@@ -37,15 +37,6 @@ public class DialogFitness extends DialogFragment {
     public DialogFitness(Context cntxt, ArrayList<PedometerData> pedometerDailyList, ArrayList<PedometerData> pedometerList, PedometerTotal pedometerTotal, ProfileData profileData) {
         context = cntxt;
         buildAdapter(pedometerDailyList, pedometerList, pedometerTotal, profileData);
-        Calendar cal = Calendar.getInstance();
-
-        cal.set(Calendar.YEAR, 2016);
-        cal.set(Calendar.MONTH, 1);
-        cal.set(Calendar.DAY_OF_MONTH, 7);
-        cal.set(Calendar.HOUR_OF_DAY, 23);
-        cal.set(Calendar.MINUTE, 0);
-        cal.set(Calendar.SECOND, 0);
-        trialDate = cal.getTime();
     }
 
     @Override
@@ -60,7 +51,7 @@ public class DialogFitness extends DialogFragment {
         builder.setNegativeButton(R.string.dialog_close_fitness,  new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int index) {}
         });
-        builder.setPositiveButton(R.string.dialog_sync_fitness,  new DialogInterface.OnClickListener() {
+        /*builder.setPositiveButton(R.string.dialog_sync_fitness,  new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int index) {
                 Log.d(LOG_TAG, "Sync clicked");
                 Intent msg = new Intent(OpenFitIntent.INTENT_GOOGLE_FIT);
@@ -68,7 +59,7 @@ public class DialogFitness extends DialogFragment {
                 msg.putExtra(OpenFitIntent.INTENT_EXTRA_DATA, true);
                 getActivity().sendBroadcast(msg);
             }
-        });
+        });*/
         dialog = builder.create();
 
         return dialog;
@@ -79,14 +70,14 @@ public class DialogFitness extends DialogFragment {
         super.onStart();
         Log.d(LOG_TAG, "Sync onstart");
         if(dialog != null) {
-            Button syncButton = dialog.getButton(Dialog.BUTTON_POSITIVE);
+            /*Button syncButton = dialog.getButton(Dialog.BUTTON_POSITIVE);
             if(syncButton != null) {
                 Date now = new Date();
                 Log.d(LOG_TAG, "trail: " + trialDate + " current: " + now);
                 if(trialDate.getTime() < now.getTime()) {
                     syncButton.setEnabled(false);
                 }
-            }
+            }*/
         }
     }
 

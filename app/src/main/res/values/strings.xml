@@ -19,11 +19,12 @@
         go to bluetooth settings, and remove the Gear Fit from the list of paired devices,
         then scan and pair to the Gear Fit via the Open Fit app.
         \n<b>Note:</b> You may need to reset the Gear Fit.
-        \n\n<b>How to Sync with Goolge Fit:</b>
-        \n\t◦ Enable Google Fit Sync
-        \n\t◦ Request Fitness Data
-        \n\t◦ Wait for the Fitness dialog
-        \n\t◦ Press the Sync button
+        \n\n<b>Weather Updates:</b>
+        \nWeather updates will occur once every hour and use http://openweathermap.org
+        \n\n<b>Premium features:</b>
+        \nAfter purchasing premium features, make sure to shutdown and restart open fit for it to take effect.
+        \nIf you have donated and would like to use the premium features, please email me and I will provide you with more information.
+        \n\n\t◦ Google Fit Auto Sync
         \n\n<b>Auto Sync with Goolge Fit:</b>
         \n\t◦ Enable Google Fit Sync
         \n\t◦ Sync will occur once an hour automatically
@@ -36,12 +37,9 @@
     <string name="dialog_close_fitness">Close</string>
     <string name="dialog_sync_fitness">Sync</string>
     <string name="dialog_title_news">Open Fit News</string>
-    <string name="dialog_message_news"><b>v1.6.4</b>
-        \n• Force stop GPS
-        \n• Pedometer data fix
-        \n• Google Fit Auto Sync
-        \n\nPlease enjoy a free trail Google Fit Auto Sync. Trail extended to Feb 7, 2016.
-        \n\nPayment options available soon
+    <string name="dialog_message_news"><b>v1.7.0</b>
+        \n• Premium features
+        \n\nGoogle Fit Sync is premium feature. Please make sure fitness data works properly before purchasing Open Fit Premium. Please read the help section for more info.
     </string>
     <string name="dialog_close_news">Close</string>
     <string name="dialog_title_notification_access">Notification Access</string>
@@ -51,6 +49,11 @@
     </string>
     <string name="dialog_open_notification_access">Open</string>
     <string name="dialog_close_notification_access">Close</string>
+    <string name="dialog_title_purchase">Open Fit Premium</string>
+    <string name="dialog_message_purchase">Thank you for the purchase and the support.
+        \n\nFor any support related questions, please email: solderbyte@gmail.com
+    </string>
+    <string name="dialog_close_purchase">Close</string>
     <string name="preference_category_connectivity_title">Connectivity</string>
     <string name="preference_switch_bluetooth_title">Enable Bluetooth</string>
     <string name="preference_scan_title">Scan</string>
@@ -83,7 +86,10 @@
     <string name="preference_category_apps_title">Applications</string>
     <string name="preference_donate_title">Donate</string>
     <string name="preference_donate_summary">Make a donation via PayPal</string>
-    <string name="preference_applications_summary">No applications added. Click the + icon at the top menu to add an application. Make sure Notification Access is Enabled, otherwise notifcations will not work.</string>
+    <string name="preference_purchase_title">Purchase Premium</string>
+    <string name="preference_purchase_summary">Purchase Premium features. Please see help for more information.</string>
+    <string name="preference_purchased_summary">Thank you for purchasing Open Fit Premium</string>
+    <string name="preference_applications_summary">No applications added. Click the + icon at the top menu to add an application. Make sure Notification Access is Enabled, otherwise notifcations will not work</string>
     <string name="toast_bluetooth_enable">Enabling&#8230;</string>
     <string name="toast_bluetooth_scan">Scanning&#8230;</string>
     <string name="toast_bluetooth_scan_complete">Scanning complete. Please select device</string>
@@ -100,6 +106,7 @@
     <string name="toast_google_fit_sync">Syncing to Google Fit&#8230;</string>
     <string name="toast_google_fit_sync_success">Sync complete</string>
     <string name="toast_google_fit_sync_failure">Sync failed</string>
+    <string name="toast_premium_purchased">Thank you for purchasing Open Fit Premium. Please shut down and restart Open Fit.</string>
     <string name="notification_title">Open Fit</string>
     <string name="notification_connected">Connected to Gear Fit</string>
     <string name="notification_disconnected">Disconnected to Gear Fit</string>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest package="com.solderbyte.openfit"
-    android:versionCode="164"
-    android:versionName="1.6.4" xmlns:android="http://schemas.android.com/apk/res/android">
+    android:versionCode="170"
+    android:versionName="1.7.0" xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.RECEIVE_SMS"/>
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
@@ -19,6 +19,7 @@
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="com.android.vending.BILLING"/>
 
     <uses-feature android:name="android.hardware.telephony" android:required="false"/>
 

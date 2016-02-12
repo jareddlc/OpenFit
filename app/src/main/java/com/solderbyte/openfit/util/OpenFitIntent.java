@@ -24,6 +24,8 @@ public class OpenFitIntent {
     public static final String INTENT_GOOGLE_FIT = "com.solderbyte.openfit.google.fit";
     public static final String INTENT_GOOGLE_FIT_SYNC = "com.solderbyte.openfit.google.fit.sync";
     public static final String INTENT_GOOGLE_FIT_SYNC_STATUS = "com.solderbyte.openfit.google.fit.sync.status";
+    public static final String INTENT_BILLING = "com.solderbyte.openfit.billing";
+    public static final String INTENT_BILLING_VERIFIED = "com.solderbyte.openfit.billing.verified";
 
     public static final String INTENT_EXTRA_MSG = "message";
     public static final String INTENT_EXTRA_DATA = "data";

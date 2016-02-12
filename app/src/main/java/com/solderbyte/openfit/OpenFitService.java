@@ -7,6 +7,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Set;
 
+import com.android.vending.billing.IInAppBillingService;
 import com.solderbyte.openfit.R;
 import com.solderbyte.openfit.util.OpenFitIntent;
 
@@ -46,6 +47,8 @@ public class OpenFitService extends Service {
     private ApplicationManager appManager;
     private BluetoothLeService bluetoothLeService;
     private GoogleFit gFit = null;
+    private Billing billing = null;
+    private IInAppBillingService billingService;
     private Handler mHandler;
     private PackageManager pManager;
     private static ReconnectBluetoothThread reconnectThread;
@@ -63,7 +66,7 @@ public class OpenFitService extends Service {
     private boolean reconnecting = false;
     private boolean isStopping = false;
     private boolean isFinding = false;
-    private boolean isPaid = false;
+    private boolean isPremium = false;
     private SmsListener smsListener;
     private MmsListener mmsListener;
     private TelephonyManager telephony;
@@ -94,6 +97,7 @@ public class OpenFitService extends Service {
         this.registerReceiver(locationReceiver, new IntentFilter(OpenFitIntent.INTENT_SERVICE_LOCATION));
         this.registerReceiver(cronReceiver, new IntentFilter(OpenFitIntent.INTENT_SERVICE_CRONJOB));
         this.registerReceiver(googleFitReceiver, new IntentFilter(OpenFitIntent.INTENT_GOOGLE_FIT));
+        this.registerReceiver(billingReceiver, new IntentFilter(OpenFitIntent.INTENT_BILLING));
 
         // start modules
         pManager = this.getPackageManager();
@@ -102,6 +106,7 @@ public class OpenFitService extends Service {
         Weather.init(this);
         Cronjob.init(this);
         startCronJob();
+        startBillingServices();
 
         // start service
         this.createNotification(false);
@@ -559,6 +564,32 @@ public class OpenFitService extends Service {
         nManager.cancel(notificationId);
     }
 
+    public void startBillingServices() {
+        billing = new Billing();
+        billing.setContext(this);
+
+        Intent billingServiceIntent = new Intent("com.android.vending.billing.InAppBillingService.BIND");
+        billingServiceIntent.setPackage("com.android.vending");
+        bindService(billingServiceIntent, billingServiceConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    public ServiceConnection billingServiceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            Log.d(LOG_TAG, "Billing service disconnected");
+            billingService = null;
+        }
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            Log.d(LOG_TAG, "Billing service connected");
+            billingService = IInAppBillingService.Stub.asInterface(service);
+            billing.setService(billingService);
+            billing.getSkuDetails();
+            billing.verifyPremium();
+        }
+    };
+
     public void sendBluetoothBytes(byte[] bytes) {
         if(bluetoothLeService != null) {
             bluetoothLeService.write(bytes);
@@ -899,6 +930,7 @@ public class OpenFitService extends Service {
             unregisterReceiver(locationReceiver);
             unregisterReceiver(cronReceiver);
             unregisterReceiver(googleFitReceiver);
+            unregisterReceiver(billingReceiver);
             unbindService(mServiceConnection);
             Cronjob.stop();
             clearNotification();
@@ -1058,17 +1090,8 @@ public class OpenFitService extends Service {
                 LocationInfo.listenForLocation();
             }
 
-            Calendar cal = Calendar.getInstance();
-            cal.set(Calendar.YEAR, 2016);
-            cal.set(Calendar.MONTH, 1);
-            cal.set(Calendar.DAY_OF_MONTH, 7);
-            cal.set(Calendar.HOUR_OF_DAY, 23);
-            cal.set(Calendar.MINUTE, 0);
-            cal.set(Calendar.SECOND, 0);
-            Date trialDate = cal.getTime();
-            Date now = new Date();
-
-            if(trialDate.getTime() > now.getTime()) {
+            if(isPremium) {
+                Log.d(LOG_TAG, "Premium Features");
                 if(googleFitEnabled) {
                     googleFitSyncing = true;
                     sendFitnessRequest();
@@ -1105,6 +1128,25 @@ public class OpenFitService extends Service {
                 }
                 else {
                     Log.d(LOG_TAG, "Google Fit Sync failed");
+                }
+            }
+        }
+    };
+
+    private BroadcastReceiver billingReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final String message = intent.getStringExtra(OpenFitIntent.INTENT_EXTRA_MSG);
+            Log.d(LOG_TAG, "Received Billing: ");
+
+            if(message.equals(OpenFitIntent.INTENT_BILLING_VERIFIED)) {
+                Boolean verified = intent.getBooleanExtra(OpenFitIntent.INTENT_EXTRA_DATA, false);
+                if(verified) {
+                    Log.d(LOG_TAG, "Received Billing: ");
+                    isPremium = true;
+                }
+                else {
+                    isPremium = false;
                 }
             }
         }

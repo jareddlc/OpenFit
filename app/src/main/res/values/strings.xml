@@ -115,4 +115,6 @@
     <string name="notification_button_disconnect">Disconnect</string>
     <string name="notification_button_close">Shut Down</string>
     <string name="progress_dialog_syncing">Syncing to Google Fit.\nPlease allow up to 5 minutes</string>
+    <string name="calendar_event">Event</string>
+    <string name="calendar_when">When</string>
 </resources>

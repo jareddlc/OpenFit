@@ -4,11 +4,9 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Set;
 
 import com.android.vending.billing.IInAppBillingService;
-import com.solderbyte.openfit.R;
 import com.solderbyte.openfit.util.OpenFitIntent;
 
 import android.annotation.SuppressLint;
@@ -72,6 +70,7 @@ public class OpenFitService extends Service {
     private TelephonyManager telephony;
     private DialerListener dailerListener;
     private Notification notification;
+    private String prevWeatherInfo = "";
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -466,10 +465,14 @@ public class OpenFitService extends Service {
             i.putExtra(OpenFitIntent.EXTRA_PEDOMETER_TOTAL, Fitness.getPedometerTotal());
             i.putParcelableArrayListExtra(OpenFitIntent.EXTRA_PEDOMETER_LIST, Fitness.getPedometerList());
             i.putParcelableArrayListExtra(OpenFitIntent.EXTRA_PEDOMETER_DAILY_LIST, Fitness.getPedometerDailyList());
+            i.putParcelableArrayListExtra(OpenFitIntent.EXTRA_EXERCISE_LIST, Fitness.getExerciseDataList());
+            i.putParcelableArrayListExtra(OpenFitIntent.EXTRA_SLEEP_RESULT_LIST, Fitness.getSleepResultRecordList());
+            i.putParcelableArrayListExtra(OpenFitIntent.EXTRA_HEARTRATE_RESULT_LIST, Fitness.getHeartRateResultRecordList());
             i.putExtra(OpenFitIntent.EXTRA_PROFILE_DATA, Fitness.getProfileData());
             sendBroadcast(i);
             if(googleFitSyncing) {
-                startFitnessSync(Fitness.getPedometerList());
+                startFitnessSync(Fitness.getPedometerList(), Fitness.getExerciseDataList(), Fitness.getSleepResultRecordList(),
+                        Fitness.getDetailSleepInfoList(), Fitness.getHeartRateResultRecordList());
             }
         }
     }
@@ -635,11 +638,13 @@ public class OpenFitService extends Service {
         gFit = new GoogleFit(this);
     }
 
-    public void startFitnessSync(ArrayList<PedometerData> pedometerList) {
+    public void startFitnessSync(ArrayList<PedometerData> pedometerList, ArrayList<ExerciseData> eList,
+                                 ArrayList<SleepResultRecord> srList, ArrayList<DetailSleepInfo> siList,
+                                 ArrayList<HeartRateResultRecord> hList) {
         Log.d(LOG_TAG, "startFitnessSync");
         if(gFit != null) {
             Log.d(LOG_TAG, "gFit.setData");
-            gFit.setData(pedometerList);
+            gFit.setData(pedometerList, eList, srList, siList, hList);
             Log.d(LOG_TAG, "gFit.syncData");
             gFit.syncData();
         }
@@ -1062,13 +1067,22 @@ public class OpenFitService extends Service {
             String location = intent.getStringExtra("location");
 
             String weatherInfo = location + ": " + tempCur + tempUnit + "\nWeather: " + description;
-            Log.d(LOG_TAG, weatherInfo);
-            if(weatherClockEnabled || weatherClockReq) {
-                sendWeatherClock(location, tempCur, tempUnit, icon);
+            String unifiedWeatherInfo = tempCur+description;
+            Log.d(LOG_TAG, "Prev weather: " + prevWeatherInfo);
+            Log.d(LOG_TAG, "Unified weather: " + unifiedWeatherInfo);
+            Log.d(LOG_TAG, "Actual weather: " + weatherInfo);
+            if (!unifiedWeatherInfo.equals(prevWeatherInfo)) {
+                if (weatherClockEnabled || weatherClockReq) {
+                    sendWeatherClock(location, tempCur, tempUnit, icon);
+                }
+                if (weatherNotificationEnabled) {
+                    sendWeatherNotifcation(weatherInfo, icon);
+                }
             }
-            if(weatherNotificationEnabled) {
-                sendWeatherNotifcation(weatherInfo, icon);
+            else {
+                Log.d(LOG_TAG, "Weather same as before, not sending");
             }
+            prevWeatherInfo = unifiedWeatherInfo;
         }
     };
 

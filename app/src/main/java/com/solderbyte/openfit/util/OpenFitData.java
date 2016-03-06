@@ -100,10 +100,10 @@ public class OpenFitData {
     public static byte STRUCT_TYPE_DASHBOARD_HRM_RESULT = 16;
     public static byte STRUCT_TYPE_DASHBOARD_SLEEP_RESULT = 17;
 
-    public static byte RUN = 0;
-    public static byte WALK = 1;
-    public static byte CYCLING = 2;
-    public static byte HIKING = 3;
+    public static int WALK = 18002;
+    public static int RUN = 18003;
+    public static int CYCLING = 2;
+    public static int HIKING = 3;
 
     public static byte DATA_TYPE_HOST_TO_WINGTIP_SYNC_REQUEST = 0;
     public static byte DATA_TYPE_HOST_TO_WINGTUP_SYNC_DONE = 1;

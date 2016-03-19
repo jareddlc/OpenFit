@@ -509,7 +509,7 @@ public class Fitness {
 
             exerciseDataList.add(new ExerciseData(timeStamp, duration, calorie, heartrate, distance, fitnessLevel, type, avgSpeed, maxSpeed, maxHeartrate));
 
-            Log.d(LOG_TAG, "timeStamp: " + new Date(timeStamp));
+            /*Log.d(LOG_TAG, "timeStamp: " + new Date(timeStamp));
             Log.d(LOG_TAG, "duration: " + duration);
             Log.d(LOG_TAG, "calorie: " + calorie);
             Log.d(LOG_TAG, "heartrate: " + heartrate);
@@ -518,7 +518,7 @@ public class Fitness {
             Log.d(LOG_TAG, "type: " + type);
             Log.d(LOG_TAG, "avgSpeed: " + avgSpeed);
             Log.d(LOG_TAG, "maxSpeed: " + maxSpeed);
-            Log.d(LOG_TAG, "maxHeartrate: " + maxHeartrate);
+            Log.d(LOG_TAG, "maxHeartrate: " + maxHeartrate);*/
         }
     }
 

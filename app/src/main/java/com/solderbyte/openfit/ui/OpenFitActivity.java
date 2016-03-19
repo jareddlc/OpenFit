@@ -558,7 +558,7 @@ public class OpenFitActivity extends Activity {
                     ArrayList<HeartRateResultRecord> heartRateResultRecordList = intent.getParcelableArrayListExtra(OpenFitIntent.EXTRA_HEARTRATE_RESULT_LIST);
                     ProfileData profileData = intent.getParcelableExtra(OpenFitIntent.EXTRA_PROFILE_DATA);
                     if(gFit != null) {
-                        gFit.setData(pedometerList, exerciseDataList, sleepResultRecordList, detailSleepInfoList, heartRateResultRecordList);
+                        gFit.setData(pedometerList, exerciseDataList, sleepResultRecordList, detailSleepInfoList, heartRateResultRecordList, profileData);
                     }
 
                     if(fitnessRequeted) {

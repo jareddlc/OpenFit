@@ -114,4 +114,6 @@ public class ExerciseData implements Parcelable {
     public int getMaxHeartRate() {
         return maxHeartRate;
     }
+
+    public long getTimeStampEnd() { return timeStamp + duration * 1000L; }
 }

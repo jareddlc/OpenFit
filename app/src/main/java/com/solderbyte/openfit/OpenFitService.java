@@ -472,7 +472,7 @@ public class OpenFitService extends Service {
             sendBroadcast(i);
             if(googleFitSyncing) {
                 startFitnessSync(Fitness.getPedometerList(), Fitness.getExerciseDataList(), Fitness.getSleepResultRecordList(),
-                        Fitness.getDetailSleepInfoList(), Fitness.getHeartRateResultRecordList());
+                        Fitness.getDetailSleepInfoList(), Fitness.getHeartRateResultRecordList(), Fitness.getProfileData());
             }
         }
     }
@@ -640,11 +640,11 @@ public class OpenFitService extends Service {
 
     public void startFitnessSync(ArrayList<PedometerData> pedometerList, ArrayList<ExerciseData> eList,
                                  ArrayList<SleepResultRecord> srList, ArrayList<DetailSleepInfo> siList,
-                                 ArrayList<HeartRateResultRecord> hList) {
+                                 ArrayList<HeartRateResultRecord> hList, ProfileData pData) {
         Log.d(LOG_TAG, "startFitnessSync");
         if(gFit != null) {
             Log.d(LOG_TAG, "gFit.setData");
-            gFit.setData(pedometerList, eList, srList, siList, hList);
+            gFit.setData(pedometerList, eList, srList, siList, hList, pData);
             Log.d(LOG_TAG, "gFit.syncData");
             gFit.syncData();
         }
@@ -970,6 +970,11 @@ public class OpenFitService extends Service {
                 Log.d(LOG_TAG, "Received email:" + appName + " title:" + title + " ticker:" + ticker + " message:" + message);
                 sendEmailNotification(appName, title, ticker, message, id);
             }
+            else if (packageName.equals("com.android.calendar")) {
+                Log.d(LOG_TAG, "Received calendar:"  + appName + " Title:" + title + " Alarm time:"+message);
+                final String caltitle = getString(R.string.calendar_event) +": "+title+"\n" + getString(R.string.calendar_when) +": "+message;
+                sendAppNotification(appName, message, ticker, caltitle, id);
+            }
             else {
                 Log.d(LOG_TAG, "Received notification appName:" + appName + " title:" + title + " ticker:" + ticker + " message:" + message);
                 sendAppNotification(appName, title, ticker, message, id);
@@ -1071,7 +1076,7 @@ public class OpenFitService extends Service {
             Log.d(LOG_TAG, "Prev weather: " + prevWeatherInfo);
             Log.d(LOG_TAG, "Unified weather: " + unifiedWeatherInfo);
             Log.d(LOG_TAG, "Actual weather: " + weatherInfo);
-            if (!unifiedWeatherInfo.equals(prevWeatherInfo)) {
+            if (!unifiedWeatherInfo.equals(prevWeatherInfo) || weatherClockReq) {
                 if (weatherClockEnabled || weatherClockReq) {
                     sendWeatherClock(location, tempCur, tempUnit, icon);
                 }

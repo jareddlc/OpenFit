@@ -353,7 +353,7 @@ public class GoogleFit extends Activity {
 
                     // Log.d(LOG_TAG, "----- " + startDate + " steps: "+steps);
                     Date dateNow = new Date();
-                    long lastTimeDiff = dateNow.getTime() - startDate.getTime();
+                    long lastTimeDiff = dateNow.getTime() - endDate.getTime();
                     if (lastPedometerSession != null && lastPedometerSession.getTime() >= startDate.getTime()) {
                         // Log.d(LOG_TAG, "Pedometer data already Synced");
                         continue;

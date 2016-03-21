@@ -786,7 +786,6 @@ public class OpenFitActivity extends Activity {
                         progressDailog = new ProgressDialog(getActivity());
                         progressDailog.setMessage(getString(R.string.progress_dialog_syncing));
                         progressDailog.show();
-                        gFit.syncData();
                     }
                     else {
                         Log.d(LOG_TAG, "Google Fit Sync not connected");

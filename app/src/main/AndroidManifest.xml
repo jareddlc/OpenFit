@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest package="com.solderbyte.openfit"
-    android:versionCode="171"
-    android:versionName="1.7.1" xmlns:android="http://schemas.android.com/apk/res/android">
+    android:versionCode="180"
+    android:versionName="1.8.0" xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.RECEIVE_SMS"/>
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>

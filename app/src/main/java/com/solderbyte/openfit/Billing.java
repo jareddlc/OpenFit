@@ -220,22 +220,31 @@ public class Billing {
                         msg.putExtra(OpenFitIntent.INTENT_EXTRA_MSG, OpenFitIntent.INTENT_BILLING_VERIFIED);
 
                         if(sku.equals(PREMIUM_SKU) && packageName.equals(context.getPackageName())) {
-                            isPremium = true;
                             Log.d(LOG_TAG, "Premium purchase found");
                             Log.d(LOG_TAG, "state: " + purchaseState);
-                            msg.putExtra(OpenFitIntent.INTENT_EXTRA_DATA, true);
+                            int pState = Integer.parseInt(purchaseState);
+                            if(pState == PURCHASE_STATE_PURCHASED || pState == PURCHASE_STATE_REFUNDED) {
+                                Log.d(LOG_TAG, "purchase verified");
+                                isPremium = true;
+                                msg.putExtra(OpenFitIntent.INTENT_EXTRA_DATA, true);
+                            }
+                            if(pState == PURCHASE_STATE_CANCELLED) {
+                                Log.d(LOG_TAG, "purchase cancelled");
+                                isPremium = false;
+                            }
                         }
                         else {
                             isPremium = false;
                             msg.putExtra(OpenFitIntent.INTENT_EXTRA_DATA, false);
                             Log.d(LOG_TAG, "Premium purchase not found");
                         }
-                        Log.d(LOG_TAG, "Sending cotext");
+                        Log.d(LOG_TAG, "Sending context");
                         context.sendBroadcast(msg);
-
                     }
                 }
-
+                else {
+                    Log.d(LOG_TAG, "Premium response not ok");
+                }
             }
             catch(Exception e) {
                 Log.e(LOG_TAG, "verifyPremiumTask failed: " + e.getMessage());

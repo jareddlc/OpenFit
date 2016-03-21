@@ -17,15 +17,15 @@ import com.solderbyte.openfit.ApplicationManager;
 import com.solderbyte.openfit.Billing;
 import com.solderbyte.openfit.ExerciseData;
 import com.solderbyte.openfit.GoogleFit;
-import com.solderbyte.openfit.HeartRateResultRecord;
-import com.solderbyte.openfit.DetailSleepInfo;
+import com.solderbyte.openfit.HeartRateData;
+import com.solderbyte.openfit.SleepInfo;
 import com.solderbyte.openfit.OpenFitSavedPreferences;
 import com.solderbyte.openfit.OpenFitService;
 import com.solderbyte.openfit.PedometerData;
 import com.solderbyte.openfit.PedometerTotal;
 import com.solderbyte.openfit.ProfileData;
 import com.solderbyte.openfit.R;
-import com.solderbyte.openfit.SleepResultRecord;
+import com.solderbyte.openfit.SleepData;
 import com.solderbyte.openfit.util.OpenFitIntent;
 
 import android.app.Activity;
@@ -553,16 +553,16 @@ public class OpenFitActivity extends Activity {
                     ArrayList<PedometerData> pedometerList = intent.getParcelableArrayListExtra(OpenFitIntent.EXTRA_PEDOMETER_LIST);
                     ArrayList<PedometerData> pedometerDailyList = intent.getParcelableArrayListExtra(OpenFitIntent.EXTRA_PEDOMETER_DAILY_LIST);
                     ArrayList<ExerciseData> exerciseDataList = intent.getParcelableArrayListExtra(OpenFitIntent.EXTRA_EXERCISE_LIST);
-                    ArrayList<SleepResultRecord> sleepResultRecordList = intent.getParcelableArrayListExtra(OpenFitIntent.EXTRA_SLEEP_RESULT_LIST);
-                    ArrayList<DetailSleepInfo> detailSleepInfoList = intent.getParcelableArrayListExtra(OpenFitIntent.EXTRA_DETAIL_SLEEP_INFO_LIST);
-                    ArrayList<HeartRateResultRecord> heartRateResultRecordList = intent.getParcelableArrayListExtra(OpenFitIntent.EXTRA_HEARTRATE_RESULT_LIST);
+                    ArrayList<SleepData> sleepList = intent.getParcelableArrayListExtra(OpenFitIntent.EXTRA_SLEEP_LIST);
+                    ArrayList<SleepInfo> sleepInfoList = intent.getParcelableArrayListExtra(OpenFitIntent.EXTRA_SLEEP_INFO_LIST);
+                    ArrayList<HeartRateData> heartRateList = intent.getParcelableArrayListExtra(OpenFitIntent.EXTRA_HEARTRATE_LIST);
                     ProfileData profileData = intent.getParcelableExtra(OpenFitIntent.EXTRA_PROFILE_DATA);
                     if(gFit != null) {
-                        gFit.setData(pedometerList, exerciseDataList, sleepResultRecordList, detailSleepInfoList, heartRateResultRecordList, profileData);
+                        gFit.setData(pedometerList, exerciseDataList, sleepList, sleepInfoList, heartRateList, profileData);
                     }
 
                     if(fitnessRequeted) {
-                        DialogFitness d = new DialogFitness(getActivity(), pedometerDailyList, pedometerList, pedometerTotal, exerciseDataList, sleepResultRecordList, heartRateResultRecordList, profileData);
+                        DialogFitness d = new DialogFitness(getActivity(), pedometerDailyList, pedometerList, pedometerTotal, exerciseDataList, sleepList, heartRateList, profileData);
                         d.show(getFragmentManager(), OpenFitIntent.EXTRA_FITNESS);
                         fitnessRequeted = false;
                     }

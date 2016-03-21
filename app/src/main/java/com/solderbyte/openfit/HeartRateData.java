@@ -3,17 +3,17 @@ package com.solderbyte.openfit;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class HeartRateResultRecord implements Parcelable {
+public class HeartRateData implements Parcelable {
 
     private long timeStamp;
     private int heartRate;
 
-    public HeartRateResultRecord(long t, int h) {
+    public HeartRateData(long t, int h) {
         timeStamp = t;
         heartRate = h;
     }
 
-    public HeartRateResultRecord(Parcel source) {
+    public HeartRateData(Parcel source) {
         timeStamp = source.readLong();
         heartRate = source.readInt();
     }
@@ -29,14 +29,14 @@ public class HeartRateResultRecord implements Parcelable {
         source.writeInt(heartRate);
     }
 
-    public static final Creator<HeartRateResultRecord> CREATOR = new Creator<HeartRateResultRecord>() {
-        public HeartRateResultRecord createFromParcel(Parcel source) {
-            return new HeartRateResultRecord(source);
+    public static final Creator<HeartRateData> CREATOR = new Creator<HeartRateData>() {
+        public HeartRateData createFromParcel(Parcel source) {
+            return new HeartRateData(source);
         }
 
         @Override
-        public HeartRateResultRecord[] newArray(int size) {
-            return new HeartRateResultRecord[size];
+        public HeartRateData[] newArray(int size) {
+            return new HeartRateData[size];
         }
     };
 

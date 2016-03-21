@@ -3,7 +3,7 @@ package com.solderbyte.openfit;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class SleepResultRecord implements Parcelable {
+public class SleepData implements Parcelable {
 
     private long startTimeStamp;
     private long endTimeStamp;
@@ -11,7 +11,7 @@ public class SleepResultRecord implements Parcelable {
     private int index;
     private int len;
 
-    public SleepResultRecord(long st, long et, float e, int i, int l) {
+    public SleepData(long st, long et, float e, int i, int l) {
         startTimeStamp = st;
         endTimeStamp = et;
         efficiency = e;
@@ -19,7 +19,7 @@ public class SleepResultRecord implements Parcelable {
         len = l;
     }
 
-    public SleepResultRecord(Parcel source) {
+    public SleepData(Parcel source) {
         startTimeStamp = source.readLong();
         endTimeStamp = source.readLong();
         efficiency = source.readFloat();
@@ -41,14 +41,14 @@ public class SleepResultRecord implements Parcelable {
         source.writeInt(len);
     }
 
-    public static final Creator<SleepResultRecord> CREATOR = new Creator<SleepResultRecord>() {
-        public SleepResultRecord createFromParcel(Parcel source) {
-            return new SleepResultRecord(source);
+    public static final Creator<SleepData> CREATOR = new Creator<SleepData>() {
+        public SleepData createFromParcel(Parcel source) {
+            return new SleepData(source);
         }
 
         @Override
-        public SleepResultRecord[] newArray(int size) {
-            return new SleepResultRecord[size];
+        public SleepData[] newArray(int size) {
+            return new SleepData[size];
         }
     };
 

@@ -6,25 +6,22 @@ import java.util.Date;
 import java.util.Locale;
 
 import com.solderbyte.openfit.ExerciseData;
-import com.solderbyte.openfit.HeartRateResultRecord;
+import com.solderbyte.openfit.HeartRateData;
 import com.solderbyte.openfit.PedometerData;
 import com.solderbyte.openfit.PedometerTotal;
 import com.solderbyte.openfit.ProfileData;
 import com.solderbyte.openfit.R;
-import com.solderbyte.openfit.SleepResultRecord;
+import com.solderbyte.openfit.SleepData;
 import com.solderbyte.openfit.util.OpenFitData;
-import com.solderbyte.openfit.util.OpenFitIntent;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.Button;
 import android.widget.ListAdapter;
 
 public class DialogFitness extends DialogFragment {
@@ -37,10 +34,9 @@ public class DialogFitness extends DialogFragment {
 
     public DialogFitness() {}
 
-    public DialogFitness(Context cntxt, ArrayList<PedometerData> pedometerDailyList, ArrayList<PedometerData> pedometerList, PedometerTotal pedometerTotal,
-                         ArrayList<ExerciseData> exerciseDataList, ArrayList<SleepResultRecord> sleepResultRecordList, ArrayList<HeartRateResultRecord> heartRateResultRecordList, ProfileData profileData) {
+    public DialogFitness(Context cntxt, ArrayList<PedometerData> pedometerDailyList, ArrayList<PedometerData> pedometerList, PedometerTotal pedometerTotal, ArrayList<ExerciseData> exerciseDataList, ArrayList<SleepData> sleepList, ArrayList<HeartRateData> heartRateList, ProfileData profileData) {
         context = cntxt;
-        buildAdapter(pedometerDailyList, pedometerList, pedometerTotal, exerciseDataList, sleepResultRecordList, heartRateResultRecordList, profileData);
+        buildAdapter(pedometerDailyList, pedometerList, pedometerTotal, exerciseDataList, sleepList, heartRateList, profileData);
     }
 
     @Override
@@ -85,38 +81,45 @@ public class DialogFitness extends DialogFragment {
         }
     }
 
-    public void buildAdapter(ArrayList<PedometerData> pedometerDailyList, ArrayList<PedometerData> pedometerList, PedometerTotal pedometerTotal,
-                             ArrayList<ExerciseData> exerciseDataList, ArrayList<SleepResultRecord> sleepResultRecordList,ArrayList<HeartRateResultRecord> heartRateResultRecordList, ProfileData profileData) {
+    public void buildAdapter(ArrayList<PedometerData> pedometerDailyList, ArrayList<PedometerData> pedometerList, PedometerTotal pedometerTotal, ArrayList<ExerciseData> exerciseDataList, ArrayList<SleepData> sleepList, ArrayList<HeartRateData> heartRateList, ProfileData profileData) {
         ArrayList<String> items = new ArrayList<String>();
         ArrayList<String> subitems = new ArrayList<String>();
         ArrayList<Drawable> iDraw = new ArrayList<Drawable>();
         Calendar cal = Calendar.getInstance();
 
+        // profile data
         if(profileData != null) {
-            String item = OpenFitData.getGender(profileData.getGender()) + ", " + profileData.getAge() + " years";
-            String subitem = String.format(Locale.getDefault(), "%.2f", profileData.getHeight()) + "cm, " + String.format(Locale.getDefault(), "%.2f", profileData.getWeight()) + "kg";
-            Drawable icon = context.getDrawable(R.drawable.open_stand);
+            String item = "Profile";
+            String subitem = "Gender: " + OpenFitData.getGender(profileData.getGender()) + "\n";
+            subitem += "Age: " + profileData.getAge() + " years\n";
+            subitem += "Height: " + String.format(Locale.getDefault(), "%.2f", profileData.getHeight()) + "cm\n";
+            subitem += "Weight: " + String.format(Locale.getDefault(), "%.2f", profileData.getWeight()) + "kg";
+            Drawable icon = context.getResources().getDrawable(R.drawable.open_stand);
             icon.setBounds(0, 0, 144, 144);
             items.add(item);
             subitems.add(subitem);
             iDraw.add(icon);
         }
 
+        // pedometer total
         if(pedometerTotal != null) {
             String steps = Integer.toString(pedometerTotal.getSteps());
             String distance = String.format(Locale.getDefault(), "%.2f", pedometerTotal.getDistance());
             String calories = String.format(Locale.getDefault(), "%.2f", pedometerTotal.getCalories());
-            String item = "Total steps: " + steps;
+            String item = "Pedometer Total";
             items.add(item);
-            String subitem = distance + "m, " + calories + "kcal";
+            String subitem = "Total steps: " + steps + "\n";
+            subitem += "Distance: " + distance + "m\n";
+            subitem += "Calories: " + calories + "kcal";
             subitems.add(subitem);
 
-            Drawable icon = context.getDrawable(R.drawable.open_walk);
+            Drawable icon = context.getResources().getDrawable(R.drawable.open_walk);
             icon.setBounds(0, 0, 144, 144);
             iDraw.add(icon);
         }
 
-        for(int i = pedometerDailyList.size() - 1; i >= 0 && i > pedometerDailyList.size() - 4; i--) {
+        // pedometer list
+        for(int i = pedometerDailyList.size() - 1; i >= 0; i--) {
             Date date = new Date(pedometerDailyList.get(i).getTimeStamp());
             cal.setTime(date);
             cal.set(Calendar.DAY_OF_MONTH, (cal.get(Calendar.DAY_OF_MONTH) - 1));
@@ -124,30 +127,26 @@ public class DialogFitness extends DialogFragment {
             String day = Integer.toString(cal.get(Calendar.DAY_OF_MONTH));
             String year = Integer.toString(cal.get(Calendar.YEAR));
 
-            String item = month + " " + day + ", " + year;
+            String item = "Steps";
             items.add(item);
 
             String steps = Integer.toString(pedometerDailyList.get(i).getSteps());
             String distance = String.format(Locale.getDefault(), "%.2f", pedometerDailyList.get(i).getDistance());
             String calories = String.format(Locale.getDefault(), "%.2f", pedometerDailyList.get(i).getCalories());
 
-            String subitem = "Steps: " + steps + ", " + distance + "m, " + calories + "kcal";
+            String subitem = month + " " + day + ", " + year + "\n";
+            subitem += "Steps: " + steps + "\n";
+            subitem += "Distance: " + distance + "m\n";
+            subitem += "Calories: " + calories + "kcal";
             subitems.add(subitem);
 
-            Drawable icon = context.getDrawable(R.drawable.open_walk);
+            Drawable icon = context.getResources().getDrawable(R.drawable.open_walk);
             icon.setBounds(0, 0, 144, 144);
             iDraw.add(icon);
         }
 
-        int walking = 0;
-        int running = 0;
+        // exercise list
         for(int i = exerciseDataList.size() - 1; i >= 0; i--) {
-            if (walking >= 3 && exerciseDataList.get(i).getExerciseType() == OpenFitData.WALK) {
-                continue;
-            }
-            if (running >= 3 && exerciseDataList.get(i).getExerciseType() == OpenFitData.RUN) {
-                continue;
-            }
             Date date = new Date(exerciseDataList.get(i).getTimeStamp());
             cal.setTime(date);
             cal.set(Calendar.DAY_OF_MONTH, (cal.get(Calendar.DAY_OF_MONTH)));
@@ -157,74 +156,84 @@ public class DialogFitness extends DialogFragment {
             String hour = Integer.toString(cal.get(Calendar.HOUR_OF_DAY));
             String min = String.format("%02d", cal.get(Calendar.MINUTE));
 
-            String item = month + " " + day + ", " + year + ", " + hour + ":" +  min;
+            Drawable icon = null;
+            String item = null;
+
+            if(exerciseDataList.get(i).getExerciseType() == OpenFitData.WALK) {
+                item = "Exercise: Walking";
+                icon = context.getResources().getDrawable(R.drawable.open_walk);
+            }
+            else if(exerciseDataList.get(i).getExerciseType() == OpenFitData.RUN) {
+                item = "Exercise: Running";
+                icon = context.getResources().getDrawable(R.drawable.open_run);
+            }
             items.add(item);
 
             int h = (int)exerciseDataList.get(i).getDuration() / 3600;
             int m = (int)(exerciseDataList.get(i).getDuration() % 3600) / 60;
             int s = (int)exerciseDataList.get(i).getDuration() % 60;
-            String duration = Integer.toString(h) + "h" + Integer.toString(m) + "m" + Integer.toString(s) + "s";
+            String duration = Integer.toString(h) + "h " + Integer.toString(m) + "m " + Integer.toString(s) + "s";
             String calories = String.format(Locale.getDefault(), "%.2f", exerciseDataList.get(i).getCalories());
 
-            String subitem = "Duration: " + duration + "\nCalories: " + calories + "kcal\n";
             String heartRate = Integer.toString(exerciseDataList.get(i).getAvgHeartRate());
             String distance = String.format(Locale.getDefault(), "%.2f", exerciseDataList.get(i).getDistance());
             String avgSpeed = String.format(Locale.getDefault(), "%.2f", exerciseDataList.get(i).getAvgSpeed()*3.6); // 3.6 to km/h
             String maxSpeed = String.format(Locale.getDefault(), "%.2f", exerciseDataList.get(i).getMaxSpeed()*3.6); // 3.6 to km/h
             String maxHeartRate = Integer.toString(exerciseDataList.get(i).getMaxHeartRate());
+
+            String subitem = month + " " + day + ", " + year + "\n";
+            subitem += "Time: " + hour + ":" +  min + "\n";
+            subitem += "Duration: " + duration + "\n";
+            subitem += "Calories: " + calories + "kcal\n";
             subitem += "Distance: " + distance + "m\n";
-            subitem += "Avg HR: " + heartRate + "bpm\nMax HR: " + maxHeartRate + "bpm\n";
-            subitem += "Avg speed: " + avgSpeed + "km/h\nMax speed: " + maxSpeed + "km/h";
+            subitem += "Avg HR: " + heartRate + "bpm\n";
+            subitem += "Max HR: " + maxHeartRate + "bpm\n";
+            subitem += "Avg speed: " + avgSpeed + "km/h\n";
+            subitem += "Max speed: " + maxSpeed + "km/h";
             subitems.add(subitem);
 
-            Drawable icon = null;
-            if (exerciseDataList.get(i).getExerciseType() == OpenFitData.WALK) {
-                icon = context.getDrawable(R.drawable.open_walk);
-                walking += 1;
-            }
-            else if (exerciseDataList.get(i).getExerciseType() == OpenFitData.RUN) {
-                icon = context.getDrawable(R.drawable.open_run);
-                running += 1;
-            }
             icon.setBounds(0, 0, 144, 144);
             iDraw.add(icon);
         }
 
-        for(int i = sleepResultRecordList.size() - 1; i >= 0 && i > sleepResultRecordList.size() - 4; i--) {
-            Date dateFrom = new Date(sleepResultRecordList.get(i).getStartTimeStamp());
+        // sleep list
+        for(int i = sleepList.size() - 1; i >= 0 && i > sleepList.size() - 4; i--) {
+            Date dateFrom = new Date(sleepList.get(i).getStartTimeStamp());
             cal.setTime(dateFrom);
             cal.set(Calendar.DAY_OF_MONTH, (cal.get(Calendar.DAY_OF_MONTH)));
-            String month1 = cal.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault());
-            String day1 = Integer.toString(cal.get(Calendar.DAY_OF_MONTH));
-            String year1 = Integer.toString(cal.get(Calendar.YEAR));
-            String hour1 = Integer.toString(cal.get(Calendar.HOUR_OF_DAY));
-            String min1 = String.format("%02d", cal.get(Calendar.MINUTE));
+            String monthF = cal.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault());
+            String dayF = Integer.toString(cal.get(Calendar.DAY_OF_MONTH));
+            String yearF = Integer.toString(cal.get(Calendar.YEAR));
+            String hourF = Integer.toString(cal.get(Calendar.HOUR_OF_DAY));
+            String minF = String.format("%02d", cal.get(Calendar.MINUTE));
 
-            Date dateTo = new Date(sleepResultRecordList.get(i).getEndTimeStamp());
+            Date dateTo = new Date(sleepList.get(i).getEndTimeStamp());
             cal.setTime(dateTo);
             cal.set(Calendar.DAY_OF_MONTH, (cal.get(Calendar.DAY_OF_MONTH)));
-            String month2 = cal.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault());
-            String day2 = Integer.toString(cal.get(Calendar.DAY_OF_MONTH));
-            String year2 = Integer.toString(cal.get(Calendar.YEAR));
-            String hour2 = Integer.toString(cal.get(Calendar.HOUR_OF_DAY));
-            String min2 = String.format("%02d", cal.get(Calendar.MINUTE));
+            String monthT = cal.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault());
+            String dayT = Integer.toString(cal.get(Calendar.DAY_OF_MONTH));
+            String yearT = Integer.toString(cal.get(Calendar.YEAR));
+            String hourT = Integer.toString(cal.get(Calendar.HOUR_OF_DAY));
+            String minT = String.format("%02d", cal.get(Calendar.MINUTE));
 
-            String item = "Start of sleep: " + month1 + " " + day1 + ", " + year1 + ", " + hour1 + ":" +  min1 + "\n";
-            item += "End of sleep: " + month2 + " " + day2 + ", " + year2 + ", " + hour2 + ":" +  min2;
+            String item = "Sleep";
             items.add(item);
 
-            String efficiency = String.format("%.2f", sleepResultRecordList.get(i).getEfficiency());
+            String efficiency = String.format("%.2f", sleepList.get(i).getEfficiency());
 
-            String subitem = "Efficiency: " + efficiency + "%";
+            String subitem = "Start: " + monthF + " " + dayF + ", " + yearF + ", " + hourF + ":" +  minF + "\n";
+            subitem += "Stop: " + monthT + " " + dayT + ", " + yearT + ", " + hourT + ":" +  minT + "\n";
+            subitem += "Efficiency: " + efficiency + "%";
             subitems.add(subitem);
 
-            Drawable icon = context.getDrawable(R.drawable.open_sleep);
+            Drawable icon = context.getResources().getDrawable(R.drawable.open_sleep);
             icon.setBounds(0, 0, 144, 144);
             iDraw.add(icon);
         }
 
-        for(int i = heartRateResultRecordList.size() - 1; i >= 0 && i > heartRateResultRecordList.size() - 4; i--) {
-            Date date = new Date(heartRateResultRecordList.get(i).getTimeStamp());
+        // heartrate list
+        for(int i = heartRateList.size() - 1; i >= 0 && i > heartRateList.size() - 4; i--) {
+            Date date = new Date(heartRateList.get(i).getTimeStamp());
             cal.setTime(date);
             cal.set(Calendar.DAY_OF_MONTH, (cal.get(Calendar.DAY_OF_MONTH)));
             String month = cal.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault());
@@ -233,26 +242,29 @@ public class DialogFitness extends DialogFragment {
             String hour = Integer.toString(cal.get(Calendar.HOUR_OF_DAY));
             String min = String.format("%02d", cal.get(Calendar.MINUTE));
 
-            String item = month + " " + day + ", " + year + ", " + hour + ":" +  min;
+            String item = "Heart Rate";
             items.add(item);
 
-            String heartRate = Integer.toString(heartRateResultRecordList.get(i).getHeartRate());
+            String heartRate = Integer.toString(heartRateList.get(i).getHeartRate());
 
-            String subitem = "Heartrate: " + heartRate + "bpm";
+            String subitem = month + " " + day + ", " + year + "\n";
+            subitem += "Time: " + hour + ":" +  min + "\n";
+            subitem += "Heart Rate: " + heartRate + "bpm";
             subitems.add(subitem);
 
-            Drawable icon = context.getDrawable(R.drawable.open_heart);
+            Drawable icon = context.getResources().getDrawable(R.drawable.open_heart);
             icon.setBounds(0, 0, 144, 144);
             iDraw.add(icon);
         }
 
+        // no fitness data
         if(items.size() <= 0) {
             String item = "No fitness data found";
             String subitem = "Enable pedometer on Gear Fit";
             items.add(item);
             subitems.add(subitem);
 
-            Drawable icon = context.getDrawable(R.drawable.open_info);
+            Drawable icon = context.getResources().getDrawable(R.drawable.open_info);
             icon.setBounds(0, 0, 144, 144);
             iDraw.add(icon);
         }

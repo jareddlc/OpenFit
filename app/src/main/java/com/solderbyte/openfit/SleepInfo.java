@@ -3,19 +3,19 @@ package com.solderbyte.openfit;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class DetailSleepInfo implements Parcelable {
+public class SleepInfo implements Parcelable {
 
     private int index;
     private long timeStamp;
     private int status;
 
-    public DetailSleepInfo(int i, long t, int s) {
+    public SleepInfo(int i, long t, int s) {
         index = i;
         timeStamp = t;
         status = s;
     }
 
-    public DetailSleepInfo(Parcel source) {
+    public SleepInfo(Parcel source) {
         index = source.readInt();
         timeStamp = source.readLong();
         status = source.readInt();
@@ -33,14 +33,14 @@ public class DetailSleepInfo implements Parcelable {
         source.writeInt(status);
     }
 
-    public static final Creator<DetailSleepInfo> CREATOR = new Creator<DetailSleepInfo>() {
-        public DetailSleepInfo createFromParcel(Parcel source) {
-            return new DetailSleepInfo(source);
+    public static final Creator<SleepInfo> CREATOR = new Creator<SleepInfo>() {
+        public SleepInfo createFromParcel(Parcel source) {
+            return new SleepInfo(source);
         }
 
         @Override
-        public DetailSleepInfo[] newArray(int size) {
-            return new DetailSleepInfo[size];
+        public SleepInfo[] newArray(int size) {
+            return new SleepInfo[size];
         }
     };
 

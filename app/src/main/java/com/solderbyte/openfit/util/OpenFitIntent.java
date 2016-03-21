@@ -79,9 +79,9 @@ public class OpenFitIntent {
     public static final String EXTRA_PEDOMETER_LIST = "pedometerArrayList";
     public static final String EXTRA_PEDOMETER_DAILY_LIST = "pedometerDailyArrayList";
     public static final String EXTRA_EXERCISE_LIST = "exerciseDataList";
-    public static final String EXTRA_SLEEP_RESULT_LIST = "sleepResultRecordList";
-    public static final String EXTRA_DETAIL_SLEEP_INFO_LIST = "detailSleepInfoList";
-    public static final String EXTRA_HEARTRATE_RESULT_LIST = "heartRateResultRecordList";
+    public static final String EXTRA_SLEEP_LIST = "sleepList";
+    public static final String EXTRA_SLEEP_INFO_LIST = "sleepInfoList";
+    public static final String EXTRA_HEARTRATE_LIST = "heartRateList";
     public static final String EXTRA_PROFILE_DATA = "profileData";
     public static final String EXTRA_APPLICATIONS = "applications";
     public static final String EXTRA_APPLICATIONS_PACKAGE_NAME = "packageName";

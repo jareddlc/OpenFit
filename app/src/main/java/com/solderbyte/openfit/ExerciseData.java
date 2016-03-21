@@ -1,8 +1,5 @@
 package com.solderbyte.openfit;
 
-/**
- * Created by Roman Galacz, galacz.roman@gmail.com on 28.2.2016
- */
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -115,5 +112,7 @@ public class ExerciseData implements Parcelable {
         return maxHeartRate;
     }
 
-    public long getTimeStampEnd() { return timeStamp + duration * 1000L; }
+    public long getTimeStampEnd() {
+        return timeStamp + duration * 1000L;
+    }
 }

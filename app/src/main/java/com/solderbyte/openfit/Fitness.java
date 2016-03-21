@@ -26,9 +26,9 @@ public class Fitness {
     private static ArrayList<PedometerData> pedometerList = new ArrayList<PedometerData>();
     private static ArrayList<PedometerData> pedometerDailyList = new ArrayList<PedometerData>();
     private static ArrayList<ExerciseData> exerciseDataList = new ArrayList<ExerciseData>();
-    private static ArrayList<DetailSleepInfo> detailSleepInfoList = new ArrayList<DetailSleepInfo>();
-    private static ArrayList<SleepResultRecord> sleepResultRecordList = new ArrayList<SleepResultRecord>();
-    private static ArrayList<HeartRateResultRecord> heartRateResultRecordList = new ArrayList<HeartRateResultRecord>();
+    private static ArrayList<SleepInfo> sleepInfoList = new ArrayList<SleepInfo>();
+    private static ArrayList<SleepData> sleepList = new ArrayList<SleepData>();
+    private static ArrayList<HeartRateData> heartRateList = new ArrayList<HeartRateData>();
     private static ProfileData profileData = null;
 
     public static int getSize() {
@@ -50,29 +50,29 @@ public class Fitness {
     public static ArrayList<ExerciseData> getExerciseDataList() {
         class cmp implements Comparator<ExerciseData> {
             @Override
-            public int compare(ExerciseData o1, ExerciseData o2) {
-                return ((Integer)o1.getExerciseType()).compareTo((Integer)o2.getExerciseType());
+            public int compare(ExerciseData ex1, ExerciseData ex2) {
+                return ((Integer)ex1.getExerciseType()).compareTo((Integer)ex2.getExerciseType());
             }
         }
         Collections.sort(exerciseDataList, new cmp());
         return exerciseDataList;
     }
 
-    public static ArrayList<DetailSleepInfo> getDetailSleepInfoList() {
-        return detailSleepInfoList;
+    public static ArrayList<SleepInfo> getSleepInfoList() {
+        return sleepInfoList;
     }
 
-    public static ArrayList<SleepResultRecord> getSleepResultRecordList() {
-        return sleepResultRecordList;
+    public static ArrayList<SleepData> getSleepList() {
+        return sleepList;
     }
 
-    public static ArrayList<HeartRateResultRecord> getHeartRateResultRecordList() {
-        return heartRateResultRecordList;
+    public static ArrayList<HeartRateData> getHeartRateList() {
+        return heartRateList;
     }
 
     public static PedometerData[] getPedometerArray() {
         PedometerData[] p = new PedometerData[pedometerList.size()];
-        for (int i = 0; i < pedometerList.size(); i++) {
+        for(int i = 0; i < pedometerList.size(); i++) {
             p[i] = pedometerList.get(i);
         }
         return p;
@@ -89,9 +89,9 @@ public class Fitness {
         pedometerList = new ArrayList<PedometerData>();
         pedometerDailyList = new ArrayList<PedometerData>();
         exerciseDataList = new ArrayList<ExerciseData>();
-        detailSleepInfoList = new ArrayList<DetailSleepInfo>();
-        sleepResultRecordList = new ArrayList<SleepResultRecord>();
-        heartRateResultRecordList = new ArrayList<HeartRateResultRecord>();
+        sleepInfoList = new ArrayList<SleepInfo>();
+        sleepList = new ArrayList<SleepData>();
+        heartRateList = new ArrayList<HeartRateData>();
     }
 
     public static boolean isPendingData() {
@@ -176,7 +176,7 @@ public class Fitness {
                 parsePedometerProfile(buffer);
             }
             else if(fitnessType ==  OpenFitData.DATA_TYPE_PEDO_RESULTRECORD) {
-                Log.d(LOG_TAG, "Pedo Result Record");
+                Log.d(LOG_TAG, "Pedometer Result Record");
                 parsePedoResultRecord(buffer);
             }
             else if(fitnessType ==  OpenFitData.DATA_TYPE_HEARTRATE_RESULTRECORD) {
@@ -184,7 +184,7 @@ public class Fitness {
                 parseHeartrateResultRecord(buffer);
             }
             else if(fitnessType ==  OpenFitData.DATA_TYPE_PEDO_INFO) {
-                Log.d(LOG_TAG, "Pedemeter Info");
+                Log.d(LOG_TAG, "Pedometer Info");
                 parsePedoInfo(buffer);
             }
             else if(fitnessType == OpenFitData.DATA_TYPE_SLEEP_INFO) {
@@ -273,7 +273,7 @@ public class Fitness {
         profileData = new ProfileData(timeStamp, age, height, weight, gender, birthday, heightUnit, weightUnit, distanceUnit, activity);
 
         Date date = new Date(timeStamp);
-        /*Log.d(LOG_TAG, "time stamp: " + timeStamp);
+        Log.d(LOG_TAG, "time stamp: " + timeStamp);
         Log.d(LOG_TAG, "date: " + date);
         Log.d(LOG_TAG, "age: " + age);
         Log.d(LOG_TAG, "height: " + height + OpenFitData.getHeightUnit(heightUnit));
@@ -281,7 +281,7 @@ public class Fitness {
         Log.d(LOG_TAG, "gender: " + OpenFitData.getGender(gender));
         Log.d(LOG_TAG, "activity: " + activity);
         Log.d(LOG_TAG, "birthday: " + birthday);
-        Log.d(LOG_TAG, "distanceUnit: " + OpenFitData.getDistanceUnit(distanceUnit));*/
+        Log.d(LOG_TAG, "distanceUnit: " + OpenFitData.getDistanceUnit(distanceUnit));
     }
 
     public static void parsePedoInfo(ByteBuffer buffer) {
@@ -340,9 +340,9 @@ public class Fitness {
         }
 
         pedometerTotal = new PedometerTotal(pedometerTotalSteps, pedometerTotalDistance, pedometerTotalCalorie);
-        /*Log.d(LOG_TAG, "totalSteps: " + pedometerTotal.getSteps());
+        Log.d(LOG_TAG, "totalSteps: " + pedometerTotal.getSteps());
         Log.d(LOG_TAG, "totalDistance: " + pedometerTotal.getDistance());
-        Log.d(LOG_TAG, "totalCalorie: " + pedometerTotal.getCalories());*/
+        Log.d(LOG_TAG, "totalCalorie: " + pedometerTotal.getCalories());
     }
 
     @SuppressWarnings("unused")
@@ -356,7 +356,7 @@ public class Fitness {
             int status = buffer.getInt();
             Date date = new Date(timeStamp);
 
-            detailSleepInfoList.add(new DetailSleepInfo(index, timeStamp, status));
+            sleepInfoList.add(new SleepInfo(index, timeStamp, status));
 
             /*Log.d(LOG_TAG, "idex: " + index);
             Log.d(LOG_TAG, "date: " + date.toString());
@@ -378,7 +378,7 @@ public class Fitness {
             Date startDate = new Date(startTimeStamp);
             Date endDate = new Date(endTimeStamp);
 
-            sleepResultRecordList.add(new SleepResultRecord(startTimeStamp,endTimeStamp,efficiency,index,len));
+            sleepList.add(new SleepData(startTimeStamp, endTimeStamp, efficiency, index, len));
 
             /*Log.d(LOG_TAG, "index: " + index);
             Log.d(LOG_TAG, "startDate: " + startDate.toString());
@@ -426,14 +426,14 @@ public class Fitness {
         int n = buffer.getInt();
 
         for (int i = 0; i < n; ++i) {
-            long n2 = buffer.getInt() * 1000L;
-            int n3 = buffer.getInt();
+            long date = buffer.getInt() * 1000L;
+            int hr = buffer.getInt();
 
-            Date timeStamp = new Date(n2);
+            Date timeStamp = new Date(date);
 
-            heartRateResultRecordList.add(new HeartRateResultRecord(n2, n3));
-            /*Log.d(LOG_TAG, "timeStamp: " + timeStamp);
-            Log.d(LOG_TAG, "heartRate: " + n3);*/
+            heartRateList.add(new HeartRateData(date, hr));
+            Log.d(LOG_TAG, "timeStamp: " + timeStamp);
+            Log.d(LOG_TAG, "heartRate: " + hr);
         }
     }
 

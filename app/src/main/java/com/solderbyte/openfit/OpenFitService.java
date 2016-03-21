@@ -70,7 +70,6 @@ public class OpenFitService extends Service {
     private TelephonyManager telephony;
     private DialerListener dailerListener;
     private Notification notification;
-    private String prevWeatherInfo = "";
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -466,13 +465,12 @@ public class OpenFitService extends Service {
             i.putParcelableArrayListExtra(OpenFitIntent.EXTRA_PEDOMETER_LIST, Fitness.getPedometerList());
             i.putParcelableArrayListExtra(OpenFitIntent.EXTRA_PEDOMETER_DAILY_LIST, Fitness.getPedometerDailyList());
             i.putParcelableArrayListExtra(OpenFitIntent.EXTRA_EXERCISE_LIST, Fitness.getExerciseDataList());
-            i.putParcelableArrayListExtra(OpenFitIntent.EXTRA_SLEEP_RESULT_LIST, Fitness.getSleepResultRecordList());
-            i.putParcelableArrayListExtra(OpenFitIntent.EXTRA_HEARTRATE_RESULT_LIST, Fitness.getHeartRateResultRecordList());
+            i.putParcelableArrayListExtra(OpenFitIntent.EXTRA_SLEEP_LIST, Fitness.getSleepList());
+            i.putParcelableArrayListExtra(OpenFitIntent.EXTRA_HEARTRATE_LIST, Fitness.getHeartRateList());
             i.putExtra(OpenFitIntent.EXTRA_PROFILE_DATA, Fitness.getProfileData());
             sendBroadcast(i);
             if(googleFitSyncing) {
-                startFitnessSync(Fitness.getPedometerList(), Fitness.getExerciseDataList(), Fitness.getSleepResultRecordList(),
-                        Fitness.getDetailSleepInfoList(), Fitness.getHeartRateResultRecordList(), Fitness.getProfileData());
+                startFitnessSync(Fitness.getPedometerList(), Fitness.getExerciseDataList(), Fitness.getSleepList(), Fitness.getSleepInfoList(), Fitness.getHeartRateList(), Fitness.getProfileData());
             }
         }
     }
@@ -638,13 +636,11 @@ public class OpenFitService extends Service {
         gFit = new GoogleFit(this);
     }
 
-    public void startFitnessSync(ArrayList<PedometerData> pedometerList, ArrayList<ExerciseData> eList,
-                                 ArrayList<SleepResultRecord> srList, ArrayList<DetailSleepInfo> siList,
-                                 ArrayList<HeartRateResultRecord> hList, ProfileData pData) {
+    public void startFitnessSync(ArrayList<PedometerData> pedometerList, ArrayList<ExerciseData> exerciseList, ArrayList<SleepData> sleepList, ArrayList<SleepInfo> sleepInfoList, ArrayList<HeartRateData> heartRateList, ProfileData pData) {
         Log.d(LOG_TAG, "startFitnessSync");
         if(gFit != null) {
             Log.d(LOG_TAG, "gFit.setData");
-            gFit.setData(pedometerList, eList, srList, siList, hList, pData);
+            gFit.setData(pedometerList, exerciseList, sleepList, sleepInfoList, heartRateList, pData);
             Log.d(LOG_TAG, "gFit.syncData");
             gFit.syncData();
         }
@@ -970,13 +966,13 @@ public class OpenFitService extends Service {
                 Log.d(LOG_TAG, "Received email:" + appName + " title:" + title + " ticker:" + ticker + " message:" + message);
                 sendEmailNotification(appName, title, ticker, message, id);
             }
-            else if (packageName.equals("com.android.calendar")) {
-                Log.d(LOG_TAG, "Received calendar:"  + appName + " Title:" + title + " Alarm time:"+message);
-                final String caltitle = getString(R.string.calendar_event) +": "+title+"\n" + getString(R.string.calendar_when) +": "+message;
+            else if(packageName.equals("com.android.calendar")) {
+                Log.d(LOG_TAG, "Received calendar: "  + appName + " Title:" + title + " Alarm time:"+message);
+                final String caltitle = getString(R.string.calendar_event) + ": " + title + "\n" + getString(R.string.calendar_when) + ": " + message;
                 sendAppNotification(appName, message, ticker, caltitle, id);
             }
             else {
-                Log.d(LOG_TAG, "Received notification appName:" + appName + " title:" + title + " ticker:" + ticker + " message:" + message);
+                Log.d(LOG_TAG, "Received notification appName: " + appName + " title:" + title + " ticker:" + ticker + " message:" + message);
                 sendAppNotification(appName, title, ticker, message, id);
             }
         }
@@ -1072,22 +1068,14 @@ public class OpenFitService extends Service {
             String location = intent.getStringExtra("location");
 
             String weatherInfo = location + ": " + tempCur + tempUnit + "\nWeather: " + description;
-            String unifiedWeatherInfo = tempCur+description;
-            Log.d(LOG_TAG, "Prev weather: " + prevWeatherInfo);
-            Log.d(LOG_TAG, "Unified weather: " + unifiedWeatherInfo);
-            Log.d(LOG_TAG, "Actual weather: " + weatherInfo);
-            if (!unifiedWeatherInfo.equals(prevWeatherInfo) || weatherClockReq) {
-                if (weatherClockEnabled || weatherClockReq) {
-                    sendWeatherClock(location, tempCur, tempUnit, icon);
-                }
-                if (weatherNotificationEnabled) {
-                    sendWeatherNotifcation(weatherInfo, icon);
-                }
+            Log.d(LOG_TAG, weatherInfo);
+
+            if(weatherClockEnabled || weatherClockReq) {
+                sendWeatherClock(location, tempCur, tempUnit, icon);
             }
-            else {
-                Log.d(LOG_TAG, "Weather same as before, not sending");
+            if(weatherNotificationEnabled) {
+                sendWeatherNotifcation(weatherInfo, icon);
             }
-            prevWeatherInfo = unifiedWeatherInfo;
         }
     };
 

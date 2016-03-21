@@ -77,8 +77,12 @@ public class LocationInfo {
                 if(addresses.size() > 0) {
                     cityName = addresses.get(0).getLocality();
                     cityName = addresses.get(0).getLocality();
-                    if (cityName == null) cityName = addresses.get(0).getSubAdminArea();
-                    if (cityName == null) cityName = addresses.get(0).getAdminArea();
+                    if(cityName == null) {
+                        cityName = addresses.get(0).getSubAdminArea();
+                    }
+                    if(cityName == null) {
+                        cityName = addresses.get(0).getAdminArea();
+                    }
                     StateName = addresses.get(0).getAdminArea();
                     CountryName = addresses.get(0).getCountryName();
                     CountryCode = addresses.get(0).getCountryCode();
@@ -124,8 +128,12 @@ public class LocationInfo {
                         addresses = geocoder.getFromLocation(latitude, longitude, 1);
                         if(addresses.size() > 0) {
                             cityName = addresses.get(0).getLocality();
-                            if (cityName == null) cityName = addresses.get(0).getSubAdminArea();
-                            if (cityName == null) cityName = addresses.get(0).getAdminArea();
+                            if(cityName == null) {
+                                cityName = addresses.get(0).getSubAdminArea();
+                            }
+                            if(cityName == null) {
+                                cityName = addresses.get(0).getAdminArea();
+                            }
                             StateName = addresses.get(0).getAdminArea();
                             CountryName = addresses.get(0).getCountryName();
                             CountryCode = addresses.get(0).getCountryCode();
@@ -155,26 +163,26 @@ public class LocationInfo {
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 1, locationListener);
         //locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, locationListener, null);
         new android.os.Handler().postDelayed(
-                new Runnable() {
-                    public void run() {
-                        Log.d(LOG_TAG, "Location not change: " + cityName + ", " + CountryCode);
-                        if(locationListener != null) {
-                            Log.d(LOG_TAG, "Removing Location updates");
-                            locationManager.removeUpdates(locationListener);
-                            if(latitude == 0 && longitude == 0) {
-                                updateLastKnownLocation();
-                            }
-                        }
-                        if (cityName != null && CountryCode != null) {
-                            Intent msg = new Intent(OpenFitIntent.INTENT_SERVICE_LOCATION);
-                            msg.putExtra("cityName", cityName);
-                            msg.putExtra("StateName", StateName);
-                            msg.putExtra("CountryName", CountryName);
-                            msg.putExtra("CountryCode", CountryCode);
-                            context.sendBroadcast(msg);
+            new Runnable() {
+                public void run() {
+                    Log.d(LOG_TAG, "Location not change: " + cityName + ", " + CountryCode);
+                    if(locationListener != null) {
+                        Log.d(LOG_TAG, "Removing Location updates");
+                        locationManager.removeUpdates(locationListener);
+                        if(latitude == 0 && longitude == 0) {
+                            updateLastKnownLocation();
                         }
                     }
-                }, 20000);
+                    if(cityName != null && CountryCode != null) {
+                        Intent msg = new Intent(OpenFitIntent.INTENT_SERVICE_LOCATION);
+                        msg.putExtra("cityName", cityName);
+                        msg.putExtra("StateName", StateName);
+                        msg.putExtra("CountryName", CountryName);
+                        msg.putExtra("CountryCode", CountryCode);
+                        context.sendBroadcast(msg);
+                    }
+                }
+        }, 20000);
     }
 
     public static String getCityName() {

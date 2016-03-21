@@ -15,17 +15,20 @@ import com.google.android.gms.common.api.Status;
 import com.google.android.gms.fitness.Fitness;
 import com.solderbyte.openfit.ApplicationManager;
 import com.solderbyte.openfit.Billing;
+import com.solderbyte.openfit.ExerciseData;
 import com.solderbyte.openfit.GoogleFit;
+import com.solderbyte.openfit.HeartRateData;
+import com.solderbyte.openfit.SleepInfo;
 import com.solderbyte.openfit.OpenFitSavedPreferences;
 import com.solderbyte.openfit.OpenFitService;
 import com.solderbyte.openfit.PedometerData;
 import com.solderbyte.openfit.PedometerTotal;
 import com.solderbyte.openfit.ProfileData;
 import com.solderbyte.openfit.R;
+import com.solderbyte.openfit.SleepData;
 import com.solderbyte.openfit.util.OpenFitIntent;
 
 import android.app.Activity;
-import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -35,7 +38,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.ServiceConnection;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.CheckBoxPreference;
@@ -550,13 +552,17 @@ public class OpenFitActivity extends Activity {
                     PedometerTotal pedometerTotal = intent.getParcelableExtra(OpenFitIntent.EXTRA_PEDOMETER_TOTAL);
                     ArrayList<PedometerData> pedometerList = intent.getParcelableArrayListExtra(OpenFitIntent.EXTRA_PEDOMETER_LIST);
                     ArrayList<PedometerData> pedometerDailyList = intent.getParcelableArrayListExtra(OpenFitIntent.EXTRA_PEDOMETER_DAILY_LIST);
+                    ArrayList<ExerciseData> exerciseDataList = intent.getParcelableArrayListExtra(OpenFitIntent.EXTRA_EXERCISE_LIST);
+                    ArrayList<SleepData> sleepList = intent.getParcelableArrayListExtra(OpenFitIntent.EXTRA_SLEEP_LIST);
+                    ArrayList<SleepInfo> sleepInfoList = intent.getParcelableArrayListExtra(OpenFitIntent.EXTRA_SLEEP_INFO_LIST);
+                    ArrayList<HeartRateData> heartRateList = intent.getParcelableArrayListExtra(OpenFitIntent.EXTRA_HEARTRATE_LIST);
                     ProfileData profileData = intent.getParcelableExtra(OpenFitIntent.EXTRA_PROFILE_DATA);
                     if(gFit != null) {
-                        gFit.setData(pedometerList);
+                        gFit.setData(pedometerList, exerciseDataList, sleepList, sleepInfoList, heartRateList, profileData);
                     }
 
                     if(fitnessRequeted) {
-                        DialogFitness d = new DialogFitness(getActivity(), pedometerDailyList, pedometerList, pedometerTotal, profileData);
+                        DialogFitness d = new DialogFitness(getActivity(), pedometerDailyList, pedometerList, pedometerTotal, exerciseDataList, sleepList, heartRateList, profileData);
                         d.show(getFragmentManager(), OpenFitIntent.EXTRA_FITNESS);
                         fitnessRequeted = false;
                     }
@@ -836,6 +842,7 @@ public class OpenFitActivity extends Activity {
         .addApi(Fitness.SESSIONS_API)
         .addScope(new Scope(Scopes.FITNESS_ACTIVITY_READ_WRITE))
         .addScope(new Scope(Scopes.FITNESS_LOCATION_READ_WRITE))
+        .addScope(new Scope(Scopes.FITNESS_BODY_READ_WRITE))
         .addConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks() {
             @Override
             public void onConnected(Bundle bundle) {

@@ -60,4 +60,6 @@
     <string name="notification_button_connect">Připojit</string>
     <string name="notification_button_disconnect">Odpojit</string>
     <string name="notification_button_close">Vypnout</string>
+    <string name="calendar_event">Kalendář</string>
+    <string name="calendar_when">Kdy</string>
 </resources>

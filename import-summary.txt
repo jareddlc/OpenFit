@@ -51,3 +51,11 @@ after import once you are satisfied with the results.)
 
 
 adb install ~/Documents/OpenFit/app-release.apk
+
+PR
+GoogleFit.java
+Fitness.java
+OpenFitService.java
+DialogFitness.java
+OpenFitActivity.java
+OpenFitIntent.java

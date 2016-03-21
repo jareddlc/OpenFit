@@ -7,6 +7,8 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Comparator;
+import java.util.Collections;
 
 import com.solderbyte.openfit.util.OpenFitData;
 
@@ -23,6 +25,10 @@ public class Fitness {
     private static PedometerTotal pedometerTotal = null;
     private static ArrayList<PedometerData> pedometerList = new ArrayList<PedometerData>();
     private static ArrayList<PedometerData> pedometerDailyList = new ArrayList<PedometerData>();
+    private static ArrayList<ExerciseData> exerciseDataList = new ArrayList<ExerciseData>();
+    private static ArrayList<SleepInfo> sleepInfoList = new ArrayList<SleepInfo>();
+    private static ArrayList<SleepData> sleepList = new ArrayList<SleepData>();
+    private static ArrayList<HeartRateData> heartRateList = new ArrayList<HeartRateData>();
     private static ProfileData profileData = null;
 
     public static int getSize() {
@@ -39,6 +45,29 @@ public class Fitness {
 
     public static ArrayList<PedometerData> getPedometerDailyList() {
         return pedometerDailyList;
+    }
+
+    public static ArrayList<ExerciseData> getExerciseDataList() {
+        class cmp implements Comparator<ExerciseData> {
+            @Override
+            public int compare(ExerciseData ex1, ExerciseData ex2) {
+                return ((Integer)ex1.getExerciseType()).compareTo((Integer)ex2.getExerciseType());
+            }
+        }
+        Collections.sort(exerciseDataList, new cmp());
+        return exerciseDataList;
+    }
+
+    public static ArrayList<SleepInfo> getSleepInfoList() {
+        return sleepInfoList;
+    }
+
+    public static ArrayList<SleepData> getSleepList() {
+        return sleepList;
+    }
+
+    public static ArrayList<HeartRateData> getHeartRateList() {
+        return heartRateList;
     }
 
     public static PedometerData[] getPedometerArray() {
@@ -59,6 +88,10 @@ public class Fitness {
         pedometerTotal = null;
         pedometerList = new ArrayList<PedometerData>();
         pedometerDailyList = new ArrayList<PedometerData>();
+        exerciseDataList = new ArrayList<ExerciseData>();
+        sleepInfoList = new ArrayList<SleepInfo>();
+        sleepList = new ArrayList<SleepData>();
+        heartRateList = new ArrayList<HeartRateData>();
     }
 
     public static boolean isPendingData() {
@@ -138,13 +171,29 @@ public class Fitness {
                 Log.d(LOG_TAG, "User Profile");
                 parseUserProfile(buffer);
             }
-            if(fitnessType ==  OpenFitData.DATA_TYPE_PEDO_INFO) {
-                Log.d(LOG_TAG, "Pedemeter Info");
+            else if(fitnessType ==  OpenFitData.DATA_TYPE_PEDOMETER_PROFILE) {
+                Log.d(LOG_TAG, "Pedometer Profile");
+                parsePedometerProfile(buffer);
+            }
+            else if(fitnessType ==  OpenFitData.DATA_TYPE_PEDO_RESULTRECORD) {
+                Log.d(LOG_TAG, "Pedometer Result Record");
+                parsePedoResultRecord(buffer);
+            }
+            else if(fitnessType ==  OpenFitData.DATA_TYPE_HEARTRATE_RESULTRECORD) {
+                Log.d(LOG_TAG, "Heartrate Result Record");
+                parseHeartrateResultRecord(buffer);
+            }
+            else if(fitnessType ==  OpenFitData.DATA_TYPE_PEDO_INFO) {
+                Log.d(LOG_TAG, "Pedometer Info");
                 parsePedoInfo(buffer);
             }
             else if(fitnessType == OpenFitData.DATA_TYPE_SLEEP_INFO) {
                 Log.d(LOG_TAG, "Sleep Info");
                 parseSleepInfo(buffer);
+            }
+            else if(fitnessType == OpenFitData.DATA_TYPE_SLEEP_RESULTRECORD) {
+                Log.d(LOG_TAG, "Sleep Result Record");
+                parseSleepResultRecord(buffer);
             }
             else if(fitnessType == OpenFitData.DATA_TYPE_COACHING_VARS) {
                 Log.d(LOG_TAG, "Coaching Vars");
@@ -307,38 +356,112 @@ public class Fitness {
             int status = buffer.getInt();
             Date date = new Date(timeStamp);
 
-            //Log.d(LOG_TAG, "idex: " + index);
-            //Log.d(LOG_TAG, "date: " + date.toString());
-            //Log.d(LOG_TAG, "status: " + status);
+            sleepInfoList.add(new SleepInfo(index, timeStamp, status));
+
+            /*Log.d(LOG_TAG, "idex: " + index);
+            Log.d(LOG_TAG, "date: " + date.toString());
+            Log.d(LOG_TAG, "status: " + status);*/
+        }
+    }
+
+    public static void parseSleepResultRecord(ByteBuffer buffer) {
+        int sleepSize = buffer.getInt();
+        Log.d(LOG_TAG, "Sleep result record size: " + sleepSize);
+
+        for(int i = 0; i < sleepSize; i++) {
+            long startTimeStamp = buffer.getInt() * 1000L;
+            long endTimeStamp = buffer.getInt() * 1000L;
+            float efficiency = buffer.getFloat();
+            int index = buffer.getInt();
+            int len = buffer.getInt();
+
+            Date startDate = new Date(startTimeStamp);
+            Date endDate = new Date(endTimeStamp);
+
+            sleepList.add(new SleepData(startTimeStamp, endTimeStamp, efficiency, index, len));
+
+            /*Log.d(LOG_TAG, "index: " + index);
+            Log.d(LOG_TAG, "startDate: " + startDate.toString());
+            Log.d(LOG_TAG, "endDate: " + endDate.toString());
+            Log.d(LOG_TAG, "efficiency: " + efficiency);
+            Log.d(LOG_TAG, "len: " + len);*/
+        }
+    }
+
+    public static void parsePedometerProfile(ByteBuffer buffer) {
+        int index = buffer.getInt();
+        long n = buffer.getInt() * 1000L;
+        int n2 = buffer.getInt();
+        long n3 = buffer.getInt() * 1000L;
+
+        Date timeStamp = new Date(n);
+        int goal = n2;
+        Date pedometer = new Date(n3);
+
+        /*Log.d(LOG_TAG, "index: " + index);
+        Log.d(LOG_TAG, "timeStamp: " + timeStamp);
+        Log.d(LOG_TAG, "goal: " + goal);
+        Log.d(LOG_TAG, "pedometer: " + pedometer);*/
+    }
+
+    public static void parsePedoResultRecord(ByteBuffer buffer) {
+        Log.d(LOG_TAG, "Pedometer Goal History");
+        logBuffer(buffer);
+        /*int n = buffer.getInt();
+        int n2 = n + 1;
+
+        for (n = 1; n < n2; ++n) {
+            long n3 = buffer.getInt() * 1000L;
+            int n4 = buffer.getInt();
+
+            Date timeStamp = new Date(n3);
+
+            Log.d(LOG_TAG, "timeStamp: " + timeStamp);
+            Log.d(LOG_TAG, "goal: " + n4);
+        }*/
+    }
+
+    public static void parseHeartrateResultRecord(ByteBuffer buffer) {
+        Log.d(LOG_TAG, "Heartrater result record");
+        int n = buffer.getInt();
+
+        for (int i = 0; i < n; ++i) {
+            long date = buffer.getInt() * 1000L;
+            int hr = buffer.getInt();
+
+            Date timeStamp = new Date(date);
+
+            heartRateList.add(new HeartRateData(date, hr));
+            Log.d(LOG_TAG, "timeStamp: " + timeStamp);
+            Log.d(LOG_TAG, "heartRate: " + hr);
         }
     }
 
     public static void parseCoachingVars(ByteBuffer buffer) {
         Log.d(LOG_TAG, "Coaching vars");
-
         int ac = buffer.getInt();
         byte maxHeartrate = buffer.get();
         long maxMET = buffer.getLong();
         int recovery = buffer.getInt();
-        long startDate = buffer.getLong();
+        long startDate = buffer.getLong() * 1000L;
         int trainingLevel = buffer.getInt();
         long lastTrainingLevel = buffer.getLong();
         int previousToPrevious = buffer.getInt();
         int previousTrainingLevel = buffer.getInt();
-        int lastestFeedbackPhraseNumber = buffer.get();
-        long lastestExerciseTime = buffer.getLong();
+        byte lastestFeedbackPhraseNumber = buffer.get();
+        long lastestExerciseTime = buffer.getLong() * 1000L;
 
-        Log.d(LOG_TAG, "ac: " + ac);
+        /*Log.d(LOG_TAG, "ac: " + ac);
         Log.d(LOG_TAG, "maxHeartrate: " + maxHeartrate);
         Log.d(LOG_TAG, "maxMET: " + maxMET);
         Log.d(LOG_TAG, "recovery: " + recovery);
-        Log.d(LOG_TAG, "timeStamp: " + startDate);
+        Log.d(LOG_TAG, "timeStamp: " + new Date(startDate));
         Log.d(LOG_TAG, "trainingLevel: " + trainingLevel);
         Log.d(LOG_TAG, "lastTrainingLevel: " + lastTrainingLevel);
         Log.d(LOG_TAG, "previousToPrevious: " + previousToPrevious);
         Log.d(LOG_TAG, "previousTrainingLevel: " + previousTrainingLevel);
         Log.d(LOG_TAG, "lastestFeedbackPhraseNumber: " + lastestFeedbackPhraseNumber);
-        Log.d(LOG_TAG, "lastestExerciseTime: " + lastestExerciseTime);
+        Log.d(LOG_TAG, "lastestExerciseTime: " + new Date(lastestExerciseTime));*/
     }
 
     public static void parseCoachingExerciseResult(ByteBuffer buffer) {
@@ -346,17 +469,17 @@ public class Fitness {
         Log.d(LOG_TAG, "Coaching exercise result size: " + exerciseSize);
 
         for(int i = 0; i < exerciseSize; i++) {
-            long endTime = buffer.getLong();
+            long endTime = buffer.getLong() * 1000L;
             double distance = buffer.getDouble();
             int trainingLoadPeak = buffer.getInt();
             int maxMET = buffer.getInt();
             int recovery = buffer.getInt();
 
-            Log.d(LOG_TAG, "endTime: " + endTime);
+            /*Log.d(LOG_TAG, "endTime: " + new Date(endTime));
             Log.d(LOG_TAG, "distance: " + distance);
             Log.d(LOG_TAG, "trainingLoadPeak: " + trainingLoadPeak);
             Log.d(LOG_TAG, "maxMET: " + maxMET);
-            Log.d(LOG_TAG, "recovery: " + recovery);
+            Log.d(LOG_TAG, "recovery: " + recovery);*/
         }
     }
 
@@ -365,20 +488,28 @@ public class Fitness {
         Log.d(LOG_TAG, "Coaching result record size: " + exerciseSize);
 
         for(int i = 0; i < exerciseSize; i++) {
-            int timeStamp = buffer.getInt();
-            long duration = buffer.getLong();
-            double calorie = buffer.getDouble();
-            double heartrate = buffer.getDouble();
-            double distance = buffer.getDouble();
+            long timeStamp = buffer.getInt() * 1000L;
+            long duration = buffer.getInt();
+            float calorie = buffer.getFloat();
+            int heartrate = buffer.getInt();
+            float distance = buffer.getFloat();
             byte fitnessLevel = buffer.get();
             int type = buffer.getInt();
-            float avgSpeed = Float.intBitsToFloat(buffer.getInt());
-            float maxSpeed = Float.intBitsToFloat(buffer.getInt());
-            float maxAlt = Float.intBitsToFloat(buffer.getInt());
+            float avgSpeed = buffer.getFloat();
+            float maxSpeed = buffer.getFloat();
+            buffer.getFloat();
+            buffer.getFloat();
+            int maxHeartrate = buffer.getInt();
+            buffer.getFloat();
+            buffer.getFloat();
+            /*float maxAlt = Float.intBitsToFloat(buffer.getInt());
             float minAlt = Float.intBitsToFloat(buffer.getInt());
-            byte maxHeartrate = buffer.get();
+            float inclinedDistance = Float.intBitsToFloat(buffer.getInt());
+            float declinedDistance = Float.intBitsToFloat(buffer.getInt());*/
 
-            Log.d(LOG_TAG, "timeStamp: " + timeStamp);
+            exerciseDataList.add(new ExerciseData(timeStamp, duration, calorie, heartrate, distance, fitnessLevel, type, avgSpeed, maxSpeed, maxHeartrate));
+
+            /*Log.d(LOG_TAG, "timeStamp: " + new Date(timeStamp));
             Log.d(LOG_TAG, "duration: " + duration);
             Log.d(LOG_TAG, "calorie: " + calorie);
             Log.d(LOG_TAG, "heartrate: " + heartrate);
@@ -387,9 +518,7 @@ public class Fitness {
             Log.d(LOG_TAG, "type: " + type);
             Log.d(LOG_TAG, "avgSpeed: " + avgSpeed);
             Log.d(LOG_TAG, "maxSpeed: " + maxSpeed);
-            Log.d(LOG_TAG, "maxAlt: " + maxAlt);
-            Log.d(LOG_TAG, "minAlt: " + minAlt);
-            Log.d(LOG_TAG, "maxHeartrate: " + maxHeartrate);
+            Log.d(LOG_TAG, "maxHeartrate: " + maxHeartrate);*/
         }
     }
 

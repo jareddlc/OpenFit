@@ -4,11 +4,9 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Set;
 
 import com.android.vending.billing.IInAppBillingService;
-import com.solderbyte.openfit.R;
 import com.solderbyte.openfit.util.OpenFitIntent;
 
 import android.annotation.SuppressLint;
@@ -466,10 +464,13 @@ public class OpenFitService extends Service {
             i.putExtra(OpenFitIntent.EXTRA_PEDOMETER_TOTAL, Fitness.getPedometerTotal());
             i.putParcelableArrayListExtra(OpenFitIntent.EXTRA_PEDOMETER_LIST, Fitness.getPedometerList());
             i.putParcelableArrayListExtra(OpenFitIntent.EXTRA_PEDOMETER_DAILY_LIST, Fitness.getPedometerDailyList());
+            i.putParcelableArrayListExtra(OpenFitIntent.EXTRA_EXERCISE_LIST, Fitness.getExerciseDataList());
+            i.putParcelableArrayListExtra(OpenFitIntent.EXTRA_SLEEP_LIST, Fitness.getSleepList());
+            i.putParcelableArrayListExtra(OpenFitIntent.EXTRA_HEARTRATE_LIST, Fitness.getHeartRateList());
             i.putExtra(OpenFitIntent.EXTRA_PROFILE_DATA, Fitness.getProfileData());
             sendBroadcast(i);
             if(googleFitSyncing) {
-                startFitnessSync(Fitness.getPedometerList());
+                startFitnessSync(Fitness.getPedometerList(), Fitness.getExerciseDataList(), Fitness.getSleepList(), Fitness.getSleepInfoList(), Fitness.getHeartRateList(), Fitness.getProfileData());
             }
         }
     }
@@ -635,11 +636,11 @@ public class OpenFitService extends Service {
         gFit = new GoogleFit(this);
     }
 
-    public void startFitnessSync(ArrayList<PedometerData> pedometerList) {
+    public void startFitnessSync(ArrayList<PedometerData> pedometerList, ArrayList<ExerciseData> exerciseList, ArrayList<SleepData> sleepList, ArrayList<SleepInfo> sleepInfoList, ArrayList<HeartRateData> heartRateList, ProfileData pData) {
         Log.d(LOG_TAG, "startFitnessSync");
         if(gFit != null) {
             Log.d(LOG_TAG, "gFit.setData");
-            gFit.setData(pedometerList);
+            gFit.setData(pedometerList, exerciseList, sleepList, sleepInfoList, heartRateList, pData);
             Log.d(LOG_TAG, "gFit.syncData");
             gFit.syncData();
         }
@@ -965,8 +966,13 @@ public class OpenFitService extends Service {
                 Log.d(LOG_TAG, "Received email:" + appName + " title:" + title + " ticker:" + ticker + " message:" + message);
                 sendEmailNotification(appName, title, ticker, message, id);
             }
+            else if(packageName.equals("com.android.calendar")) {
+                Log.d(LOG_TAG, "Received calendar: "  + appName + " Title:" + title + " Alarm time:"+message);
+                final String caltitle = getString(R.string.calendar_event) + ": " + title + "\n" + getString(R.string.calendar_when) + ": " + message;
+                sendAppNotification(appName, message, ticker, caltitle, id);
+            }
             else {
-                Log.d(LOG_TAG, "Received notification appName:" + appName + " title:" + title + " ticker:" + ticker + " message:" + message);
+                Log.d(LOG_TAG, "Received notification appName: " + appName + " title:" + title + " ticker:" + ticker + " message:" + message);
                 sendAppNotification(appName, title, ticker, message, id);
             }
         }
@@ -1063,6 +1069,7 @@ public class OpenFitService extends Service {
 
             String weatherInfo = location + ": " + tempCur + tempUnit + "\nWeather: " + description;
             Log.d(LOG_TAG, weatherInfo);
+
             if(weatherClockEnabled || weatherClockReq) {
                 sendWeatherClock(location, tempCur, tempUnit, icon);
             }

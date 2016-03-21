@@ -3,18 +3,28 @@ package com.solderbyte.openfit;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.Calendar;
+import java.util.Date;
+
 public class PedometerData implements Parcelable {
 
     private long timeStamp;
     private int steps;
     private float distance;
     private float calories;
+    private long timeStampEnd;
 
     public PedometerData(long t, int s, float d, float c) {
         timeStamp = t;
         steps = s;
         distance = d;
         calories = c;
+        Calendar cal = Calendar.getInstance();
+        Date startDate = new Date(timeStamp);
+        cal.setTime(startDate);
+        cal.add(Calendar.MINUTE, 10);
+        Date endDate = cal.getTime();
+        timeStampEnd = endDate.getTime();
     }
 
     public PedometerData(Parcel source) {
@@ -48,8 +58,16 @@ public class PedometerData implements Parcelable {
         }
     };
 
+    public void setTimeStampEnd(long ms) {
+        timeStampEnd = ms;
+    }
+
     public long getTimeStamp() {
         return timeStamp;
+    }
+
+    public long getTimeStampEnd() {
+        return timeStampEnd;
     }
 
     public int getSteps() {

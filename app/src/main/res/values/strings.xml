@@ -37,9 +37,14 @@
     <string name="dialog_close_fitness">Close</string>
     <string name="dialog_sync_fitness">Sync</string>
     <string name="dialog_title_news">Open Fit News</string>
-    <string name="dialog_message_news"><b>v1.7.1</b>
-        \n• Premium features
-        \n• Premium button bug
+    <string name="dialog_message_news"><b>v1.8.0</b>
+        \n• Manual sync
+        \n• Heart rate sync
+        \n• Exercise sync
+        \n\t• Walking
+        \n\t• Running
+        \n• Sleep sync
+        \n• Profile sync
         \n\nGoogle Fit Sync is premium feature. Please make sure fitness data works properly before purchasing Open Fit Premium. Please read the help section for more info.
     </string>
     <string name="dialog_close_news">Close</string>

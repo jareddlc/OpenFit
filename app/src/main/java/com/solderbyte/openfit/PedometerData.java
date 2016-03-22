@@ -32,6 +32,7 @@ public class PedometerData implements Parcelable {
         steps = source.readInt();
         distance = source.readFloat();
         calories = source.readFloat();
+        timeStampEnd = source.readLong();
     }
 
     @Override
@@ -45,6 +46,7 @@ public class PedometerData implements Parcelable {
         source.writeInt(steps);
         source.writeFloat(distance);
         source.writeFloat(calories);
+        source.writeLong(timeStampEnd);
     }
 
     public static final Parcelable.Creator<PedometerData> CREATOR = new Parcelable.Creator<PedometerData>() {

@@ -13,12 +13,14 @@ import com.solderbyte.openfit.ProfileData;
 import com.solderbyte.openfit.R;
 import com.solderbyte.openfit.SleepData;
 import com.solderbyte.openfit.util.OpenFitData;
+import com.solderbyte.openfit.util.OpenFitIntent;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
@@ -51,7 +53,7 @@ public class DialogFitness extends DialogFragment {
         builder.setNegativeButton(R.string.dialog_close_fitness,  new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int index) {}
         });
-        /*builder.setPositiveButton(R.string.dialog_sync_fitness,  new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(R.string.dialog_sync_fitness,  new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int index) {
                 Log.d(LOG_TAG, "Sync clicked");
                 Intent msg = new Intent(OpenFitIntent.INTENT_GOOGLE_FIT);
@@ -59,7 +61,7 @@ public class DialogFitness extends DialogFragment {
                 msg.putExtra(OpenFitIntent.INTENT_EXTRA_DATA, true);
                 getActivity().sendBroadcast(msg);
             }
-        });*/
+        });
         dialog = builder.create();
 
         return dialog;
@@ -69,16 +71,6 @@ public class DialogFitness extends DialogFragment {
     public void onStart() {
         super.onStart();
         Log.d(LOG_TAG, "Sync onstart");
-        if(dialog != null) {
-            /*Button syncButton = dialog.getButton(Dialog.BUTTON_POSITIVE);
-            if(syncButton != null) {
-                Date now = new Date();
-                Log.d(LOG_TAG, "trail: " + trialDate + " current: " + now);
-                if(trialDate.getTime() < now.getTime()) {
-                    syncButton.setEnabled(false);
-                }
-            }*/
-        }
     }
 
     public void buildAdapter(ArrayList<PedometerData> pedometerDailyList, ArrayList<PedometerData> pedometerList, PedometerTotal pedometerTotal, ArrayList<ExerciseData> exerciseDataList, ArrayList<SleepData> sleepList, ArrayList<HeartRateData> heartRateList, ProfileData profileData) {

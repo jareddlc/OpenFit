@@ -406,7 +406,6 @@ public class GoogleFit {
                     .addDataSet(sessionsActivitySegmentDataSets.get(j))
                     .build();
 
-                    //Log.d(LOG_TAG, "Inserting the session in the History API " + sessions.get(j).getDescription());
                     com.google.android.gms.common.api.Status insertStatus = Fitness.SessionsApi.insertSession(mClient, insertRequest).await(1, TimeUnit.MINUTES);
 
                     if(!insertStatus.isSuccess()) {
@@ -415,7 +414,7 @@ public class GoogleFit {
                     }
                     else {
                         success = true;
-                        //Log.d(LOG_TAG, "Pedometer data inserted: " + insertStatus);
+                        Log.d(LOG_TAG, "Pedometer data inserted: " + insertStatus);
                     }
                 }
             }
@@ -492,7 +491,6 @@ public class GoogleFit {
                 sessionsActivitySegmentDataSets = new ArrayList<DataSet>();
 
                 for(int i = 0; i < excerciseList.size(); i++) {
-
                     long exTimeStamp = excerciseList.get(i).getTimeStamp();
                     long exTimeStampEnd = excerciseList.get(i).getTimeStampEnd();
                     float calories = excerciseList.get(i).getCalories();
@@ -659,7 +657,6 @@ public class GoogleFit {
                     .addDataSet(sessionsActivitySegmentDataSets.get(j))
                     .build();
 
-                    //Log.d(LOG_TAG, "Inserting the session in the History API " + sessions.get(j).getDescription());
                     com.google.android.gms.common.api.Status insertStatus = Fitness.SessionsApi.insertSession(mClient, insertRequest).await(1, TimeUnit.MINUTES);
 
                     if(!insertStatus.isSuccess()) {
@@ -668,7 +665,7 @@ public class GoogleFit {
                     }
                     else {
                         success = true;
-                        //Log.d(LOG_TAG, "Exercise data inserted: " + insertStatus);
+                        Log.d(LOG_TAG, "Exercise data inserted: " + insertStatus);
                     }
                 }
             }
@@ -705,9 +702,8 @@ public class GoogleFit {
                     String date = Integer.toString(cal.get(Calendar.DAY_OF_MONTH));
                     String year = Integer.toString(cal.get(Calendar.YEAR));
 
-
                     if(lastSleepSession != null && lastSleepSession.getTime() >= startDate.getTime()) {
-                        // Log.d(LOG_TAG, "Sleep info already Synced");
+                        //Log.d(LOG_TAG, "Sleep info already Synced");
                         continue;
                     }
                     if(sleepInfoList.get(0).getIndex() > index + 1) {
@@ -720,7 +716,7 @@ public class GoogleFit {
                     // 80 - 100 SLEEP_DEEP
                     // Log.d(LOG_TAG, "START - END: " + startDate + "   " + endDate);
                     DataSet dActivitySegmentDataSet = DataSet.create(activitySegmentDataSource);
-                    for(int j = index; j < index+len; j++) {
+                    for(int j = index; j < index + len; j++) {
                         // create sessions
                         int sleepType = sleepInfoList.get(j).getStatus();
                         long infoFrom = sleepInfoList.get(j).getTimeStamp();
@@ -773,7 +769,6 @@ public class GoogleFit {
                     .addDataSet(sessionsActivitySegmentDataSets.get(j))
                     .build();
 
-                    //Log.d(LOG_TAG, "Inserting the session in the History API " + sessions.get(j).getDescription());
                     com.google.android.gms.common.api.Status insertStatus = Fitness.SessionsApi.insertSession(mClient, insertRequest).await(1, TimeUnit.MINUTES);
 
                     if(!insertStatus.isSuccess()) {
@@ -782,7 +777,7 @@ public class GoogleFit {
                     }
                     else {
                         success = true;
-                        //Log.d(LOG_TAG, "Sleep data inserted: " + insertStatus);
+                        Log.d(LOG_TAG, "Sleep data inserted: " + insertStatus);
                     }
                 }
             }
@@ -816,7 +811,7 @@ public class GoogleFit {
 
                 DataSet dHeight = DataSet.create(heightDataSource);
                 DataPoint pHeight = dHeight.createDataPoint().setTimeInterval(startDate.getTime(), endDate.getTime(), TimeUnit.MILLISECONDS);
-                pHeight = pHeight.setFloatValues(profileData.getHeight()/100);
+                pHeight = pHeight.setFloatValues(profileData.getHeight() / 100);
                 dHeight.add(pHeight);
 
                 DataSet dWeight = DataSet.create(weightDataSource);
@@ -824,7 +819,6 @@ public class GoogleFit {
                 pWeight = pWeight.setFloatValues(profileData.getWeight());
                 dWeight.add(pWeight);
 
-                //Log.d(LOG_TAG, "Inserting the session in the History API " + sessions.get(j).getDescription());
                 com.google.android.gms.common.api.Status insertStatusH = Fitness.HistoryApi.insertData(mClient, dHeight).await(1, TimeUnit.MINUTES);
                 com.google.android.gms.common.api.Status insertStatusW = Fitness.HistoryApi.insertData(mClient, dWeight).await(1, TimeUnit.MINUTES);
 
@@ -834,6 +828,7 @@ public class GoogleFit {
                 }
                 else {
                     success = true;
+                    Log.d(LOG_TAG, "Profile data inserted: " + insertStatusW);
                 }
 
             }
@@ -866,7 +861,6 @@ public class GoogleFit {
                     pBPM = pBPM.setFloatValues(bpm);
                     dBPM.add(pBPM);
 
-                    //Log.d(LOG_TAG, "Inserting the session in the History API " + sessions.get(j).getDescription());
                     com.google.android.gms.common.api.Status insertStatusBPM = Fitness.HistoryApi.insertData(mClient, dBPM).await(1, TimeUnit.MINUTES);
                     if(!insertStatusBPM.isSuccess()) {
                         success &= false;
@@ -874,6 +868,7 @@ public class GoogleFit {
                     }
                     else {
                         success &= true;
+                        Log.d(LOG_TAG, "Profile data inserted: " + insertStatusBPM);
                     }
                 }
             }
@@ -891,6 +886,7 @@ public class GoogleFit {
 
             Intent msg = new Intent(OpenFitIntent.INTENT_GOOGLE_FIT);
             msg.putExtra(OpenFitIntent.INTENT_EXTRA_MSG, OpenFitIntent.INTENT_GOOGLE_FIT_SYNC_STATUS);
+
             if(!successExercise) {
                 msg.putExtra(OpenFitIntent.INTENT_EXTRA_DATA, false);
                 Log.d(LOG_TAG, "There was a problem inserting excercise data");

@@ -464,6 +464,7 @@ public class OpenFitService extends Service {
             i.putExtra(OpenFitIntent.EXTRA_PEDOMETER_TOTAL, Fitness.getPedometerTotal());
             i.putParcelableArrayListExtra(OpenFitIntent.EXTRA_PEDOMETER_LIST, Fitness.getPedometerList());
             i.putParcelableArrayListExtra(OpenFitIntent.EXTRA_PEDOMETER_DAILY_LIST, Fitness.getPedometerDailyList());
+            i.putParcelableArrayListExtra(OpenFitIntent.EXTRA_SLEEP_INFO_LIST, Fitness.getSleepInfoList());
             i.putParcelableArrayListExtra(OpenFitIntent.EXTRA_EXERCISE_LIST, Fitness.getExerciseDataList());
             i.putParcelableArrayListExtra(OpenFitIntent.EXTRA_SLEEP_LIST, Fitness.getSleepList());
             i.putParcelableArrayListExtra(OpenFitIntent.EXTRA_HEARTRATE_LIST, Fitness.getHeartRateList());
@@ -1126,6 +1127,19 @@ public class OpenFitService extends Service {
             }
             if(message.equals(OpenFitIntent.INTENT_GOOGLE_FIT_SYNC)) {
                 Log.d(LOG_TAG, "Google Fit Sync requested");
+                if(isPremium) {
+                    Log.d(LOG_TAG, "Premium Features");
+                    if(googleFitEnabled) {
+                        googleFitSyncing = true;
+                        sendFitnessRequest();
+                    }
+                }
+                else {
+                    Intent msg = new Intent(OpenFitIntent.INTENT_GOOGLE_FIT);
+                    msg.putExtra(OpenFitIntent.INTENT_EXTRA_MSG, OpenFitIntent.INTENT_GOOGLE_FIT_SYNC_STATUS);
+                    msg.putExtra(OpenFitIntent.INTENT_EXTRA_DATA, false);
+                    sendBroadcast(msg);
+                }
             }
             if(message.equals(OpenFitIntent.INTENT_GOOGLE_FIT_SYNC_STATUS)) {
                 Boolean status = intent.getBooleanExtra(OpenFitIntent.INTENT_EXTRA_DATA, false);

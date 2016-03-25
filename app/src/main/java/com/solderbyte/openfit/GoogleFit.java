@@ -948,18 +948,21 @@ public class GoogleFit {
 
         private void updateLastPedo () {
             if (lastPedometerStartTime != null) {
-                PedometerData p = pedometerList.get(pedometerList.size() - 1);
-                Log.d(LOG_TAG, "Original: " + new Date(p.getTimeStamp()) + " to: " + new Date(p.getTimeStampEnd()) + " steps: " + p.getSteps() + " cals: " + p.getCalories() + " dist: " + p.getDistance());
-                if (lastPedometerStartTime.getTime() == p.getTimeStamp() && p.getTimeStamp() < lastPedometerSession.getTime() && p.getTimeStampEnd() > lastPedometerSession.getTime()) {
-                    pedometerList.remove(pedometerList.size() - 1);
-                    PedometerData p1 = new PedometerData(lastPedometerStartTime.getTime(), lastPedometerSteps, lastPedometerDist, lastPedometerCals);
-                    p1.setTimeStampEnd(lastPedometerSession.getTime());
-                    PedometerData p2 = new PedometerData(lastPedometerSession.getTime(), p.getSteps() - lastPedometerSteps, p.getDistance() - lastPedometerDist, p.getCalories() - lastPedometerCals);
-                    p2.setTimeStampEnd(p.getTimeStampEnd());
-                    Log.d(LOG_TAG, "Update1: " + new Date(p1.getTimeStamp()) + " to: " + new Date(p1.getTimeStampEnd()) + " steps: " + p1.getSteps() + " cals: " + p1.getCalories() + " dist: " + p1.getDistance());
-                    Log.d(LOG_TAG, "Update2: " + new Date(p2.getTimeStamp()) + " to: " + new Date(p2.getTimeStampEnd()) + " steps: " + p2.getSteps() + " cals: " + p2.getCalories() + " dist: " + p2.getDistance());
-                    pedometerList.add(p1);
-                    pedometerList.add(p2);
+                for (int i = 0; i < pedometerList.size(); i++) {
+                    PedometerData p = pedometerList.get(i);
+                    if (lastPedometerStartTime.getTime() == p.getTimeStamp() && p.getTimeStamp() < lastPedometerSession.getTime() && p.getTimeStampEnd() > lastPedometerSession.getTime()) {
+                        Log.d(LOG_TAG, "Original: " + new Date(p.getTimeStamp()) + " to: " + new Date(p.getTimeStampEnd()) + " steps: " + p.getSteps() + " cals: " + p.getCalories() + " dist: " + p.getDistance());
+                        PedometerData p1 = new PedometerData(lastPedometerStartTime.getTime(), lastPedometerSteps, lastPedometerDist, lastPedometerCals);
+                        p1.setTimeStampEnd(lastPedometerSession.getTime());
+                        PedometerData p2 = new PedometerData(lastPedometerSession.getTime(), p.getSteps() - lastPedometerSteps, p.getDistance() - lastPedometerDist, p.getCalories() - lastPedometerCals);
+                        p2.setTimeStampEnd(p.getTimeStampEnd());
+                        Log.d(LOG_TAG, "Update1: " + new Date(p1.getTimeStamp()) + " to: " + new Date(p1.getTimeStampEnd()) + " steps: " + p1.getSteps() + " cals: " + p1.getCalories() + " dist: " + p1.getDistance());
+                        Log.d(LOG_TAG, "Update2: " + new Date(p2.getTimeStamp()) + " to: " + new Date(p2.getTimeStampEnd()) + " steps: " + p2.getSteps() + " cals: " + p2.getCalories() + " dist: " + p2.getDistance());
+                        pedometerList.add(i, p1);
+                        pedometerList.add(i + 1, p2);
+                        pedometerList.remove(i + 2);
+                        break;
+                    }
                 }
             }
         }

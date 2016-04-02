@@ -1127,7 +1127,7 @@ public class OpenFitService extends Service {
             }
             if(message.equals(OpenFitIntent.INTENT_GOOGLE_FIT_SYNC)) {
                 Log.d(LOG_TAG, "Google Fit Sync requested");
-                if(isPremium) {
+                /*if(isPremium) {
                     Log.d(LOG_TAG, "Premium Features");
                     if(googleFitEnabled) {
                         googleFitSyncing = true;
@@ -1139,7 +1139,7 @@ public class OpenFitService extends Service {
                     msg.putExtra(OpenFitIntent.INTENT_EXTRA_MSG, OpenFitIntent.INTENT_GOOGLE_FIT_SYNC_STATUS);
                     msg.putExtra(OpenFitIntent.INTENT_EXTRA_DATA, false);
                     sendBroadcast(msg);
-                }
+                }*/
             }
             if(message.equals(OpenFitIntent.INTENT_GOOGLE_FIT_SYNC_STATUS)) {
                 Boolean status = intent.getBooleanExtra(OpenFitIntent.INTENT_EXTRA_DATA, false);

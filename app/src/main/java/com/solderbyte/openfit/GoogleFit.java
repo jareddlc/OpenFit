@@ -955,7 +955,7 @@ public class GoogleFit {
             float cals = 0;
             float dist = 0;
 
-            if (pedometerList != null) {
+            if (pedometerList != null && pedometerList.size() > 0) {
                 PedometerData pd = pedometerList.get(pedometerList.size() - 1);
                 Calendar cal = Calendar.getInstance();
                 cal.setTimeInMillis(0);

@@ -37,8 +37,8 @@
     <string name="dialog_close_fitness">Close</string>
     <string name="dialog_sync_fitness">Sync</string>
     <string name="dialog_title_news">Open Fit News</string>
-    <string name="dialog_message_news"><b>v1.8.0</b>
-        \n• Manual sync
+    <string name="dialog_message_news"><b>v1.8.1</b>
+        \n• Fix Google Fit sync crashes
         \n• Heart rate sync
         \n• Exercise sync
         \n\t• Walking
@@ -112,6 +112,7 @@
     <string name="toast_google_fit_sync">Syncing to Google Fit&#8230;</string>
     <string name="toast_google_fit_sync_success">Sync complete</string>
     <string name="toast_google_fit_sync_failure">Sync failed</string>
+    <string name="toast_google_fit_sync_no_purchase">Sync is a premium feature. Please purchase Open Fit premium</string>
     <string name="toast_premium_purchased">Thank you for purchasing Open Fit Premium. Please shut down and restart Open Fit.</string>
     <string name="notification_title">Open Fit</string>
     <string name="notification_connected">Connected to Gear Fit</string>

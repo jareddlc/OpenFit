@@ -794,12 +794,17 @@ public class OpenFitActivity extends Activity {
                 }
                 if(message.equals(OpenFitIntent.INTENT_GOOGLE_FIT_SYNC_STATUS)) {
                     Boolean status = intent.getBooleanExtra(OpenFitIntent.INTENT_EXTRA_DATA, false);
+                    String info = intent.getStringExtra(OpenFitIntent.INTENT_EXTRA_INFO);
                     if(progressDailog != null) {
                         progressDailog.dismiss();
                     }
                     if(status) {
                         Log.d(LOG_TAG, "Google Fit Sync completed");
                         Toast.makeText(getActivity(), R.string.toast_google_fit_sync_success, Toast.LENGTH_SHORT).show();
+                    }
+                    else if(info != null && info.equals(OpenFitIntent.INTENT_BILLING_NO_PURCHASE)) {
+                        Log.d(LOG_TAG, "Google Fit Sync failed, no premium");
+                        Toast.makeText(getActivity(), R.string.toast_google_fit_sync_no_purchase, Toast.LENGTH_SHORT).show();
                     }
                     else {
                         Log.d(LOG_TAG, "Google Fit Sync failed");

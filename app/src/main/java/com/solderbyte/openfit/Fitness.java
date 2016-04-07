@@ -339,6 +339,14 @@ public class Fitness {
             pedometerList.add(new PedometerData(timeStamp, step, distance, calorie));
         }
 
+        long timeEnd = pedometerList.get(pedometerList.size() - 1).getTimeStampEnd();
+        Date now = new Date();
+
+        if(timeEnd > now.getTime()) {
+            Log.d(LOG_TAG, "Last time " + new Date(timeEnd) + " cutted to " + now);
+            pedometerList.get(pedometerList.size() - 1).setTimeStampEnd(now.getTime());
+        }
+
         pedometerTotal = new PedometerTotal(pedometerTotalSteps, pedometerTotalDistance, pedometerTotalCalorie);
         Log.d(LOG_TAG, "totalSteps: " + pedometerTotal.getSteps());
         Log.d(LOG_TAG, "totalDistance: " + pedometerTotal.getDistance());

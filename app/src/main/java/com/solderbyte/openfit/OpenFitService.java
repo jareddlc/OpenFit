@@ -1138,6 +1138,7 @@ public class OpenFitService extends Service {
                     Intent msg = new Intent(OpenFitIntent.INTENT_GOOGLE_FIT);
                     msg.putExtra(OpenFitIntent.INTENT_EXTRA_MSG, OpenFitIntent.INTENT_GOOGLE_FIT_SYNC_STATUS);
                     msg.putExtra(OpenFitIntent.INTENT_EXTRA_DATA, false);
+                    msg.putExtra(OpenFitIntent.INTENT_EXTRA_INFO, OpenFitIntent.INTENT_BILLING_NO_PURCHASE);
                     sendBroadcast(msg);
                 }
             }

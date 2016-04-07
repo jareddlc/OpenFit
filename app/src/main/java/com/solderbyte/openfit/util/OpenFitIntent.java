@@ -26,10 +26,12 @@ public class OpenFitIntent {
     public static final String INTENT_GOOGLE_FIT_SYNC_STATUS = "com.solderbyte.openfit.google.fit.sync.status";
     public static final String INTENT_BILLING = "com.solderbyte.openfit.billing";
     public static final String INTENT_BILLING_VERIFIED = "com.solderbyte.openfit.billing.verified";
+    public static final String INTENT_BILLING_NO_PURCHASE = "com.solderbyte.openfit.billing.nopurchase";
     public static final String INTENT_SERVICE_CALENDAR = "com.android.calendar";
 
     public static final String INTENT_EXTRA_MSG = "message";
     public static final String INTENT_EXTRA_DATA = "data";
+    public static final String INTENT_EXTRA_INFO = "info";
 
     public static final String ACTION_ENABLE = "enable";
     public static final String ACTION_DISABLE = "disable";

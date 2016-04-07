@@ -5,6 +5,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import android.content.Context;
@@ -12,6 +13,8 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.Scopes;
@@ -70,6 +73,16 @@ public class GoogleFit {
     private static Date lastWalkingSession = null;
     private static Date lastSleepSession = null;
     private static Date lastProfileData = null;
+    private static Date lastPedometerStartTime = null;
+
+    private static int lastPedometerSteps = 0;
+    private static float lastPedometerCals = 0;
+    private static float lastPedometerDist = 0;
+
+    private static SharedPreferences prefs;
+    private static String prefsSteps = "com.solderbyte.openfit.lastSteps";
+    private static String prefsCals = "com.solderbyte.openfit.lastCals";
+    private static String prefsDist = "com.solderbyte.openfit.lastDist";
 
     public GoogleFit() {}
 
@@ -78,6 +91,7 @@ public class GoogleFit {
         context = cntxt;
         this.buildFitnessClient(cntxt);
         this.connectGoogleFit();
+        prefs = context.getSharedPreferences("com.solderbyte.openfit", Context.MODE_PRIVATE);
     }
 
     public GoogleFit(Context cntxt, GoogleApiClient client) {
@@ -248,6 +262,9 @@ public class GoogleFit {
             long endTime = cal.getTimeInMillis();
             cal.add(Calendar.DAY_OF_MONTH, -3);
             long startTime = cal.getTimeInMillis();
+            lastPedometerSteps = 0;
+            lastPedometerCals = 0;
+            lastPedometerDist = 0;
 
             SessionReadRequest readRequest = new SessionReadRequest.Builder()
             .setTimeInterval(startTime, endTime, TimeUnit.MILLISECONDS)
@@ -268,13 +285,17 @@ public class GoogleFit {
                 for(DataSet dataSet : dataSets) {
                     for(DataPoint dp : dataSet.getDataPoints()) {
                         if(session.getActivity() == FitnessActivities.WALKING) {
-                            lastPedometerSession = new Date(dp.getStartTime(TimeUnit.MILLISECONDS));
+                            long sTime = dp.getStartTime(TimeUnit.MILLISECONDS);
+                            if(sTime % 600000 == 0) {
+                                lastPedometerStartTime = new Date(sTime);
+                            }
+                            lastPedometerSession = new Date(dp.getEndTime(TimeUnit.MILLISECONDS));
                         }
                         else if(session.getActivity() == FitnessActivities.WALKING_FITNESS) {
-                            lastWalkingSession = new Date(dp.getStartTime(TimeUnit.MILLISECONDS));
+                            lastWalkingSession = new Date(dp.getEndTime(TimeUnit.MILLISECONDS));
                         }
                         else if(session.getActivity() == FitnessActivities.RUNNING) {
-                            lastRunningSession = new Date(dp.getStartTime(TimeUnit.MILLISECONDS));
+                            lastRunningSession = new Date(dp.getEndTime(TimeUnit.MILLISECONDS));
                         }
                         else if(session.getActivity() == FitnessActivities.SLEEP) {
                             lastSleepSession = new Date(dp.getStartTime(TimeUnit.MILLISECONDS));
@@ -283,9 +304,35 @@ public class GoogleFit {
                 }
             }
 
-            Log.d(LOG_TAG, "Last pedo: " + lastPedometerSession);
-            Log.d(LOG_TAG, "Last walking: " + lastWalkingSession);
-            Log.d(LOG_TAG, "Last running: " + lastRunningSession);
+            if(lastPedometerSession != null) {
+                if(lastWalkingSession != null && lastPedometerSession.getTime() < lastWalkingSession.getTime()) {
+                    lastPedometerSession = lastWalkingSession;
+                }
+                if(lastRunningSession != null && lastPedometerSession.getTime() < lastRunningSession.getTime()) {
+                    lastPedometerSession = lastRunningSession;
+                }
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(lastPedometerSession);
+                int minute = ((int) (calendar.get(Calendar.MINUTE) / 10.0) * 10);
+                calendar.set(Calendar.MINUTE, minute);
+                calendar.set(Calendar.SECOND, 0);
+                calendar.set(Calendar.MILLISECOND, 0);
+                lastPedometerStartTime = calendar.getTime();
+                if(lastPedometerStartTime.getTime() == lastPedometerSession.getTime()) {
+                    calendar.add(Calendar.MINUTE, -10);
+                    lastPedometerStartTime = calendar.getTime();
+                }
+            }
+
+            Log.d(LOG_TAG, "Last session updated start: " + lastPedometerStartTime + ", end: " + lastPedometerSession);
+
+            lastPedometerSteps = prefs.getInt(prefsSteps, 0);
+            lastPedometerCals = prefs.getFloat(prefsCals, 0);
+            lastPedometerDist = prefs.getFloat(prefsDist, 0);
+
+            Log.d(LOG_TAG, "Last pedometer session from: " + lastPedometerStartTime + " to: " + lastPedometerSession + " steps: " + lastPedometerSteps + " cals: " + lastPedometerCals + " dist: " + lastPedometerDist);
+            Log.d(LOG_TAG, "Last walking session: " + lastWalkingSession);
+            Log.d(LOG_TAG, "Last running session: " + lastRunningSession);
             writeData();
             return null;
         }
@@ -345,16 +392,15 @@ public class GoogleFit {
                     String year = Integer.toString(cal.get(Calendar.YEAR));
                     Date endDate = new Date(pedometerList.get(i).getTimeStampEnd());
 
-                    Date dateNow = new Date();
-                    long lastTimeDiff = dateNow.getTime() - endDate.getTime();
-                    if(lastPedometerSession != null && lastPedometerSession.getTime() >= startDate.getTime()) {
-                        Log.d(LOG_TAG, "Pedometer data already Synced");
+                    if(lastPedometerSession != null && lastPedometerSession.getTime() > startDate.getTime()) {
+                        Log.d(LOG_TAG, "Pedometer data already Synced: " + startDate + " --- " + endDate + " --- "+steps);
                         continue;
                     }
-                    if(lastTimeDiff < TimeUnit.MINUTES.toMillis(10)) {
-                        Log.d(LOG_TAG, "Last pedometer time not sync: " + startDate + " --- " + endDate);
+                    if(steps == 0) {
                         continue;
                     }
+
+                    Log.d(LOG_TAG, "Syncing pedometer: " + startDate + " --- " + endDate + " steps: " + steps);
 
                     // create data points
                     DataSet dSteps = DataSet.create(stepsDataSource);
@@ -428,7 +474,7 @@ public class GoogleFit {
 
                 DataSource caloriesDataSource = new DataSource.Builder()
                 .setAppPackageName("com.solderbyte.openfit")
-                .setDataType(DataType.TYPE_CALORIES_CONSUMED)
+                .setDataType(DataType.TYPE_CALORIES_EXPENDED)
                 .setName("Open Fit - exercise")
                 .setType(DataSource.TYPE_RAW)
                 .build();
@@ -509,6 +555,11 @@ public class GoogleFit {
                     String date = Integer.toString(cal.get(Calendar.DAY_OF_MONTH));
                     String year = Integer.toString(cal.get(Calendar.YEAR));
 
+                    if(lastPedometerSession != null && lastPedometerSession.getTime() >= endDate.getTime()) {
+                        Log.d(LOG_TAG, "Exercise data already Synced: " + startDate + " --- " + endDate);
+                        continue;
+                    }
+
                     // get steps from pedometer for this exercise
                     int j = 0;
                     ArrayList<PedometerData> updatedPedometer = new ArrayList<PedometerData>();
@@ -535,6 +586,9 @@ public class GoogleFit {
                             cls += pedometerList.get(j).getCalories();
 
                             long lastTimeStamp = lastj < pedometerList.size() ? pedometerList.get(lastj).getTimeStampEnd() : pedometerList.get(lastj - 1).getTimeStampEnd();
+                            if(lastTimeStamp < exTimeStampEnd) {
+                                lastTimeStamp = exTimeStampEnd;
+                            }
                             double stepsPerSec = (double) st / (lastTimeStamp - pedometerList.get(firstj).getTimeStamp());
                             steps = Math.abs(Math.round(stepsPerSec * (exTimeStampEnd - exTimeStamp)));
 
@@ -581,10 +635,7 @@ public class GoogleFit {
 
                     pedometerList = updatedPedometer;
 
-                    if(lastPedometerSession != null && lastPedometerSession.getTime() >= endDate.getTime()) {
-                        // Log.d(LOG_TAG, "Pedometer data already Synced");
-                        continue;
-                    }
+                    Log.d(LOG_TAG, "Syncing exercise: " + startDate + " --- " + endDate + " steps: " + steps);
 
                     // create data points
                     DataSet dCalories = DataSet.create(caloriesDataSource);
@@ -875,14 +926,65 @@ public class GoogleFit {
             return success;
         }
 
+        private void updateLastPedo () {
+            if(lastPedometerStartTime != null) {
+                for(int i = 0; i < pedometerList.size(); i++) {
+                    PedometerData p = pedometerList.get(i);
+                    if(lastPedometerStartTime.getTime() == p.getTimeStamp() && p.getTimeStamp() < lastPedometerSession.getTime() && p.getTimeStampEnd() > lastPedometerSession.getTime() && lastPedometerSteps > 0) {
+                        Log.d(LOG_TAG, "Original: " + new Date(p.getTimeStamp()) + " to: " + new Date(p.getTimeStampEnd()) + " steps: " + p.getSteps() + " cals: " + p.getCalories() + " dist: " + p.getDistance());
+                        PedometerData p1 = new PedometerData(lastPedometerStartTime.getTime(), lastPedometerSteps, lastPedometerDist, lastPedometerCals);
+                        p1.setTimeStampEnd(lastPedometerSession.getTime());
+                        PedometerData p2 = new PedometerData(lastPedometerSession.getTime(), p.getSteps() - lastPedometerSteps, p.getDistance() - lastPedometerDist, p.getCalories() - lastPedometerCals);
+                        p2.setTimeStampEnd(p.getTimeStampEnd());
+                        Log.d(LOG_TAG, "Update1: " + new Date(p1.getTimeStamp()) + " to: " + new Date(p1.getTimeStampEnd()) + " steps: " + p1.getSteps() + " cals: " + p1.getCalories() + " dist: " + p1.getDistance());
+                        Log.d(LOG_TAG, "Update2: " + new Date(p2.getTimeStamp()) + " to: " + new Date(p2.getTimeStampEnd()) + " steps: " + p2.getSteps() + " cals: " + p2.getCalories() + " dist: " + p2.getDistance());
+                        pedometerList.add(i, p1);
+                        pedometerList.add(i + 1, p2);
+                        pedometerList.remove(i + 2);
+                        break;
+                    }
+                }
+            }
+        }
+
         protected Void doInBackground(Void... params) {
             Log.d(LOG_TAG, "writeDataTask");
+
+            int steps = 0;
+            float cals = 0;
+            float dist = 0;
+
+            if(pedometerList != null && pedometerList.size() > 0) {
+                PedometerData pd = pedometerList.get(pedometerList.size() - 1);
+                Calendar cal = Calendar.getInstance();
+                cal.setTimeInMillis(0);
+                cal.set(Calendar.MINUTE, 10);
+                Log.d(LOG_TAG, "Last pedometer data from: " + new Date(pd.getTimeStamp()) + " to: " + new Date(pd.getTimeStampEnd()) + " steps: " + pd.getSteps() + " cals: " + pd.getCalories() + " dist: " + pd.getDistance());
+                if(pd.getTimeStampEnd() - pd.getTimeStamp() != cal.getTimeInMillis()) {
+                    steps = pd.getSteps();
+                    cals = pd.getCalories();
+                    dist = pd.getDistance();
+                }
+                else {
+                    steps = 0;
+                    cals = 0;
+                    dist = 0;
+                }
+            }
+            updateLastPedo();
 
             boolean successExercise = insertExerciseData();
             boolean successPedometer = insertPedometerData();
             boolean successSleep = insertSleepData();
             boolean successProfileData = insertProfileData();;
             boolean successHeartRate = insertHeartRate();
+
+            if(successPedometer) {
+                Log.d(LOG_TAG, "Save to prefs steps: " + steps + " cals: " + cals + " dist: " + dist);
+                prefs.edit().putInt(prefsSteps, steps).commit();
+                prefs.edit().putFloat(prefsCals, cals).commit();
+                prefs.edit().putFloat(prefsDist, dist).commit();
+            }
 
             Intent msg = new Intent(OpenFitIntent.INTENT_GOOGLE_FIT);
             msg.putExtra(OpenFitIntent.INTENT_EXTRA_MSG, OpenFitIntent.INTENT_GOOGLE_FIT_SYNC_STATUS);

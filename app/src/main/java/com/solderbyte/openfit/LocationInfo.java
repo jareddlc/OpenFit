@@ -209,26 +209,26 @@ public class LocationInfo {
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 15, locationListener);
         //locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, locationListener, null);
         new android.os.Handler().postDelayed(
-                new Runnable() {
-                    public void run() {
-                        Log.d(LOG_TAG, "Location not change: " + cityName + ", " + CountryCode);
-                        if (locationListener != null) {
-                            // Log.d(LOG_TAG, "Removing Location updates");
-                            // locationManager.removeUpdates(locationListener);
-                            if (latitude == 0 && longitude == 0) {
-                                updateLastKnownLocation();
-                            }
-                        }
-                        if (useGeocoder || (cityName != null && CountryCode != null)) {
-                            Intent msg = new Intent(OpenFitIntent.INTENT_SERVICE_LOCATION);
-                            msg.putExtra("cityName", cityName);
-                            msg.putExtra("StateName", StateName);
-                            msg.putExtra("CountryName", CountryName);
-                            msg.putExtra("CountryCode", CountryCode);
-                            context.sendBroadcast(msg);
+            new Runnable() {
+                public void run() {
+                    Log.d(LOG_TAG, "Location not change: " + cityName + ", " + CountryCode);
+                    if (locationListener != null) {
+                        // Log.d(LOG_TAG, "Removing Location updates");
+                        // locationManager.removeUpdates(locationListener);
+                        if (latitude == 0 && longitude == 0) {
+                            updateLastKnownLocation();
                         }
                     }
-                }, 20000);
+                    if (useGeocoder || (cityName != null && CountryCode != null)) {
+                        Intent msg = new Intent(OpenFitIntent.INTENT_SERVICE_LOCATION);
+                        msg.putExtra("cityName", cityName);
+                        msg.putExtra("StateName", StateName);
+                        msg.putExtra("CountryName", CountryName);
+                        msg.putExtra("CountryCode", CountryCode);
+                        context.sendBroadcast(msg);
+                    }
+                }
+            }, 20000);
     }
 
     public static void removeUpdates() {

@@ -200,7 +200,7 @@ public class OpenFitApi {
     public static byte[] getFitnessMenu() {
         //02040000001b000000
         OpenFitVariableDataComposer oVariableDataComposer = new OpenFitVariableDataComposer();
-        oVariableDataComposer.writeByte((byte) 2);
+        oVariableDataComposer.writeByte((byte)2);
         oVariableDataComposer.writeInt(4);
         oVariableDataComposer.writeInt(27);
         return oVariableDataComposer.toByteArray();
@@ -209,7 +209,7 @@ public class OpenFitApi {
     public static byte[] getFitnessMenuResponse() {
         //02010000001c
         OpenFitVariableDataComposer oVariableDataComposer = new OpenFitVariableDataComposer();
-        oVariableDataComposer.writeByte((byte) 2);
+        oVariableDataComposer.writeByte((byte)2);
         oVariableDataComposer.writeInt(4);
         oVariableDataComposer.writeInt(28);
         return oVariableDataComposer.toByteArray();
@@ -231,7 +231,7 @@ public class OpenFitApi {
     public static byte[] getHealthApp() {
         //02040000001200000002100000001300000003000000 3D8A2C4359DAC742
         OpenFitVariableDataComposer oVariableDataComposer = new OpenFitVariableDataComposer();
-        oVariableDataComposer.writeByte((byte) 2);
+        oVariableDataComposer.writeByte((byte)2);
         oVariableDataComposer.writeInt(4);
         oVariableDataComposer.writeInt(21);
         return oVariableDataComposer.toByteArray();
@@ -240,7 +240,7 @@ public class OpenFitApi {
     public static byte[] getHealthAppResponse() {
         //02040000001200000002100000001300000003000000 3D8A2C4359DAC742
         OpenFitVariableDataComposer oVariableDataComposer = new OpenFitVariableDataComposer();
-        oVariableDataComposer.writeByte((byte) 2);
+        oVariableDataComposer.writeByte((byte)2);
         oVariableDataComposer.writeInt(4);
         oVariableDataComposer.writeInt(20);
         return oVariableDataComposer.toByteArray();
@@ -274,7 +274,7 @@ public class OpenFitApi {
     public static byte[] getResponseGPSReady() {
         //02240000001600000000000000268fbb42b4ecb6420000000000000000000000000000000000000000
         OpenFitVariableDataComposer oVariableDataComposer = new OpenFitVariableDataComposer();
-        oVariableDataComposer.writeByte((byte) 2);
+        oVariableDataComposer.writeByte((byte)2);
         oVariableDataComposer.writeInt(4);
         oVariableDataComposer.writeInt(OpenFitData.DATA_TYPE_HOST_TO_WINGTIP_GPS_READY);
         return oVariableDataComposer.toByteArray();
@@ -331,7 +331,7 @@ public class OpenFitApi {
     public static byte[] getSync() {
         //020400000005000000
         OpenFitVariableDataComposer oVariableDataComposer = new OpenFitVariableDataComposer();
-        oVariableDataComposer.writeByte((byte) 2);
+        oVariableDataComposer.writeByte((byte)2);
         oVariableDataComposer.writeInt(4);
         oVariableDataComposer.writeInt(OpenFitData.DATA_TYPE_WINGTIP_TO_HOST_SYNC_REQUEST);
         return oVariableDataComposer.toByteArray();

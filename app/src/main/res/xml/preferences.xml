@@ -26,6 +26,11 @@
             android:summaryOn="@string/preference_checkbox_connect_on"
             android:summaryOff="@string/preference_checkbox_connect_off"
             android:defaultValue="false" />
+        <CheckBoxPreference
+            android:dependency="preference_switch_bluetooth"
+            android:key="preference_checkbox_exercise_gps"
+            android:title="@string/preference_checkbox_exercise_gps"
+            android:defaultValue="false" />
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/preference_category_device_title" >

@@ -35,6 +35,13 @@ public class LocationInfo {
     private static String CountryCode = null;
     private static double latitude = 0;
     private static double longitude = 0;
+    private static float accuracy = 0;
+
+    private static float totalDistance = 0.0f;
+    private static float currentSpeed = 0.0f;
+    private static float currentAltitude = 0.0f;
+    private static long timestamp = 0;
+    private static Location prevLocation = null;
 
     private static Context context;
 
@@ -45,7 +52,14 @@ public class LocationInfo {
         geocoder = new Geocoder(context, Locale.getDefault());
 
         updateLastKnownLocation();
-        listenForLocation();
+        listenForLocation(true);
+    }
+
+    public static void resetData() {
+        totalDistance = 0.0f;
+        currentSpeed = 0.0f;
+        timestamp = 0;
+        prevLocation = null;
     }
 
     public static void updateLastKnownLocation() {
@@ -115,30 +129,97 @@ public class LocationInfo {
         }
     }
 
-    public static void listenForLocation() {
+    public static void listenForLocation(final boolean useGeocoder) {
         locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
-                locationManager.removeUpdates(this);
+                // locationManager.removeUpdates(this);
                 if(location != null) {
                     latitude = location.getLatitude();
                     longitude = location.getLongitude();
+                    currentAltitude = (float)location.getAltitude();
+                    currentSpeed = location.getSpeed();
 
-                    try {
-                        addresses = geocoder.getFromLocation(latitude, longitude, 1);
-                        if(addresses.size() > 0) {
-                            cityName = addresses.get(0).getLocality();
-                            if(cityName == null) {
-                                cityName = addresses.get(0).getSubAdminArea();
-                            }
-                            if(cityName == null) {
-                                cityName = addresses.get(0).getAdminArea();
-                            }
-                            StateName = addresses.get(0).getAdminArea();
-                            CountryName = addresses.get(0).getCountryName();
-                            CountryCode = addresses.get(0).getCountryCode();
-                            Log.d(LOG_TAG, "onLocationChanged: " + cityName + ", " + CountryCode);
+                    if (prevLocation != null) {
+                        Location loc1 = new Location("");
+                        loc1.setLatitude(prevLocation.getLatitude());
+                        loc1.setLongitude(prevLocation.getLongitude());
+                        Location loc2 = new Location("");
+                        loc2.setLatitude(location.getLatitude());
+                        loc2.setLongitude(location.getLongitude());
+                        totalDistance += loc1.distanceTo(loc2);
+                    }
+                    prevLocation = location;
+                    timestamp = location.getTime();
 
+                    accuracy = location.getAccuracy();
+
+                    if (useGeocoder) {
+                        try {
+                            addresses = geocoder.getFromLocation(latitude, longitude, 1);
+                            if (addresses.size() > 0) {
+                                cityName = addresses.get(0).getLocality();
+                                if (cityName == null) {
+                                    cityName = addresses.get(0).getSubAdminArea();
+                                }
+                                if (cityName == null) {
+                                    cityName = addresses.get(0).getAdminArea();
+                                }
+                                StateName = addresses.get(0).getAdminArea();
+                                CountryName = addresses.get(0).getCountryName();
+                                CountryCode = addresses.get(0).getCountryCode();
+                                Log.d(LOG_TAG, "onLocationChanged: " + cityName + ", " + CountryCode);
+                            }
+                        } catch (Exception e) {
+                            Log.e(LOG_TAG, "Error: " + e);
+                        }
+                    }
+                    Intent msg = new Intent(OpenFitIntent.INTENT_SERVICE_LOCATION);
+                    msg.putExtra("cityName", cityName);
+                    msg.putExtra("StateName", StateName);
+                    msg.putExtra("CountryName", CountryName);
+                    msg.putExtra("CountryCode", CountryCode);
+                    context.sendBroadcast(msg);
+                }
+            }
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {}
+
+            @Override
+            public void onProviderDisabled(String provider) {
+                Log.d(LOG_TAG, "GPS OFF");
+                if (provider.equals(LocationManager.GPS_PROVIDER)) {
+                    Intent msg = new Intent(OpenFitIntent.INTENT_SERVICE_LOCATION);
+                    msg.putExtra("status", false);
+                    context.sendBroadcast(msg);
+                }
+            }
+
+            @Override
+            public void onProviderEnabled(String provider) {
+                Log.d(LOG_TAG, "GPS ON");
+                if (provider.equals(LocationManager.GPS_PROVIDER)) {
+                    Intent msg = new Intent(OpenFitIntent.INTENT_SERVICE_LOCATION);
+                    msg.putExtra("status", false);
+                    context.sendBroadcast(msg);
+                }
+            }
+        };
+
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 15, locationListener);
+        //locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, locationListener, null);
+        new android.os.Handler().postDelayed(
+                new Runnable() {
+                    public void run() {
+                        Log.d(LOG_TAG, "Location not change: " + cityName + ", " + CountryCode);
+                        if (locationListener != null) {
+                            // Log.d(LOG_TAG, "Removing Location updates");
+                            // locationManager.removeUpdates(locationListener);
+                            if (latitude == 0 && longitude == 0) {
+                                updateLastKnownLocation();
+                            }
+                        }
+                        if (useGeocoder || (cityName != null && CountryCode != null)) {
                             Intent msg = new Intent(OpenFitIntent.INTENT_SERVICE_LOCATION);
                             msg.putExtra("cityName", cityName);
                             msg.putExtra("StateName", StateName);
@@ -147,42 +228,19 @@ public class LocationInfo {
                             context.sendBroadcast(msg);
                         }
                     }
-                    catch (Exception e) {
-                        Log.e(LOG_TAG, "Error: "+ e);
-                    }
-                }
-            }
-            @Override
-            public void onStatusChanged(String provider, int status, Bundle extras) {}
-            @Override
-            public void onProviderDisabled(String provider) {}
-            @Override
-            public void onProviderEnabled(String provider) {}
-        };
+                }, 20000);
+    }
 
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 1, locationListener);
-        //locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, locationListener, null);
-        new android.os.Handler().postDelayed(
-            new Runnable() {
-                public void run() {
-                    Log.d(LOG_TAG, "Location not change: " + cityName + ", " + CountryCode);
-                    if(locationListener != null) {
-                        Log.d(LOG_TAG, "Removing Location updates");
-                        locationManager.removeUpdates(locationListener);
-                        if(latitude == 0 && longitude == 0) {
-                            updateLastKnownLocation();
-                        }
-                    }
-                    if(cityName != null && CountryCode != null) {
-                        Intent msg = new Intent(OpenFitIntent.INTENT_SERVICE_LOCATION);
-                        msg.putExtra("cityName", cityName);
-                        msg.putExtra("StateName", StateName);
-                        msg.putExtra("CountryName", CountryName);
-                        msg.putExtra("CountryCode", CountryCode);
-                        context.sendBroadcast(msg);
-                    }
-                }
-        }, 20000);
+    public static void removeUpdates() {
+        Log.d(LOG_TAG, "Removing Location updates");
+        if (locationListener != null) {
+            locationManager.removeUpdates(locationListener);
+            locationListener = null;
+        }
+    }
+
+    public static boolean isGPSEnabled() {
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
     }
 
     public static String getCityName() {
@@ -208,4 +266,15 @@ public class LocationInfo {
     public static double getLon() {
         return longitude;
     }
+
+    public static float getTotalDistance() { return totalDistance; }
+
+    public static float getCurrentSpeed() { return currentSpeed; }
+
+    public static float getCurrentAltitude() { return currentAltitude; }
+
+    public static long getTimestamp() { return timestamp; }
+
+    public static float getAccuracy() { return accuracy; }
+
 }

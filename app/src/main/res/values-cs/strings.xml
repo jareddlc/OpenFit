@@ -25,6 +25,7 @@
     <string name="preference_checkbox_connect_title">Připojit</string>
     <string name="preference_checkbox_connect_on">Připojeno</string>
     <string name="preference_checkbox_connect_off">Odpojeno</string>
+    <string name="preference_checkbox_exercise_gps">Využití GPS při cvičení</string>
     <string name="preference_list_devices_default">Nic k zobrazení</string>
     <string name="preference_category_device_title">Zařízení</string>
     <string name="preference_checkbox_sms_title">Text zpráv</string>

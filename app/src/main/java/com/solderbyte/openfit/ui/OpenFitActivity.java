@@ -192,6 +192,7 @@ public class OpenFitActivity extends Activity {
 
         // UI preferences
         private static SwitchPreference preference_switch_bluetooth;
+        private static CheckBoxPreference preference_checkbox_exercise_gps;
         private static CheckBoxPreference preference_checkbox_connect;
         private static CheckBoxPreference preference_checkbox_phone;
         private static CheckBoxPreference preference_checkbox_sms;
@@ -353,6 +354,23 @@ public class OpenFitActivity extends Activity {
                     else {
                         oPrefs.saveBoolean("preference_checkbox_sms", false);
                         sendIntent(OpenFitIntent.INTENT_SERVICE_BT, OpenFitIntent.ACTION_SMS, OpenFitIntent.ACTION_FALSE);
+                        return true;
+                    }
+                }
+            });
+
+            preference_checkbox_exercise_gps = (CheckBoxPreference) getPreferenceManager().findPreference("preference_checkbox_exercise_gps");
+            preference_checkbox_exercise_gps.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    if((Boolean)newValue) {
+                        sendIntent(OpenFitIntent.INTENT_SERVICE_BT, OpenFitIntent.ACTION_GPS, OpenFitIntent.ACTION_TRUE);
+                        oPrefs.saveBoolean("preference_checkbox_exercise_gps", true);
+                        return true;
+                    }
+                    else {
+                        sendIntent(OpenFitIntent.INTENT_SERVICE_BT, OpenFitIntent.ACTION_GPS, OpenFitIntent.ACTION_FALSE);
+                        oPrefs.saveBoolean("preference_checkbox_exercise_gps", false);
                         return true;
                     }
                 }
@@ -529,6 +547,11 @@ public class OpenFitActivity extends Activity {
                     Log.d(LOG_TAG, "SMS");
                     Boolean data = intent.getBooleanExtra(OpenFitIntent.INTENT_EXTRA_DATA, false);
                     preference_checkbox_sms.setChecked(data);
+                }
+                if(message.equals(OpenFitIntent.EXTRA_GPS)) {
+                    Log.d(LOG_TAG, "GPS");
+                    Boolean data = intent.getBooleanExtra(OpenFitIntent.INTENT_EXTRA_DATA, false);
+                    preference_checkbox_exercise_gps.setChecked(data);
                 }
                 if(message.equals(OpenFitIntent.EXTRA_PHONE)) {
                     Log.d(LOG_TAG, "Phone");

@@ -72,6 +72,7 @@
     <string name="preference_checkbox_connect_title">Connect</string>
     <string name="preference_checkbox_connect_on">Connected</string>
     <string name="preference_checkbox_connect_off">Disconnected</string>
+    <string name="preference_checkbox_exercise_gps">Use GPS for exercising</string>
     <string name="preference_list_devices_default">None</string>
     <string name="preference_category_device_title">Device</string>
     <string name="preference_checkbox_sms_title">Text Messages</string>

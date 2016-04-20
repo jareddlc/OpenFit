@@ -40,6 +40,7 @@ public class OpenFitIntent {
     public static final String ACTION_SCAN = "scan";
     public static final String ACTION_SET_DEVICE = "setDevice";
     public static final String ACTION_SET_ENTRIES = "setEntries";
+    public static final String ACTION_GPS = "gps";
     public static final String ACTION_CONNECT = "connect";
     public static final String ACTION_DISCONNECT = "disconnect";
     public static final String ACTION_UI_STATUS = "status";
@@ -56,6 +57,7 @@ public class OpenFitIntent {
     public static final String EXTRA_PACKAGE_NAME = "packageName";
     public static final String EXTRA_APP_NAME = "appName";
     public static final String EXTRA_SMS = "sms";
+    public static final String EXTRA_GPS = "gps";
     public static final String EXTRA_PHONE = "phone";
     public static final String EXTRA_TIME = "time";
     public static final String EXTRA_WEATHER = "weather";

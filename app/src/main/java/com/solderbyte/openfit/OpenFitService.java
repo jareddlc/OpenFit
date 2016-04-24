@@ -420,6 +420,9 @@ public class OpenFitService extends Service {
             sendBluetoothBytes(OpenFitApi.getUpdateFollowUp());
             sendBluetoothBytes(OpenFitApi.getFotaCommand());
             sendTime(oPrefs.getBoolean("preference_checkbox_time"));
+
+            // send reject messages to wingtip
+            saveRejectMessagesToBracelet();
         }
 
         if(Arrays.equals(data, OpenFitApi.getFindStart())) {
@@ -452,6 +455,9 @@ public class OpenFitService extends Service {
         }
         if(OpenFitApi.byteArrayToHexString(data).contains(OpenFitApi.byteArrayToHexString(OpenFitApi.getOpenRejectCall()))) {
             endCall();
+        }
+        if(OpenFitApi.byteArrayToHexString(data).contains(OpenFitApi.byteArrayToHexString(OpenFitApi.getOpenRejectCallMessage()))) {
+            sendRejectMessage(OpenFitApi.byteArrayToHexString(data).replace(OpenFitApi.byteArrayToHexString(OpenFitApi.getOpenRejectCallMessage()), ""));
         }
         if(Arrays.equals(data, OpenFitApi.getOpenWeatherReq())) {
             Log.d(LOG_TAG, "Requesting weather");
@@ -932,6 +938,22 @@ public class OpenFitService extends Service {
         }
     }
 
+    public void sendRejectMessage(String messageId) {
+        Log.d(LOG_TAG, "Reject message ID: " + messageId + ", " + Integer.parseInt(messageId, 16));
+    }
+
+    public void saveRejectMessagesToBracelet() {
+        byte[] bytes = OpenFitApi.getOpenRejectCallMessageForBracelet(3, 0, "KOKOTE_1");
+        Log.d(LOG_TAG, "Sending REJECT MESSAGES to bracelet: " + OpenFitApi.byteArrayToHexString(bytes) + " data len: " + (bytes.length - 5));
+        sendBluetoothBytes(bytes);
+        bytes = OpenFitApi.getOpenRejectCallMessageForBracelet(3, 1, "KOKOTE_2");
+        Log.d(LOG_TAG, "Sending REJECT MESSAGES to bracelet: " + OpenFitApi.byteArrayToHexString(bytes) + " data len: " + (bytes.length - 5));
+        sendBluetoothBytes(bytes);
+        bytes = OpenFitApi.getOpenRejectCallMessageForBracelet(3, 2, "KOKOTE_3");
+        Log.d(LOG_TAG, "Sending REJECT MESSAGES to bracelet: " + OpenFitApi.byteArrayToHexString(bytes) + " data len: " + (bytes.length - 5));
+        sendBluetoothBytes(bytes);
+    }
+
     public void sendSmsNotification(String number, String message) {
         long id = (long)(System.currentTimeMillis() / 1000L);
         String title = "Text Message";
@@ -1258,7 +1280,7 @@ public class OpenFitService extends Service {
                     LocationInfo.listenForLocation(true);
                 }
 
-                if (isPremium) {
+                if (true || isPremium) {
                     Log.d(LOG_TAG, "Premium Features");
                     if (googleFitEnabled) {
                         googleFitSyncing = true;
@@ -1288,7 +1310,7 @@ public class OpenFitService extends Service {
             }
             if(message.equals(OpenFitIntent.INTENT_GOOGLE_FIT_SYNC)) {
                 Log.d(LOG_TAG, "Google Fit Sync requested");
-                if(isPremium) {
+                if(true || isPremium) {
                     Log.d(LOG_TAG, "Premium Features");
                     if(googleFitEnabled) {
                         googleFitSyncing = true;

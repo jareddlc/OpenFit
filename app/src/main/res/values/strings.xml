@@ -10,6 +10,9 @@
     <string name="dialog_title_del">Del Application</string>
     <string name="dialog_close_del">Close</string>
     <string name="dialog_title_help">Open Fit Help</string>
+    <string name="dialog_edit_reject_messages">Edit reject messages</string>
+    <string name="dialog_close_reject_messages">Close</string>
+    <string name="dialog_save_reject_messages">Save</string>
     <string name="dialog_message_help"><b>Application Notifications:</b>
         \nFor applications notifications to work,
         you must turn on "Notification Access" for the Open Fit application.

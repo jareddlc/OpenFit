@@ -90,8 +90,13 @@ public class OpenFitActivity extends Activity {
         }
         if(item.getTitle().equals(getResources().getString(R.string.menu_help))) {
             Log.d(LOG_TAG, "Help selected");
-            DialogHelp d = new DialogHelp();
-            d.show(getFragmentManager(), getString(R.string.menu_help));
+            //DialogHelp d = new DialogHelp();
+            //d.show(getFragmentManager(), getString(R.string.menu_help));
+            ArrayList<String> s = new ArrayList<String>();
+            s.add("Kokot");
+            s.add("Picus");
+            DialogRejectMessages d = new DialogRejectMessages(s);
+            d.show(getFragmentManager(), getString(R.string.dialog_edit_reject_messages));
         }
         return true;
     }

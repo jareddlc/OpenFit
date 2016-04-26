@@ -13,6 +13,7 @@
     <string name="dialog_edit_reject_messages">Edit reject messages</string>
     <string name="dialog_close_reject_messages">Close</string>
     <string name="dialog_save_reject_messages">Save</string>
+    <string name="dialog_reject_messages_hint">Add message</string>
     <string name="dialog_message_help"><b>Application Notifications:</b>
         \nFor applications notifications to work,
         you must turn on "Notification Access" for the Open Fit application.
@@ -80,6 +81,7 @@
     <string name="preference_category_device_title">Device</string>
     <string name="preference_checkbox_sms_title">Text Messages</string>
     <string name="preference_checkbox_phone_title">Phone Calls</string>
+    <string name="preference_edit_reject_messages">Edit reject messages</string>
     <string name="preference_checkbox_time_title">Clock Format</string>
     <string name="preference_checkbox_time_on">24-hour Clock</string>
     <string name="preference_checkbox_time_off">12-hour Clock</string>
@@ -127,4 +129,6 @@
     <string name="progress_dialog_syncing">Syncing to Google Fit.\nPlease allow up to 5 minutes</string>
     <string name="calendar_event">Event</string>
     <string name="calendar_when">When</string>
+    <string name="toast_send_sms_success">SMS sended</string>
+    <string name="toast_send_sms_failed">Send SMS failed</string>
 </resources>

@@ -14,6 +14,7 @@ public class OpenFitSavedPreferences {
     public static final String PREFS_NAME = "OpenFitSettings";
     public static final String PREFS_DEFAULT = "DEFAULT";
     public static final boolean PREFS_DEFAULT_BOOL = false;
+    public static final int PREFS_DEFAULT_INT = 0;
 
     private SharedPreferences preferences;
     private Editor editor;
@@ -54,9 +55,14 @@ public class OpenFitSavedPreferences {
         editor.commit();
     }
 
+    public void saveInt(String string, int n) {
+        this.editor.putInt(string + ":string", n);
+        this.editor.commit();
+    }
+
     public void saveString(String key, String value) {
         //Log.d(LOG_TAG, "Saving: " + key+":string :" + value);
-        editor.putString(key+":string", value);
+        editor.putString(key + ":string", value);
         editor.commit();
     }
 
@@ -71,6 +77,10 @@ public class OpenFitSavedPreferences {
         //Log.d(LOG_TAG, "Getting: " + key+":boolean");
         boolean value = preferences.getBoolean(key+":boolean", PREFS_DEFAULT_BOOL);
         return value;
+    }
+
+    public int getInt(String string) {
+        return this.preferences.getInt(string + ":string", PREFS_DEFAULT_INT);
     }
 
     public String getString(String key) {

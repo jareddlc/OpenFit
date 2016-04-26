@@ -33,10 +33,12 @@ import android.os.Message;
 import android.provider.ContactsContract.PhoneLookup;
 import android.support.v4.app.NotificationCompat;
 import android.telephony.PhoneStateListener;
+import android.telephony.SmsManager;
 import android.telephony.TelephonyManager;
 import android.media.ToneGenerator;
 import android.media.AudioManager;
 import android.util.Log;
+import android.widget.Toast;
 
 @SuppressLint("HandlerLeak")
 public class OpenFitService extends Service {
@@ -79,6 +81,7 @@ public class OpenFitService extends Service {
     private DialerListener dailerListener;
     private Notification notification;
     private static ExerciseGPSStorage gpsData = null;
+    private String lastPhoneNumber = "";
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -105,6 +108,7 @@ public class OpenFitService extends Service {
         this.registerReceiver(cronReceiver, new IntentFilter(OpenFitIntent.INTENT_SERVICE_CRONJOB));
         this.registerReceiver(googleFitReceiver, new IntentFilter(OpenFitIntent.INTENT_GOOGLE_FIT));
         this.registerReceiver(billingReceiver, new IntentFilter(OpenFitIntent.INTENT_BILLING));
+        this.registerReceiver(saveRejectMessagesReceiver, new IntentFilter(OpenFitIntent.INTENT_REJECTMESSAGES_SAVE));
 
         // start modules
         pManager = this.getPackageManager();
@@ -457,7 +461,7 @@ public class OpenFitService extends Service {
             endCall();
         }
         if(OpenFitApi.byteArrayToHexString(data).contains(OpenFitApi.byteArrayToHexString(OpenFitApi.getOpenRejectCallMessage()))) {
-            sendRejectMessage(OpenFitApi.byteArrayToHexString(data).replace(OpenFitApi.byteArrayToHexString(OpenFitApi.getOpenRejectCallMessage()), ""));
+            sendRejectMessage(OpenFitApi.byteArrayToHexString(data).replace(OpenFitApi.byteArrayToHexString(OpenFitApi.getOpenRejectCallMessage()), ""), lastPhoneNumber);
         }
         if(Arrays.equals(data, OpenFitApi.getOpenWeatherReq())) {
             Log.d(LOG_TAG, "Requesting weather");
@@ -938,20 +942,39 @@ public class OpenFitService extends Service {
         }
     }
 
-    public void sendRejectMessage(String messageId) {
-        Log.d(LOG_TAG, "Reject message ID: " + messageId + ", " + Integer.parseInt(messageId, 16));
+    public void sendRejectMessage(String messageId, String phoneNumber) {
+        StringBuilder updatedString = new StringBuilder();
+        for (int i = 0; i < messageId.length(); i++) {
+            updatedString.append(messageId.charAt(i));
+            if (messageId.charAt(i) != '0') {
+                break;
+            }
+        }
+        int messageIdInt = Integer.parseInt(updatedString.toString(), 16);
+        Log.d(LOG_TAG, "Reject message ID: " + messageId + ", " + messageIdInt);
+        int msgSize = oPrefs.getInt("reject_messages_size");
+        if (msgSize > 0 && msgSize > messageIdInt) {
+            Log.d(LOG_TAG, "Sending reject message: " + oPrefs.getString("reject_message_" + messageIdInt) + ", to: " + phoneNumber);
+            try {
+                SmsManager smsManager = SmsManager.getDefault();
+                smsManager.sendTextMessage(phoneNumber, null, oPrefs.getString("reject_message_" + messageIdInt), null, null);
+                Toast.makeText(getApplicationContext(), R.string.toast_send_sms_success, Toast.LENGTH_SHORT).show();
+            }
+            catch (Exception e) {
+                Toast.makeText(getApplicationContext(), R.string.toast_send_sms_failed, Toast.LENGTH_SHORT).show();
+                Log.d(LOG_TAG, "Sending sms failed: " + e.toString());
+            }
+        }
     }
 
     public void saveRejectMessagesToBracelet() {
-        byte[] bytes = OpenFitApi.getOpenRejectCallMessageForBracelet(3, 0, "KOKOTE_1");
-        Log.d(LOG_TAG, "Sending REJECT MESSAGES to bracelet: " + OpenFitApi.byteArrayToHexString(bytes) + " data len: " + (bytes.length - 5));
-        sendBluetoothBytes(bytes);
-        bytes = OpenFitApi.getOpenRejectCallMessageForBracelet(3, 1, "KOKOTE_2");
-        Log.d(LOG_TAG, "Sending REJECT MESSAGES to bracelet: " + OpenFitApi.byteArrayToHexString(bytes) + " data len: " + (bytes.length - 5));
-        sendBluetoothBytes(bytes);
-        bytes = OpenFitApi.getOpenRejectCallMessageForBracelet(3, 2, "KOKOTE_3");
-        Log.d(LOG_TAG, "Sending REJECT MESSAGES to bracelet: " + OpenFitApi.byteArrayToHexString(bytes) + " data len: " + (bytes.length - 5));
-        sendBluetoothBytes(bytes);
+        Log.d(LOG_TAG, "Sending reject messages to the bracelet");
+        int msgSize = oPrefs.getInt("reject_messages_size");
+        for (int i = 0; i < msgSize; i++) {
+            byte[] bytes = OpenFitApi.getOpenRejectCallMessageForBracelet(msgSize, i, oPrefs.getString("reject_message_" + i));
+            sendBluetoothBytes(bytes);
+            Log.d(LOG_TAG, "cnt = " + msgSize + ", id = " + i + ", msg = " + oPrefs.getString("reject_message_" + i));
+        }
     }
 
     public void sendSmsNotification(String number, String message) {
@@ -1094,6 +1117,7 @@ public class OpenFitService extends Service {
             unregisterReceiver(cronReceiver);
             unregisterReceiver(googleFitReceiver);
             unregisterReceiver(billingReceiver);
+            unregisterReceiver(saveRejectMessagesReceiver);
             unbindService(mServiceConnection);
             Cronjob.stop();
             clearNotification();
@@ -1165,6 +1189,7 @@ public class OpenFitService extends Service {
         public void onReceive(Context context, Intent intent) {
             String sender = intent.getStringExtra("sender");
             Log.d(LOG_TAG, "Recieved PHONE: "+sender);
+            lastPhoneNumber = sender;
             sendDialerNotification(sender);
         }
     };
@@ -1353,6 +1378,18 @@ public class OpenFitService extends Service {
                 else {
                     isPremium = false;
                 }
+            }
+        }
+    };
+
+    private BroadcastReceiver saveRejectMessagesReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final Boolean save = intent.getBooleanExtra(OpenFitIntent.INTENT_EXTRA_DATA, false);
+            Log.d(LOG_TAG, "Received reject messages save: " + save);
+
+            if(save) {
+                saveRejectMessagesToBracelet();
             }
         }
     };

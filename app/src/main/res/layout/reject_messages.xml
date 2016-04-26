@@ -14,15 +14,83 @@
         android:layout_height="wrap_content"
         android:contentDescription="@string/app_name" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
+    <ScrollView
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical" >
+        android:id="@+id/scrollView" >
 
-        <TextView
-            android:id="@+id/text"
+        <LinearLayout
+            android:orientation="vertical"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"/>
-    </LinearLayout>
+            android:layout_height="wrap_content">
+            <EditText
+                android:textSize="20.0dip"
+                android:textColor="#ff000000"
+                android:textColorHint="#ff888888"
+                android:id="@+id/editText1"
+                android:background="#ffdddddd"
+                android:padding="5.0dip"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20.0dip"
+                android:hint="@string/dialog_reject_messages_hint" />
+            <EditText
+                android:textSize="20.0dip"
+                android:textColor="#ff000000"
+                android:textColorHint="#ff888888"
+                android:id="@+id/editText2"
+                android:background="#ffdddddd"
+                android:padding="5.0dip"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20.0dip"
+                android:hint="@string/dialog_reject_messages_hint" />
+            <EditText
+                android:textSize="20.0dip"
+                android:textColor="#ff000000"
+                android:textColorHint="#ff888888"
+                android:id="@+id/editText3"
+                android:background="#ffdddddd"
+                android:padding="5.0dip"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20.0dip"
+                android:hint="@string/dialog_reject_messages_hint" />
+            <EditText
+                android:textSize="20.0dip"
+                android:textColor="#ff000000"
+                android:textColorHint="#ff888888"
+                android:id="@+id/editText4"
+                android:background="#ffdddddd"
+                android:padding="5.0dip"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20.0dip"
+                android:hint="@string/dialog_reject_messages_hint" />
+            <EditText
+                android:textSize="20.0dip"
+                android:textColor="#ff000000"
+                android:textColorHint="#ff888888"
+                android:id="@+id/editText5"
+                android:background="#ffdddddd"
+                android:padding="5.0dip"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20.0dip"
+                android:hint="@string/dialog_reject_messages_hint" />
+            <EditText
+                android:textSize="20.0dip"
+                android:textColor="#ff000000"
+                android:textColorHint="#ff888888"
+                android:id="@+id/editText6"
+                android:background="#ffdddddd"
+                android:padding="5.0dip"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20.0dip"
+                android:hint="@string/dialog_reject_messages_hint" />
+
+        </LinearLayout>
+    </ScrollView>
+
 </LinearLayout>

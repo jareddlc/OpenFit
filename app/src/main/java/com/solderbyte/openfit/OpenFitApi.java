@@ -637,7 +637,6 @@ public class OpenFitApi {
         oVariableDataComposer.writeByte((byte)4);
         oVariableDataComposer.writeByte((byte)allCount);
         oVariableDataComposer.writeByte((byte)index);
-        Log.d("OpenFitApi", "Arr = " + byteArrayToHexString(arr) + ", len = " + arr.length);
         oVariableDataComposer.writeShort((short)arr.length);
         oVariableDataComposer.writeBytes(arr);
         return oVariableDataComposer.toByteArray();

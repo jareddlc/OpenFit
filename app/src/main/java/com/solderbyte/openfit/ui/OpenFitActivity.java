@@ -90,13 +90,8 @@ public class OpenFitActivity extends Activity {
         }
         if(item.getTitle().equals(getResources().getString(R.string.menu_help))) {
             Log.d(LOG_TAG, "Help selected");
-            //DialogHelp d = new DialogHelp();
-            //d.show(getFragmentManager(), getString(R.string.menu_help));
-            ArrayList<String> s = new ArrayList<String>();
-            s.add("Kokot");
-            s.add("Picus");
-            DialogRejectMessages d = new DialogRejectMessages(s);
-            d.show(getFragmentManager(), getString(R.string.dialog_edit_reject_messages));
+            DialogHelp d = new DialogHelp();
+            d.show(getFragmentManager(), getString(R.string.menu_help));
         }
         return true;
     }
@@ -207,6 +202,7 @@ public class OpenFitActivity extends Activity {
         private static ListPreference preference_list_devices;
         private static Preference preference_scan;
         private static Preference preference_fitness;
+        private static Preference preference_edit_reject_messages;
         //private static Preference preference_donate;
         private static Preference preference_purchase;
 
@@ -243,6 +239,7 @@ public class OpenFitActivity extends Activity {
             // App Listener
             LocalBroadcastManager.getInstance(this.getActivity()).registerReceiver(addApplicationReceiver, new IntentFilter(OpenFitIntent.INTENT_UI_ADDAPPLICATION));
             LocalBroadcastManager.getInstance(this.getActivity()).registerReceiver(delApplicationReceiver, new IntentFilter(OpenFitIntent.INTENT_UI_DELAPPLICATION));
+            LocalBroadcastManager.getInstance(this.getActivity()).registerReceiver(rejectMessagesReceiver, new IntentFilter(OpenFitIntent.INTENT_UI_REJECTMESSAGES));
             this.getActivity().registerReceiver(btReceiver, new IntentFilter(OpenFitIntent.INTENT_UI_BT));
             this.getActivity().registerReceiver(serviceStopReceiver, new IntentFilter(OpenFitIntent.INTENT_SERVICE_STOP));
             this.getActivity().registerReceiver(serviceNotificationReceiver, new IntentFilter(OpenFitIntent.INTENT_SERVICE_NOTIFICATION));
@@ -344,6 +341,21 @@ public class OpenFitActivity extends Activity {
                         sendIntent(OpenFitIntent.INTENT_SERVICE_BT, OpenFitIntent.ACTION_PHONE, OpenFitIntent.ACTION_FALSE);
                         return true;
                     }
+                }
+            });
+
+            preference_edit_reject_messages = (Preference) getPreferenceManager().findPreference("preference_edit_reject_messages");
+            preference_edit_reject_messages.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    OpenFitSavedPreferences oPrefs = new OpenFitSavedPreferences(getActivity());
+                    ArrayList<String> msgList = new ArrayList<String>();
+                    for (int i = 0; i < oPrefs.getInt("reject_messages_size"); ++i) {
+                        msgList.add(oPrefs.getString("reject_message_" + i));
+                    }
+                    DialogRejectMessages d = new DialogRejectMessages(msgList);
+                    d.show(getFragmentManager(), getString(R.string.dialog_edit_reject_messages));
+                    return true;
                 }
             });
 
@@ -723,6 +735,7 @@ public class OpenFitActivity extends Activity {
             this.getActivity().unregisterReceiver(billingReceiver);
             LocalBroadcastManager.getInstance(this.getActivity()).unregisterReceiver(addApplicationReceiver);
             LocalBroadcastManager.getInstance(this.getActivity()).unregisterReceiver(delApplicationReceiver);
+            LocalBroadcastManager.getInstance(this.getActivity()).unregisterReceiver(rejectMessagesReceiver);
 
             super.onDestroy();
         }
@@ -761,6 +774,28 @@ public class OpenFitActivity extends Activity {
                 Preference app = (Preference) findPreference(packageName);
                 category.removePreference(app);
                 sendNotificationApplications();
+            }
+        };
+
+        private BroadcastReceiver rejectMessagesReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                final ArrayList<String> msgList = intent.getStringArrayListExtra(OpenFitIntent.EXTRA_REJECT_MESSAGES);
+                Log.d(LOG_TAG, "REJECT MESSAGES");
+                int msgSize = oPrefs.getInt("reject_messages_size");
+                for (int i = 0; i < msgSize; ++i) {
+                    oPrefs.removeString("reject_message_" + i);
+                }
+                for (int i = 0; i < msgList.size(); ++i) {
+                    oPrefs.saveString("reject_message_" + i, msgList.get(i));
+                    Log.d(LOG_TAG, i + ". reject message: " + msgList.get(i));
+                }
+                oPrefs.saveInt("reject_messages_size", msgList.size());
+
+                Log.d(LOG_TAG, "Reject messages size: " + oPrefs.getInt("reject_messages_size"));
+                Intent msg = new Intent(OpenFitIntent.INTENT_REJECTMESSAGES_SAVE);
+                msg.putExtra(OpenFitIntent.INTENT_EXTRA_DATA, true);
+                getActivity().sendBroadcast(msg);
             }
         };
 

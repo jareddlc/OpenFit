@@ -44,6 +44,10 @@
             android:title="@string/preference_checkbox_phone_title"
             android:icon="@drawable/open_phone"
             android:defaultValue="false" />
+        <Preference
+            android:dependency="preference_checkbox_phone"
+            android:key="preference_edit_reject_messages"
+            android:title="@string/preference_edit_reject_messages"/>
         <CheckBoxPreference
             android:key="preference_checkbox_time"
             android:title="@string/preference_checkbox_time_title"

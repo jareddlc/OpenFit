@@ -4,6 +4,7 @@
     android:versionName="1.8.1" xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.RECEIVE_SMS"/>
+    <uses-permission android:name="android.permission.SEND_SMS"/>
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
     <uses-permission android:name="android.permission.PROCESS_INCOMING_CALLS"/>
     <uses-permission android:name="android.permission.CALL_PHONE" />

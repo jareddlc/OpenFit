@@ -27,9 +27,9 @@
     <string name="preference_checkbox_connect_off">Desconectado</string>
     <string name="preference_list_devices_default">Ninguno</string>
     <string name="preference_category_device_title">Dispositivo</string>
-    <string name="preference_checkbox_sms_title">Mensajes de texto</string>
-    <string name="preference_checkbox_phone_title">Llamadas telefónicas</string>
-    <string name="preference_checkbox_time_title">Formato de reloj</string>
+    <string name="preference_checkbox_sms_title">Mensajes De Texto</string>
+    <string name="preference_checkbox_phone_title">Llamadas Telefónicas</string>
+    <string name="preference_checkbox_time_title">Formato De Reloj</string>
     <string name="preference_checkbox_time_on">Reloj 24-horas</string>
     <string name="preference_checkbox_time_off">Reloj 12-horas</string>
     <string name="preference_list_weather_title">Actualizaciones Del Clima</string>

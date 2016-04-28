@@ -56,7 +56,7 @@ public class MediaController {
             processIntent(intent);
         }
     };
-    
+
     private static BroadcastReceiver stockMusicReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -65,7 +65,7 @@ public class MediaController {
             processIntent(intent);
         }
     };
-    
+
     private static BroadcastReceiver samsungMusicReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -74,7 +74,7 @@ public class MediaController {
             processIntent(intent);
         }
     };
-    
+
     private static BroadcastReceiver spotifyReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -83,7 +83,7 @@ public class MediaController {
             processIntent(intent);
         }
     };
-    
+
     private static BroadcastReceiver pandoraReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -147,7 +147,7 @@ public class MediaController {
     public static byte getVolume() {
         return CURRENT_VOLUME;
     }
-    
+
     public static byte getActualVolume() {
         ACT_VOLUME = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
         return (byte) ACT_VOLUME;
@@ -155,33 +155,50 @@ public class MediaController {
 
     public static String getArtist(Intent intent) {
         String artist = "Unsupported Player Artist";
-        if(intent.hasExtra("artist")) {
-            artist = intent.getStringExtra("artist");
-            if(artist == null) {
-                artist = "OpenFit Artist";
+        try {
+            if(intent.hasExtra("artist")) {
+                artist = intent.getStringExtra("artist");
+                if(artist == null) {
+                    artist = "OpenFit Artist";
+                }
             }
         }
+        catch(RuntimeException e) {
+            Log.e(LOG_TAG, "Could not get artist: " + e);
+        }
+
         return artist;
     }
 
     public static String getAlbum(Intent intent) {
         String album = "Unsupported Player Album";
-        if(intent.hasExtra("album")) {
-            album = intent.getStringExtra("album");
-            if(album == null) {
-                album = "OpenFit Album";
+        try {
+            if(intent.hasExtra("album")) {
+                album = intent.getStringExtra("album");
+                if(album == null) {
+                    album = "OpenFit Album";
+                }
             }
         }
+        catch(RuntimeException e) {
+            Log.e(LOG_TAG, "Could not get album: " + e);
+        }
+
         return album;
     }
 
     public static String getTrack(Intent intent) {
         String track = "Unsupported Player Track";
-        if(intent.hasExtra("track")) {
-            track = intent.getStringExtra("track");
-            if(track == null) {
-                track = "OpenFit Track";
+        try {
+            if(intent.hasExtra("track")) {
+                track = intent.getStringExtra("track");
+                if(track == null) {
+                    track = "OpenFit Track";
+                }
             }
+        }
+        catch (RuntimeException e) {
+            Log.e(LOG_TAG, "Could not get track: " + e);
         }
         return track;
     }

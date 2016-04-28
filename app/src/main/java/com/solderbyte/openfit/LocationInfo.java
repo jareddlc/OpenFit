@@ -140,7 +140,7 @@ public class LocationInfo {
                     currentAltitude = (float)location.getAltitude();
                     currentSpeed = location.getSpeed();
 
-                    if (prevLocation != null) {
+                    if(prevLocation != null) {
                         Location loc1 = new Location("");
                         loc1.setLatitude(prevLocation.getLatitude());
                         loc1.setLongitude(prevLocation.getLongitude());
@@ -154,15 +154,15 @@ public class LocationInfo {
 
                     accuracy = location.getAccuracy();
 
-                    if (useGeocoder) {
+                    if(useGeocoder) {
                         try {
                             addresses = geocoder.getFromLocation(latitude, longitude, 1);
-                            if (addresses.size() > 0) {
+                            if(addresses.size() > 0) {
                                 cityName = addresses.get(0).getLocality();
-                                if (cityName == null) {
+                                if(cityName == null) {
                                     cityName = addresses.get(0).getSubAdminArea();
                                 }
-                                if (cityName == null) {
+                                if(cityName == null) {
                                     cityName = addresses.get(0).getAdminArea();
                                 }
                                 StateName = addresses.get(0).getAdminArea();
@@ -170,7 +170,8 @@ public class LocationInfo {
                                 CountryCode = addresses.get(0).getCountryCode();
                                 Log.d(LOG_TAG, "onLocationChanged: " + cityName + ", " + CountryCode);
                             }
-                        } catch (Exception e) {
+                        }
+                        catch(Exception e) {
                             Log.e(LOG_TAG, "Error: " + e);
                         }
                     }
@@ -188,7 +189,7 @@ public class LocationInfo {
             @Override
             public void onProviderDisabled(String provider) {
                 Log.d(LOG_TAG, "GPS OFF");
-                if (provider.equals(LocationManager.GPS_PROVIDER)) {
+                if(provider.equals(LocationManager.GPS_PROVIDER)) {
                     Intent msg = new Intent(OpenFitIntent.INTENT_SERVICE_LOCATION);
                     msg.putExtra("status", false);
                     context.sendBroadcast(msg);
@@ -198,7 +199,7 @@ public class LocationInfo {
             @Override
             public void onProviderEnabled(String provider) {
                 Log.d(LOG_TAG, "GPS ON");
-                if (provider.equals(LocationManager.GPS_PROVIDER)) {
+                if(provider.equals(LocationManager.GPS_PROVIDER)) {
                     Intent msg = new Intent(OpenFitIntent.INTENT_SERVICE_LOCATION);
                     msg.putExtra("status", false);
                     context.sendBroadcast(msg);
@@ -212,14 +213,14 @@ public class LocationInfo {
             new Runnable() {
                 public void run() {
                     Log.d(LOG_TAG, "Location not change: " + cityName + ", " + CountryCode);
-                    if (locationListener != null) {
+                    if(locationListener != null) {
                         // Log.d(LOG_TAG, "Removing Location updates");
                         // locationManager.removeUpdates(locationListener);
-                        if (latitude == 0 && longitude == 0) {
+                        if(latitude == 0 && longitude == 0) {
                             updateLastKnownLocation();
                         }
                     }
-                    if (useGeocoder || (cityName != null && CountryCode != null)) {
+                    if(useGeocoder || (cityName != null && CountryCode != null)) {
                         Intent msg = new Intent(OpenFitIntent.INTENT_SERVICE_LOCATION);
                         msg.putExtra("cityName", cityName);
                         msg.putExtra("StateName", StateName);
@@ -233,7 +234,7 @@ public class LocationInfo {
 
     public static void removeUpdates() {
         Log.d(LOG_TAG, "Removing Location updates");
-        if (locationListener != null) {
+        if(locationListener != null) {
             locationManager.removeUpdates(locationListener);
             locationListener = null;
         }

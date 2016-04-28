@@ -33,7 +33,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20.0dip"
-                android:hint="@string/dialog_reject_messages_hint" />
+                android:hint="@string/dialog_rejectcall_messages_hint" />
             <EditText
                 android:textSize="20.0dip"
                 android:textColor="#ff000000"
@@ -44,7 +44,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20.0dip"
-                android:hint="@string/dialog_reject_messages_hint" />
+                android:hint="@string/dialog_rejectcall_messages_hint" />
             <EditText
                 android:textSize="20.0dip"
                 android:textColor="#ff000000"
@@ -55,7 +55,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20.0dip"
-                android:hint="@string/dialog_reject_messages_hint" />
+                android:hint="@string/dialog_rejectcall_messages_hint" />
             <EditText
                 android:textSize="20.0dip"
                 android:textColor="#ff000000"
@@ -66,7 +66,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20.0dip"
-                android:hint="@string/dialog_reject_messages_hint" />
+                android:hint="@string/dialog_rejectcall_messages_hint" />
             <EditText
                 android:textSize="20.0dip"
                 android:textColor="#ff000000"
@@ -77,7 +77,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20.0dip"
-                android:hint="@string/dialog_reject_messages_hint" />
+                android:hint="@string/dialog_rejectcall_messages_hint" />
             <EditText
                 android:textSize="20.0dip"
                 android:textColor="#ff000000"
@@ -88,7 +88,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20.0dip"
-                android:hint="@string/dialog_reject_messages_hint" />
+                android:hint="@string/dialog_rejectcall_messages_hint" />
 
         </LinearLayout>
     </ScrollView>

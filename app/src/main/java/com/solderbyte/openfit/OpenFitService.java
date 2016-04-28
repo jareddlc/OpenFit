@@ -405,7 +405,7 @@ public class OpenFitService extends Service {
                 String data = intent.getStringExtra(OpenFitIntent.INTENT_EXTRA_DATA);
                 Boolean enabled = Boolean.parseBoolean(data);
                 isGpsAllowed = enabled;
-                if (!isGpsAllowed && !locationForWeather) {
+                if(!isGpsAllowed && !locationForWeather) {
                     currentExerciseID = -1;
                     LocationInfo.removeUpdates();
                 }
@@ -478,24 +478,24 @@ public class OpenFitService extends Service {
             sendFitnessRunning();
         }
         if(OpenFitApi.byteArrayToHexString(data).contains(OpenFitApi.byteArrayToHexString(OpenFitApi.getGPSReady(OpenFitData.CYCLING))) ||
-                    OpenFitApi.byteArrayToHexString(data).contains(OpenFitApi.byteArrayToHexString(OpenFitApi.getGPSReady(OpenFitData.HIKING))) ||
-                    OpenFitApi.byteArrayToHexString(data).contains(OpenFitApi.byteArrayToHexString(OpenFitApi.getGPSReady(OpenFitData.WALK))) ||
-                    OpenFitApi.byteArrayToHexString(data).contains(OpenFitApi.byteArrayToHexString(OpenFitApi.getGPSReady(OpenFitData.RUN)))) {
+            OpenFitApi.byteArrayToHexString(data).contains(OpenFitApi.byteArrayToHexString(OpenFitApi.getGPSReady(OpenFitData.HIKING))) ||
+            OpenFitApi.byteArrayToHexString(data).contains(OpenFitApi.byteArrayToHexString(OpenFitApi.getGPSReady(OpenFitData.WALK))) ||
+            OpenFitApi.byteArrayToHexString(data).contains(OpenFitApi.byteArrayToHexString(OpenFitApi.getGPSReady(OpenFitData.RUN)))) {
             Log.d(LOG_TAG, "Exercise is starting");
             currentExerciseID = -1;
-            if (isGpsAllowed) {
+            if(isGpsAllowed) {
                 checkGPSReady = true;
                 locationForExercise = true;
-                if (OpenFitApi.byteArrayToHexString(data).contains(OpenFitApi.byteArrayToHexString(OpenFitApi.getGPSReady(OpenFitData.CYCLING)))) {
+                if(OpenFitApi.byteArrayToHexString(data).contains(OpenFitApi.byteArrayToHexString(OpenFitApi.getGPSReady(OpenFitData.CYCLING)))) {
                     currentExerciseType = OpenFitData.CYCLING_EXERCISE;
                 }
-                if (OpenFitApi.byteArrayToHexString(data).contains(OpenFitApi.byteArrayToHexString(OpenFitApi.getGPSReady(OpenFitData.HIKING)))) {
+                if(OpenFitApi.byteArrayToHexString(data).contains(OpenFitApi.byteArrayToHexString(OpenFitApi.getGPSReady(OpenFitData.HIKING)))) {
                     currentExerciseType = OpenFitData.HIKING_EXERCISE;
                 }
-                if (OpenFitApi.byteArrayToHexString(data).contains(OpenFitApi.byteArrayToHexString(OpenFitApi.getGPSReady(OpenFitData.WALK)))) {
+                if(OpenFitApi.byteArrayToHexString(data).contains(OpenFitApi.byteArrayToHexString(OpenFitApi.getGPSReady(OpenFitData.WALK)))) {
                     currentExerciseType = OpenFitData.WALK_EXERCISE;
                 }
-                if (OpenFitApi.byteArrayToHexString(data).contains(OpenFitApi.byteArrayToHexString(OpenFitApi.getGPSReady(OpenFitData.RUN)))) {
+                if(OpenFitApi.byteArrayToHexString(data).contains(OpenFitApi.byteArrayToHexString(OpenFitApi.getGPSReady(OpenFitData.RUN)))) {
                     currentExerciseType = OpenFitData.RUN_EXERCISE;
                 }
                 LocationInfo.resetData();
@@ -519,7 +519,7 @@ public class OpenFitService extends Service {
         }
         if(OpenFitApi.byteArrayToHexString(data).contains(OpenFitApi.byteArrayToHexString(OpenFitApi.getGPSEnd()))) {
             Log.d(LOG_TAG, "GPS END");
-            if (currentExerciseID > -1) {
+            if(currentExerciseID > -1) {
                 sendGPSResult();
             }
             LocationInfo.resetData();
@@ -531,12 +531,12 @@ public class OpenFitService extends Service {
             handleFitnessData(data);
             int eSize = Fitness.getExerciseDataList().size();
             Log.d(LOG_TAG, "Current exercise id: " + currentExerciseID + ", exercise size: " + eSize);
-            if (currentExerciseID > -1 && eSize > 0) {
+            if(currentExerciseID > -1 && eSize > 0) {
                 gpsData.updateExerciseTimestamp(currentExerciseID, Fitness.getExerciseDataList().get(eSize - 1).getTimeStamp(), Fitness.getExerciseDataList().get(eSize - 1).getTimeStampEnd());
                 // currentExerciseID = -1;
             }
             // update profile data
-            if (Fitness.getProfileData() != null) {
+            if(Fitness.getProfileData() != null) {
                 gpsData.updateProfile(Fitness.getProfileData().getHeight(), Fitness.getProfileData().getWeight());
             }
         }
@@ -546,12 +546,12 @@ public class OpenFitService extends Service {
                 handleFitnessData(data);
                 int eSize = Fitness.getExerciseDataList().size();
                 Log.d(LOG_TAG, "Current exercise id: " + currentExerciseID + ", exercise size: " + eSize);
-                if (currentExerciseID > -1 && eSize > 0) {
+                if(currentExerciseID > -1 && eSize > 0) {
                     gpsData.updateExerciseTimestamp(currentExerciseID, Fitness.getExerciseDataList().get(eSize - 1).getTimeStamp(), Fitness.getExerciseDataList().get(eSize - 1).getTimeStampEnd());
                     // currentExerciseID = -1;
                 }
                 // update profile data
-                if (Fitness.getProfileData() != null) {
+                if(Fitness.getProfileData() != null) {
                     gpsData.updateProfile(Fitness.getProfileData().getHeight(), Fitness.getProfileData().getWeight());
                 }
             }
@@ -944,23 +944,23 @@ public class OpenFitService extends Service {
 
     public void sendRejectMessage(String messageId, String phoneNumber) {
         StringBuilder updatedString = new StringBuilder();
-        for (int i = 0; i < messageId.length(); i++) {
+        for(int i = 0; i < messageId.length(); i++) {
             updatedString.append(messageId.charAt(i));
-            if (messageId.charAt(i) != '0') {
+            if(messageId.charAt(i) != '0') {
                 break;
             }
         }
         int messageIdInt = Integer.parseInt(updatedString.toString(), 16);
         Log.d(LOG_TAG, "Reject message ID: " + messageId + ", " + messageIdInt);
         int msgSize = oPrefs.getInt("reject_messages_size");
-        if (msgSize > 0 && msgSize > messageIdInt) {
+        if(msgSize > 0 && msgSize > messageIdInt) {
             Log.d(LOG_TAG, "Sending reject message: " + oPrefs.getString("reject_message_" + messageIdInt) + ", to: " + phoneNumber);
             try {
                 SmsManager smsManager = SmsManager.getDefault();
                 smsManager.sendTextMessage(phoneNumber, null, oPrefs.getString("reject_message_" + messageIdInt), null, null);
                 Toast.makeText(getApplicationContext(), R.string.toast_send_sms_success, Toast.LENGTH_SHORT).show();
             }
-            catch (Exception e) {
+            catch(Exception e) {
                 Toast.makeText(getApplicationContext(), R.string.toast_send_sms_failed, Toast.LENGTH_SHORT).show();
                 Log.d(LOG_TAG, "Sending sms failed: " + e.toString());
             }
@@ -970,7 +970,7 @@ public class OpenFitService extends Service {
     public void saveRejectMessagesToBracelet() {
         Log.d(LOG_TAG, "Sending reject messages to the bracelet");
         int msgSize = oPrefs.getInt("reject_messages_size");
-        for (int i = 0; i < msgSize; i++) {
+        for(int i = 0; i < msgSize; i++) {
             byte[] bytes = OpenFitApi.getOpenRejectCallMessageForBracelet(msgSize, i, oPrefs.getString("reject_message_" + i));
             sendBluetoothBytes(bytes);
             Log.d(LOG_TAG, "cnt = " + msgSize + ", id = " + i + ", msg = " + oPrefs.getString("reject_message_" + i));
@@ -1270,25 +1270,24 @@ public class OpenFitService extends Service {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d(LOG_TAG, "locationReceiver updated, locationForWeather: " + locationForWeather + ", locationForExercise: " + locationForExercise + ", checkGPSReady: " + checkGPSReady);
-            if (locationForWeather || (!locationForExercise && !checkGPSReady)) {
+            if(locationForWeather || (!locationForExercise && !checkGPSReady)) {
                 LocationInfo.removeUpdates();
             }
             if(locationForWeather && (weatherClockEnabled || weatherNotificationEnabled)) {
                 getWeather();
                 locationForWeather = false;
             }
-            if (checkGPSReady) {
+            if(checkGPSReady) {
                 currentExerciseID = gpsData.createExercise(currentExerciseType);
                 sendGPSReady();
                 checkGPSReady = false;
             }
             if(locationForExercise) {
-                if (currentExerciseID > -1) {
+                if(currentExerciseID > -1) {
                     //int id, float lon, float lat, float altitude, float totalDistance, float speed, float calories
-                    gpsData.insertExerciseData(currentExerciseID, LocationInfo.getLon(), LocationInfo.getLat(), LocationInfo.getCurrentAltitude(), LocationInfo.getTotalDistance(),
-                            LocationInfo.getCurrentSpeed(), LocationInfo.getTimestamp());
+                    gpsData.insertExerciseData(currentExerciseID, LocationInfo.getLon(), LocationInfo.getLat(), LocationInfo.getCurrentAltitude(), LocationInfo.getTotalDistance(), LocationInfo.getCurrentSpeed(), LocationInfo.getTimestamp());
                 }
-                if (locationForExerciseSubscribe) {
+                if(locationForExerciseSubscribe) {
                     sendCurrentGPSData();
                 }
             }
@@ -1299,15 +1298,15 @@ public class OpenFitService extends Service {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d(LOG_TAG, "#####CronJob#####");
-            if (!locationForExercise && !checkGPSReady) {
-                if ((weatherClockEnabled || weatherNotificationEnabled)) {
+            if(!locationForExercise && !checkGPSReady) {
+                if((weatherClockEnabled || weatherNotificationEnabled)) {
                     locationForWeather = true;
                     LocationInfo.listenForLocation(true);
                 }
 
-                if (true || isPremium) {
+                if(isPremium) {
                     Log.d(LOG_TAG, "Premium Features");
-                    if (googleFitEnabled) {
+                    if(googleFitEnabled) {
                         googleFitSyncing = true;
                         sendFitnessRequest();
                     }
@@ -1335,7 +1334,7 @@ public class OpenFitService extends Service {
             }
             if(message.equals(OpenFitIntent.INTENT_GOOGLE_FIT_SYNC)) {
                 Log.d(LOG_TAG, "Google Fit Sync requested");
-                if(true || isPremium) {
+                if(isPremium) {
                     Log.d(LOG_TAG, "Premium Features");
                     if(googleFitEnabled) {
                         googleFitSyncing = true;

@@ -13,7 +13,7 @@ import java.util.ArrayList;
 
 public class ExerciseGPSStorage {
 
-    private static final String LOG_TAG = "OpenFit:ExerciseGPSStorage";
+    private static final String LOG_TAG = "OpenFit:ExerciseGPSDB";
 
     private static ExerciseDatabase db = null;
 
@@ -34,7 +34,7 @@ public class ExerciseGPSStorage {
     }
 
     public int createExercise(int exType) {
-        Log.d(LOG_TAG, "INSERT INTO " + db.EXERCISE_TABLE + ": type=" + exType);
+        Log.d(LOG_TAG, "INSERT INTO " + db.EXERCISE_TABLE + ": type =" + exType);
 
         ContentValues values = new ContentValues();
         values.put("type", exType);
@@ -44,12 +44,10 @@ public class ExerciseGPSStorage {
 
         SQLiteDatabase rdb = db.getReadableDatabase();
         long cnt  = DatabaseUtils.queryNumEntries(rdb, db.EXERCISE_TABLE);
-        if (cnt > 30) {
-            String[] select = {
-                    "id"
-            };
+        if(cnt > 30) {
+            String[] select = {"id"};
             Cursor c = rdb.query(db.EXERCISE_TABLE, select, null, null, null, null, "id LIMIT 1");
-            if (c.getCount() == 1) {
+            if(c.getCount() == 1) {
                 c.moveToFirst();
                 deleteExercise(Integer.parseInt(c.getString(0)));
             }
@@ -61,8 +59,7 @@ public class ExerciseGPSStorage {
     }
 
     public void insertExerciseData(int exerciseId, double lon, double lat, float altitude, float totalDistance, float speed, long timestamp) {
-        Log.d(LOG_TAG, "INSERT INTO " + db.DATA_TABLE + ": lon=" + lon + ": lat=" + lat + ": alt=" + altitude
-                + ": totalDistance=" + totalDistance + ": speed=" + speed + ": timestamp" + new Date(timestamp));
+        Log.d(LOG_TAG, "INSERT INTO " + db.DATA_TABLE + ": lon =" + lon + ": lat =" + lat + ": alt =" + altitude + ": totalDistance =" + totalDistance + ": speed =" + speed + ": timestamp " + new Date(timestamp));
 
         ContentValues values = new ContentValues();
         values.put("exerciseId", exerciseId);
@@ -78,7 +75,7 @@ public class ExerciseGPSStorage {
     }
 
     public void updateExerciseTimestamp(int id, long start, long end) {
-        Log.d(LOG_TAG, "UPDATE " + db.EXERCISE_TABLE + ": start=" + new Date(start) + ": end=" + new Date(end) + ": id=" + id);
+        Log.d(LOG_TAG, "UPDATE " + db.EXERCISE_TABLE + ": start =" + new Date(start) + ": end =" + new Date(end) + ": id =" + id);
 
         ContentValues values = new ContentValues();
         values.put("timestampStart", start);
@@ -89,7 +86,7 @@ public class ExerciseGPSStorage {
     }
 
     public void updateProfile(float height, float weight) {
-        Log.d(LOG_TAG, "UPDATE " + db.PROFILE_TABLE + ": height=" + height + ": weight=" + weight);
+        Log.d(LOG_TAG, "UPDATE " + db.PROFILE_TABLE + ": height =" + height + ": weight =" + weight);
 
         ContentValues values = new ContentValues();
         values.put("height", height);
@@ -130,8 +127,8 @@ public class ExerciseGPSStorage {
         };
 
         String[] selectProfile = {
-                "height",
-                "weight"
+            "height",
+            "weight"
         };
 
         SQLiteDatabase rdb = db.getReadableDatabase();
@@ -144,7 +141,7 @@ public class ExerciseGPSStorage {
         long prevTimestamp = 0;
 
         int cnt = c.getCount();
-        if (cnt > 0) {
+        if(cnt > 0) {
             Log.d(LOG_TAG, "GPS DATA LEN: " + cnt);
             c.moveToFirst();
 
@@ -164,35 +161,35 @@ public class ExerciseGPSStorage {
             declineDistance = 0;
             inclineDistance = 0;
 
-            while (c.moveToNext()) {
+            while(c.moveToNext()) {
                 timestamp = Long.parseLong(c.getString(c.getColumnIndex("timestamp")));
 
-                if (timestamp == prevTimestamp) {
+                if(timestamp == prevTimestamp) {
                     continue;
                 }
                 prevTimestamp = timestamp;
 
                 float altitude = Float.parseFloat(c.getString(c.getColumnIndex("altitude")));
-                if (altitude > maxAltitude) {
+                if(altitude > maxAltitude) {
                     maxAltitude = altitude;
                 }
-                if (altitude < minAltitude) {
+                if(altitude < minAltitude) {
                     minAltitude = altitude;
                 }
                 float speed = Float.parseFloat(c.getString(c.getColumnIndex("speed")));
-                if (speed > maxSpeed) {
+                if(speed > maxSpeed) {
                     maxSpeed = speed;
                 }
                 averageSpeed += Float.parseFloat(c.getString(c.getColumnIndex("speed")));
                 totalDistance = Float.parseFloat(c.getString(c.getColumnIndex("totalDistance")));
 
                 float distDiff = Math.abs(totalDistance-firstDist);
-                if (distDiff > 100) {
+                if(distDiff > 100) {
                     double tg = Math.atan((altitude-firstAlt)/distDiff);
-                    if (tg >= INCLINATION_THRESHOLD) {
+                    if(tg >= INCLINATION_THRESHOLD) {
                         inclineDistance += distDiff;
                     }
-                    if (tg <= -INCLINATION_THRESHOLD) {
+                    if(tg <= -INCLINATION_THRESHOLD) {
                         declineDistance += distDiff;
                     }
                     firstAlt = altitude;
@@ -206,8 +203,7 @@ public class ExerciseGPSStorage {
             consumedCalorie = (6.82E-4f * inclineDistance + 3.41E-4f * flatDistance + 1.705E-4f * declineDistance) * userWeight;
 
             Log.d(LOG_TAG, "INCLINE: " + inclineDistance + " DECLINE: " + declineDistance + " FLAT: " + flatDistance);
-            Log.d(LOG_TAG, "Total distance: " + totalDistance + " maxAltitude: " + maxAltitude + " minAltitude: " + minAltitude +
-                    "maxSpeed: " + maxSpeed + " avgSpeed: " + averageSpeed + " calories: " + consumedCalorie);
+            Log.d(LOG_TAG, "Total distance: " + totalDistance + " maxAltitude: " + maxAltitude + " minAltitude: " + minAltitude + "maxSpeed: " + maxSpeed + " avgSpeed: " + averageSpeed + " calories: " + consumedCalorie);
         }
         c.close();
         cP.close();
@@ -218,20 +214,18 @@ public class ExerciseGPSStorage {
         ArrayList<GPSData> gpsDataList = new ArrayList<GPSData>();
 
         SQLiteDatabase rdb = db.getReadableDatabase();
-        String[] select = {
-                "id"
-        };
+        String[] select = {"id"};
         Cursor c = rdb.query(db.EXERCISE_TABLE, select, "timestampStart=" + timestampStart + " AND timestampEnd=" + timestampEnd, null, null, null, null);
-        if (c.getCount() == 1) {
+        if(c.getCount() == 1) {
             c.moveToFirst();
             int id = Integer.parseInt(c.getString(0));
             String[] gpsSelect = {
-                    "lon",
-                    "lat",
-                    "altitude",
-                    "totalDistance",
-                    "speed",
-                    "timestamp"
+                "lon",
+                "lat",
+                "altitude",
+                "totalDistance",
+                "speed",
+                "timestamp"
             };
             c.close();
             c = rdb.query(db.DATA_TABLE, gpsSelect, "exerciseId=" + id, null, null, null, "id");
@@ -244,7 +238,7 @@ public class ExerciseGPSStorage {
             long tS;
 
             long prevTimestamp = 0;
-            for (c.moveToFirst(); !c.isAfterLast(); c.moveToNext()) {
+            for(c.moveToFirst(); !c.isAfterLast(); c.moveToNext()) {
                 tD = Float.parseFloat(c.getString(c.getColumnIndex("totalDistance")));
                 s = Float.parseFloat(c.getString(c.getColumnIndex("speed")));
                 lo = Float.parseFloat(c.getString(c.getColumnIndex("lon")));
@@ -252,13 +246,13 @@ public class ExerciseGPSStorage {
                 alt = Float.parseFloat(c.getString(c.getColumnIndex("altitude")));
                 tS = Long.parseLong(c.getString(c.getColumnIndex("timestamp")));
 
-                if (tS < timestampStart) {
+                if(tS < timestampStart) {
                     tS = timestampStart;
                 }
-                if (tS > timestampEnd) {
+                if(tS > timestampEnd) {
                     tS = timestampEnd;
                 }
-                if (prevTimestamp != tS) {
+                if(prevTimestamp != tS) {
                     gpsDataList.add(new GPSData(tD, s, lo, la, alt, tS));
                     prevTimestamp = tS;
                 }

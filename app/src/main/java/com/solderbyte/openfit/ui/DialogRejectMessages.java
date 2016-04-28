@@ -36,32 +36,32 @@ public class DialogRejectMessages extends DialogFragment {
         LayoutInflater factory = LayoutInflater.from(getActivity());
         final View textEntryView = factory.inflate(R.layout.reject_messages, null);
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle(R.string.dialog_edit_reject_messages);
+        builder.setTitle(R.string.dialog_edit_rejectcall_messages);
         builder.setView(textEntryView);
         final ArrayList<EditText> editList = new ArrayList<EditText>();
         ViewGroup parentView = (ViewGroup) textEntryView;
-        for (int i = 0; i < parentView.getChildCount(); ++i) {
-            if (parentView.getChildAt(i) instanceof ScrollView) {
+        for(int i = 0; i < parentView.getChildCount(); ++i) {
+            if(parentView.getChildAt(i) instanceof ScrollView) {
                 ViewGroup parentViewScroll = (ViewGroup) parentView.getChildAt(i);
-                for (int j = 0; j < parentViewScroll.getChildCount(); ++j) {
+                for(int j = 0; j < parentViewScroll.getChildCount(); ++j) {
                     ViewGroup parentViewLayout = (ViewGroup) parentViewScroll.getChildAt(j);
-                    for (int k = 0; k < parentViewLayout.getChildCount(); ++k) {
-                        if (parentViewLayout.getChildAt(k) instanceof EditText) {
+                    for(int k = 0; k < parentViewLayout.getChildCount(); ++k) {
+                        if(parentViewLayout.getChildAt(k) instanceof EditText) {
                             editList.add((EditText) parentViewLayout.getChildAt(k));
                         }
                     }
                 }
             }
         }
-        for (int i = 0; i < this.savedMessages.size(); ++i) {
+        for(int i = 0; i < this.savedMessages.size(); ++i) {
             editList.get(i).setText(this.savedMessages.get(i));
         }
-        builder.setPositiveButton(R.string.dialog_save_reject_messages, new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(R.string.dialog_save_rejectcall_messages, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int index) {
                 ArrayList<String> messages = new ArrayList<String>();
-                for (int i = 0; i < editList.size(); ++i) {
+                for(int i = 0; i < editList.size(); ++i) {
                     String strField = editList.get(i).getText().toString().trim();
-                    if (strField.equals("")) {
+                    if(strField.equals("")) {
                         continue;
                     }
                     messages.add(strField);
@@ -71,7 +71,7 @@ public class DialogRejectMessages extends DialogFragment {
                 LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(msg);
             }
         });
-        builder.setNegativeButton(R.string.dialog_close_reject_messages, new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(R.string.dialog_close_rejectcall_messages, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int index) {
             }
         });

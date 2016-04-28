@@ -50,8 +50,8 @@ public class OpenFitSavedPreferences {
     }
 
     public void saveBoolean(String key, boolean value) {
-        //Log.d(LOG_TAG, "Saving: " + key+":boolean :" + value);
-        editor.putBoolean(key+":boolean", value);
+        //Log.d(LOG_TAG, "Saving: " + key + ":boolean :" + value);
+        editor.putBoolean(key + ":boolean", value);
         editor.commit();
     }
 
@@ -61,7 +61,7 @@ public class OpenFitSavedPreferences {
     }
 
     public void saveString(String key, String value) {
-        //Log.d(LOG_TAG, "Saving: " + key+":string :" + value);
+        //Log.d(LOG_TAG, "Saving: " + key + ":string :" + value);
         editor.putString(key + ":string", value);
         editor.commit();
     }
@@ -74,7 +74,7 @@ public class OpenFitSavedPreferences {
     }
 
     public boolean getBoolean(String key) {
-        //Log.d(LOG_TAG, "Getting: " + key+":boolean");
+        //Log.d(LOG_TAG, "Getting: " + key + ":boolean");
         boolean value = preferences.getBoolean(key+":boolean", PREFS_DEFAULT_BOOL);
         return value;
     }
@@ -84,27 +84,27 @@ public class OpenFitSavedPreferences {
     }
 
     public String getString(String key) {
-        //Log.d(LOG_TAG, "Getting: " + key+":string");
-        String value = preferences.getString(key+":string", PREFS_DEFAULT);
+        //Log.d(LOG_TAG, "Getting: " + key + ":string");
+        String value = preferences.getString(key + ":string", PREFS_DEFAULT);
         return value;
     }
 
     public Set<String> getSet() {
         Set<String> packageNames = new LinkedHashSet<String>();
         packageNames = preferences.getStringSet("set_packageNames", packageNames);
-        //Log.d(LOG_TAG, "Getting Set["+packageNames.size()+"]: " + packageNames);
+        //Log.d(LOG_TAG, "Getting Set[" + packageNames.size() + "]: " + packageNames);
         return packageNames;
     }
 
     public void removeBoolean(String key) {
-        //Log.d(LOG_TAG, "Removing: " + key+":boolean");
-        editor.remove(key+":boolean");
+        //Log.d(LOG_TAG, "Removing: " + key + ":boolean");
+        editor.remove(key + ":boolean");
         editor.commit();
     }
 
     public void removeString(String key) {
-        //Log.d(LOG_TAG, "Removing: " + key+":string");
-        editor.remove(key+":string");
+        //Log.d(LOG_TAG, "Removing: " + key + ":string");
+        editor.remove(key + ":string");
         editor.commit();
     }
 

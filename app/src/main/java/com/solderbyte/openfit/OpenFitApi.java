@@ -194,15 +194,15 @@ public class OpenFitApi {
         OpenFitVariableDataComposer oVariableDataComposer = new OpenFitVariableDataComposer();
         oVariableDataComposer.writeByte((byte)2);
         oVariableDataComposer.writeInt(5);
-        oVariableDataComposer.writeByte((byte) 0);
+        oVariableDataComposer.writeByte((byte)0);
         oVariableDataComposer.writeInt(1);
         return oVariableDataComposer.toByteArray();
     }
-    
+
     public static byte[] getFitnessMenu() {
         //02040000001b000000
         OpenFitVariableDataComposer oVariableDataComposer = new OpenFitVariableDataComposer();
-        oVariableDataComposer.writeByte((byte) 2);
+        oVariableDataComposer.writeByte((byte)2);
         oVariableDataComposer.writeInt(4);
         oVariableDataComposer.writeInt(27);
         return oVariableDataComposer.toByteArray();
@@ -233,7 +233,7 @@ public class OpenFitApi {
     public static byte[] getHealthApp() {
         //02040000001200000002100000001300000003000000 3D8A2C4359DAC742
         OpenFitVariableDataComposer oVariableDataComposer = new OpenFitVariableDataComposer();
-        oVariableDataComposer.writeByte((byte) 2);
+        oVariableDataComposer.writeByte((byte)2);
         oVariableDataComposer.writeInt(4);
         oVariableDataComposer.writeInt(21);
         return oVariableDataComposer.toByteArray();
@@ -276,7 +276,7 @@ public class OpenFitApi {
     public static byte[] getResponseGPSReady() {
         //02240000001600000000000000268fbb42b4ecb6420000000000000000000000000000000000000000
         OpenFitVariableDataComposer oVariableDataComposer = new OpenFitVariableDataComposer();
-        oVariableDataComposer.writeByte((byte) 2);
+        oVariableDataComposer.writeByte((byte)2);
         oVariableDataComposer.writeInt(4);
         oVariableDataComposer.writeInt(OpenFitData.DATA_TYPE_HOST_TO_WINGTIP_GPS_READY);
         return oVariableDataComposer.toByteArray();
@@ -333,7 +333,7 @@ public class OpenFitApi {
     public static byte[] getSync() {
         //020400000005000000
         OpenFitVariableDataComposer oVariableDataComposer = new OpenFitVariableDataComposer();
-        oVariableDataComposer.writeByte((byte) 2);
+        oVariableDataComposer.writeByte((byte)2);
         oVariableDataComposer.writeInt(4);
         oVariableDataComposer.writeInt(OpenFitData.DATA_TYPE_WINGTIP_TO_HOST_SYNC_REQUEST);
         return oVariableDataComposer.toByteArray();
@@ -608,11 +608,11 @@ public class OpenFitApi {
 
         return oVariableDataComposer.toByteArray();
     }
-    
+
     public static byte[] getOpenIncomingCallEnd() {
         //090100000002
         OpenFitVariableDataComposer oVariableDataComposer = new OpenFitVariableDataComposer();
-        oVariableDataComposer.writeByte((byte) 9);
+        oVariableDataComposer.writeByte((byte)9);
         oVariableDataComposer.writeInt(1);
         oVariableDataComposer.writeByte((byte)2);
         return oVariableDataComposer.toByteArray();
@@ -622,7 +622,7 @@ public class OpenFitApi {
         //  0906000000030201000000
         //all msg size  _| |_ index of message
         OpenFitVariableDataComposer oVariableDataComposer = new OpenFitVariableDataComposer();
-        oVariableDataComposer.writeByte((byte) 9);
+        oVariableDataComposer.writeByte((byte)9);
         oVariableDataComposer.writeInt(6);
         oVariableDataComposer.writeByte((byte)3);
         oVariableDataComposer.writeByte((byte)2);
@@ -632,7 +632,7 @@ public class OpenFitApi {
     public static byte[] getOpenRejectCallMessageForBracelet(int allCount, int index, String msg) {
         OpenFitVariableDataComposer oVariableDataComposer = new OpenFitVariableDataComposer();
         byte[] arr = OpenFitVariableDataComposer.convertToByteArray(msg);
-        oVariableDataComposer.writeByte((byte) 9);
+        oVariableDataComposer.writeByte((byte)9);
         oVariableDataComposer.writeInt(5 + arr.length);
         oVariableDataComposer.writeByte((byte)4);
         oVariableDataComposer.writeByte((byte)allCount);
@@ -673,7 +673,7 @@ public class OpenFitApi {
         //00000000 = snooze = false
         List<OpenFitDataTypeAndString> mDataList = new ArrayList<OpenFitDataTypeAndString>();
         mDataList.add(new OpenFitDataTypeAndString(OpenFitDataType.BYTE, "Alarm"));
-        
+
         Calendar c = Calendar.getInstance();
         int hour = c.get(Calendar.HOUR);
         int minute = c.get(Calendar.MINUTE);
@@ -740,7 +740,7 @@ public class OpenFitApi {
         oDatacomposer.writeBytes(msg);
         return oDatacomposer.toByteArray();
     }
-    
+
     public static byte[] getOpenWeatherClock(String location, String temp, String unit, String icon) {
         //01
         //3d000000
@@ -763,7 +763,7 @@ public class OpenFitApi {
         //0600
         //00000000
         //00000000
-        
+
         //usage 9 = 0, 90 = 1, 900 = 9, 9000 = 90
         List<OpenFitDataTypeAndString> mDataList = new ArrayList<OpenFitDataTypeAndString>();
         mDataList.add(new OpenFitDataTypeAndString(OpenFitDataType.BYTE, location));
@@ -831,7 +831,7 @@ public class OpenFitApi {
         }
         return i;
     }
-    
+
     public static int getOpenWeatherClockIcon(String icon) {
         int i = 0;
         if(icon == null) {

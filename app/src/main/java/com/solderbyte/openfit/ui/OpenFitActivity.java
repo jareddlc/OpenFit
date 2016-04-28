@@ -274,7 +274,8 @@ public class OpenFitActivity extends Activity {
                         sendIntent(OpenFitIntent.INTENT_SERVICE_BT, OpenFitIntent.ACTION_ENABLE);
                         preference_switch_bluetooth.setChecked(false);
                         Toast.makeText(getActivity(), R.string.toast_bluetooth_enable, Toast.LENGTH_SHORT).show();
-                    } else {
+                    }
+                    else {
                         sendIntent(OpenFitIntent.INTENT_SERVICE_BT, OpenFitIntent.ACTION_DISABLE);
                     }
                     return true;
@@ -313,7 +314,7 @@ public class OpenFitActivity extends Activity {
             preference_checkbox_connect.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    if((Boolean)newValue) {
+                    if ((Boolean) newValue) {
                         //String mDeviceAddress = oPrefs.preference_list_devices_value;
                         String mDeviceName = oPrefs.getString("preference_list_devices_entry");
                         Toast.makeText(getActivity(), getString(R.string.toast_bluetooth_connect) + " " + mDeviceName, Toast.LENGTH_SHORT).show();
@@ -350,11 +351,11 @@ public class OpenFitActivity extends Activity {
                 public boolean onPreferenceClick(Preference preference) {
                     OpenFitSavedPreferences oPrefs = new OpenFitSavedPreferences(getActivity());
                     ArrayList<String> msgList = new ArrayList<String>();
-                    for (int i = 0; i < oPrefs.getInt("reject_messages_size"); ++i) {
+                    for(int i = 0; i < oPrefs.getInt("reject_messages_size"); ++i) {
                         msgList.add(oPrefs.getString("reject_message_" + i));
                     }
                     DialogRejectMessages d = new DialogRejectMessages(msgList);
-                    d.show(getFragmentManager(), getString(R.string.dialog_edit_reject_messages));
+                    d.show(getFragmentManager(), getString(R.string.dialog_edit_rejectcall_messages));
                     return true;
                 }
             });
@@ -363,7 +364,7 @@ public class OpenFitActivity extends Activity {
             preference_checkbox_sms.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    if((Boolean)newValue) {
+                    if((Boolean) newValue) {
                         oPrefs.saveBoolean("preference_checkbox_sms", true);
                         sendIntent(OpenFitIntent.INTENT_SERVICE_BT, OpenFitIntent.ACTION_SMS, OpenFitIntent.ACTION_TRUE);
                         return true;
@@ -371,23 +372,6 @@ public class OpenFitActivity extends Activity {
                     else {
                         oPrefs.saveBoolean("preference_checkbox_sms", false);
                         sendIntent(OpenFitIntent.INTENT_SERVICE_BT, OpenFitIntent.ACTION_SMS, OpenFitIntent.ACTION_FALSE);
-                        return true;
-                    }
-                }
-            });
-
-            preference_checkbox_exercise_gps = (CheckBoxPreference) getPreferenceManager().findPreference("preference_checkbox_exercise_gps");
-            preference_checkbox_exercise_gps.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-                @Override
-                public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    if((Boolean)newValue) {
-                        sendIntent(OpenFitIntent.INTENT_SERVICE_BT, OpenFitIntent.ACTION_GPS, OpenFitIntent.ACTION_TRUE);
-                        oPrefs.saveBoolean("preference_checkbox_exercise_gps", true);
-                        return true;
-                    }
-                    else {
-                        sendIntent(OpenFitIntent.INTENT_SERVICE_BT, OpenFitIntent.ACTION_GPS, OpenFitIntent.ACTION_FALSE);
-                        oPrefs.saveBoolean("preference_checkbox_exercise_gps", false);
                         return true;
                     }
                 }
@@ -441,14 +425,32 @@ public class OpenFitActivity extends Activity {
             preference_checkbox_googlefit.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
                 @Override
                 public boolean onPreferenceChange(Preference preference, Object newValue) {
-                    if ((Boolean) newValue) {
+                    if((Boolean) newValue) {
                         Toast.makeText(getActivity(), R.string.toast_google_fit_connect, Toast.LENGTH_SHORT).show();
                         connectGoogleFit();
                         return false;
-                    } else {
+                    }
+                    else {
                         Toast.makeText(getActivity(), R.string.toast_google_fit_disconnect, Toast.LENGTH_SHORT).show();
                         disconnectGoogleFit();
                         return false;
+                    }
+                }
+            });
+
+            preference_checkbox_exercise_gps = (CheckBoxPreference) getPreferenceManager().findPreference("preference_checkbox_exercise_gps");
+            preference_checkbox_exercise_gps.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    if((Boolean)newValue) {
+                        sendIntent(OpenFitIntent.INTENT_SERVICE_BT, OpenFitIntent.ACTION_GPS, OpenFitIntent.ACTION_TRUE);
+                        oPrefs.saveBoolean("preference_checkbox_exercise_gps", true);
+                        return true;
+                    }
+                    else {
+                        sendIntent(OpenFitIntent.INTENT_SERVICE_BT, OpenFitIntent.ACTION_GPS, OpenFitIntent.ACTION_FALSE);
+                        oPrefs.saveBoolean("preference_checkbox_exercise_gps", false);
+                        return true;
                     }
                 }
             });
@@ -783,10 +785,10 @@ public class OpenFitActivity extends Activity {
                 final ArrayList<String> msgList = intent.getStringArrayListExtra(OpenFitIntent.EXTRA_REJECT_MESSAGES);
                 Log.d(LOG_TAG, "REJECT MESSAGES");
                 int msgSize = oPrefs.getInt("reject_messages_size");
-                for (int i = 0; i < msgSize; ++i) {
+                for(int i = 0; i < msgSize; ++i) {
                     oPrefs.removeString("reject_message_" + i);
                 }
-                for (int i = 0; i < msgList.size(); ++i) {
+                for(int i = 0; i < msgList.size(); ++i) {
                     oPrefs.saveString("reject_message_" + i, msgList.get(i));
                     Log.d(LOG_TAG, i + ". reject message: " + msgList.get(i));
                 }

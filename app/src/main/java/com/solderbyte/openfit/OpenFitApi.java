@@ -1,5 +1,7 @@
 package com.solderbyte.openfit;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -196,7 +198,7 @@ public class OpenFitApi {
         oVariableDataComposer.writeInt(1);
         return oVariableDataComposer.toByteArray();
     }
-    
+
     public static byte[] getFitnessMenu() {
         //02040000001b000000
         OpenFitVariableDataComposer oVariableDataComposer = new OpenFitVariableDataComposer();
@@ -210,7 +212,7 @@ public class OpenFitApi {
         //02010000001c
         OpenFitVariableDataComposer oVariableDataComposer = new OpenFitVariableDataComposer();
         oVariableDataComposer.writeByte((byte)2);
-        oVariableDataComposer.writeInt(1);
+        oVariableDataComposer.writeInt(4);
         oVariableDataComposer.writeInt(28);
         return oVariableDataComposer.toByteArray();
     }
@@ -228,20 +230,148 @@ public class OpenFitApi {
         return oVariableDataComposer.toByteArray();
     }
 
-    public static byte[] getFitnessCyclingResponse(int lat, int lon) {
+    public static byte[] getHealthApp() {
+        //02040000001200000002100000001300000003000000 3D8A2C4359DAC742
+        OpenFitVariableDataComposer oVariableDataComposer = new OpenFitVariableDataComposer();
+        oVariableDataComposer.writeByte((byte)2);
+        oVariableDataComposer.writeInt(4);
+        oVariableDataComposer.writeInt(21);
+        return oVariableDataComposer.toByteArray();
+    }
+
+    public static byte[] getHealthAppResponse() {
+        //02040000001200000002100000001300000003000000 3D8A2C4359DAC742
+        OpenFitVariableDataComposer oVariableDataComposer = new OpenFitVariableDataComposer();
+        oVariableDataComposer.writeByte((byte)2);
+        oVariableDataComposer.writeInt(4);
+        oVariableDataComposer.writeInt(20);
+        return oVariableDataComposer.toByteArray();
+    }
+
+    public static byte[] getHealthHeartResponse() {
+        //02040000001200000002100000001300000003000000 3D8A2C4359DAC742
+        OpenFitVariableDataComposer oVariableDataComposer = new OpenFitVariableDataComposer();
+        oVariableDataComposer.writeByte((byte)2);
+        oVariableDataComposer.writeInt(4);
+        oVariableDataComposer.writeInt(2);
+        return oVariableDataComposer.toByteArray();
+    }
+
+    public static byte[] getGPSReady(int exerciseType) {
+        //0204000000120000000210000000130000000100000000003B430000D642 -- walking
+        //0204000000120000000210000000130000000200000000003B430000D642 -- running
+        //0204000000120000000210000000130000000300000000003B430000D642 -- cycling
+        //0204000000120000000210000000130000000400000000003B430000D642 -- hiking
+        OpenFitVariableDataComposer oVariableDataComposer = new OpenFitVariableDataComposer();
+        oVariableDataComposer.writeByte((byte)2);
+        oVariableDataComposer.writeInt(4);
+        oVariableDataComposer.writeInt(OpenFitData.DATA_TYPE_WINGTIP_TO_HOST_GPS_READY);
+        oVariableDataComposer.writeByte((byte)2);
+        oVariableDataComposer.writeInt(16);
+        oVariableDataComposer.writeInt(19);
+        oVariableDataComposer.writeInt(exerciseType);
+        return oVariableDataComposer.toByteArray();
+    }
+
+    public static byte[] getResponseGPSReady() {
         //02240000001600000000000000268fbb42b4ecb6420000000000000000000000000000000000000000
         OpenFitVariableDataComposer oVariableDataComposer = new OpenFitVariableDataComposer();
         oVariableDataComposer.writeByte((byte)2);
+        oVariableDataComposer.writeInt(4);
+        oVariableDataComposer.writeInt(OpenFitData.DATA_TYPE_HOST_TO_WINGTIP_GPS_READY);
+        return oVariableDataComposer.toByteArray();
+    }
+
+    public static byte[] getGPSSubscribe() {
+        //0204000000120000000210000000130000000400000000003B430000D642
+        OpenFitVariableDataComposer oVariableDataComposer = new OpenFitVariableDataComposer();
+        oVariableDataComposer.writeByte((byte)2);
+        oVariableDataComposer.writeInt(4);
+        oVariableDataComposer.writeInt(OpenFitData.DATA_TYPE_WINGTIP_TO_HOST_GPS_SUBSCRIBE);
+        return oVariableDataComposer.toByteArray();
+    }
+
+    public static byte[] getGPSUnSubscribe() {
+        //0204000000120000000210000000130000000400000000003B430000D642
+        OpenFitVariableDataComposer oVariableDataComposer = new OpenFitVariableDataComposer();
+        oVariableDataComposer.writeByte((byte)2);
+        oVariableDataComposer.writeInt(4);
+        oVariableDataComposer.writeInt(OpenFitData.DATA_TYPE_WINGTIP_TO_HOST_GPS_UNSUBSCRIBE);
+        return oVariableDataComposer.toByteArray();
+    }
+
+    public static byte[] getResponseGPSData(float tD, float cS, float cC, float cA) {
+        //02040000000E000000
+        OpenFitVariableDataComposer oVariableDataComposer = new OpenFitVariableDataComposer();
+        oVariableDataComposer.writeByte((byte)2);
+        oVariableDataComposer.writeInt(24);
+        oVariableDataComposer.writeInt(OpenFitData.DATA_TYPE_HOST_TO_WINGTIP_GPS_DATA);
+        oVariableDataComposer.writeFloat(tD);
+        oVariableDataComposer.writeFloat(cS);
+        oVariableDataComposer.writeFloat(cC);
+        oVariableDataComposer.writeDouble(cA);
+        return oVariableDataComposer.toByteArray();
+    }
+
+    public static byte[] getResponseGPSResult(float tD, float maxA, float minA, float maxS, float avgS, float cC, float iD, float dD) {
+        //02040000000E000000
+        OpenFitVariableDataComposer oVariableDataComposer = new OpenFitVariableDataComposer();
+        oVariableDataComposer.writeByte((byte)2);
         oVariableDataComposer.writeInt(36);
-        oVariableDataComposer.writeInt(22);
-        oVariableDataComposer.writeInt(0);
-        oVariableDataComposer.writeInt(lat);
-        oVariableDataComposer.writeInt(lon);
-        oVariableDataComposer.writeInt(0);
-        oVariableDataComposer.writeInt(0);
-        oVariableDataComposer.writeInt(0);
-        oVariableDataComposer.writeInt(0);
-        oVariableDataComposer.writeInt(0);
+        oVariableDataComposer.writeInt(OpenFitData.DATA_TYPE_HOST_TO_WINGTIP_GPS_RESULT);
+        oVariableDataComposer.writeFloat(tD);
+        oVariableDataComposer.writeFloat(maxA);
+        oVariableDataComposer.writeFloat(minA);
+        oVariableDataComposer.writeFloat(maxS);
+        oVariableDataComposer.writeFloat(avgS);
+        oVariableDataComposer.writeFloat(cC);
+        oVariableDataComposer.writeFloat(iD);
+        oVariableDataComposer.writeFloat(dD);
+        return oVariableDataComposer.toByteArray();
+    }
+
+    public static byte[] getSync() {
+        //020400000005000000
+        OpenFitVariableDataComposer oVariableDataComposer = new OpenFitVariableDataComposer();
+        oVariableDataComposer.writeByte((byte)2);
+        oVariableDataComposer.writeInt(4);
+        oVariableDataComposer.writeInt(OpenFitData.DATA_TYPE_WINGTIP_TO_HOST_SYNC_REQUEST);
+        return oVariableDataComposer.toByteArray();
+    }
+
+    public static byte[] getResponseSyncDone() {
+        //020400000005000000
+        OpenFitVariableDataComposer oVariableDataComposer = new OpenFitVariableDataComposer();
+        oVariableDataComposer.writeByte((byte)2);
+        oVariableDataComposer.writeInt(4);
+        oVariableDataComposer.writeInt(OpenFitData.DATA_TYPE_HOST_TO_WINGTIP_SYNC_DONE);
+        return oVariableDataComposer.toByteArray();
+    }
+
+    public static byte[] getGPSEnd() {
+        //02040000000A00000002040000000A00000002040000001B000000
+        OpenFitVariableDataComposer oVariableDataComposer = new OpenFitVariableDataComposer();
+        oVariableDataComposer.writeByte((byte)2);
+        oVariableDataComposer.writeInt(4);
+        oVariableDataComposer.writeInt(OpenFitData.DATA_TYPE_WINGTIP_TO_HOST_GPS_END);
+        return oVariableDataComposer.toByteArray();
+    }
+
+    public static byte[] getResponseGPSOFF() {
+        //02040000000A000000
+        OpenFitVariableDataComposer oVariableDataComposer = new OpenFitVariableDataComposer();
+        oVariableDataComposer.writeByte((byte)2);
+        oVariableDataComposer.writeInt(4);
+        oVariableDataComposer.writeInt(OpenFitData.DATA_TYPE_HOST_TO_WINGTIP_GPS_GPSOFF);
+        return oVariableDataComposer.toByteArray();
+    }
+
+    public static byte[] getResponseGPSON() {
+        //02040000000A000000
+        OpenFitVariableDataComposer oVariableDataComposer = new OpenFitVariableDataComposer();
+        oVariableDataComposer.writeByte((byte)2);
+        oVariableDataComposer.writeInt(4);
+        oVariableDataComposer.writeInt(OpenFitData.DATA_TYPE_HOST_TO_WINGTIP_GPS_GPSON);
         return oVariableDataComposer.toByteArray();
     }
 
@@ -478,13 +608,37 @@ public class OpenFitApi {
 
         return oVariableDataComposer.toByteArray();
     }
-    
+
     public static byte[] getOpenIncomingCallEnd() {
         //090100000002
         OpenFitVariableDataComposer oVariableDataComposer = new OpenFitVariableDataComposer();
         oVariableDataComposer.writeByte((byte)9);
         oVariableDataComposer.writeInt(1);
         oVariableDataComposer.writeByte((byte)2);
+        return oVariableDataComposer.toByteArray();
+    }
+
+    public static byte[] getOpenRejectCallMessage() {
+        //  0906000000030201000000
+        //all msg size  _| |_ index of message
+        OpenFitVariableDataComposer oVariableDataComposer = new OpenFitVariableDataComposer();
+        oVariableDataComposer.writeByte((byte)9);
+        oVariableDataComposer.writeInt(6);
+        oVariableDataComposer.writeByte((byte)3);
+        oVariableDataComposer.writeByte((byte)2);
+        return oVariableDataComposer.toByteArray();
+    }
+
+    public static byte[] getOpenRejectCallMessageForBracelet(int allCount, int index, String msg) {
+        OpenFitVariableDataComposer oVariableDataComposer = new OpenFitVariableDataComposer();
+        byte[] arr = OpenFitVariableDataComposer.convertToByteArray(msg);
+        oVariableDataComposer.writeByte((byte)9);
+        oVariableDataComposer.writeInt(5 + arr.length);
+        oVariableDataComposer.writeByte((byte)4);
+        oVariableDataComposer.writeByte((byte)allCount);
+        oVariableDataComposer.writeByte((byte)index);
+        oVariableDataComposer.writeShort((short)arr.length);
+        oVariableDataComposer.writeBytes(arr);
         return oVariableDataComposer.toByteArray();
     }
 
@@ -519,7 +673,7 @@ public class OpenFitApi {
         //00000000 = snooze = false
         List<OpenFitDataTypeAndString> mDataList = new ArrayList<OpenFitDataTypeAndString>();
         mDataList.add(new OpenFitDataTypeAndString(OpenFitDataType.BYTE, "Alarm"));
-        
+
         Calendar c = Calendar.getInstance();
         int hour = c.get(Calendar.HOUR);
         int minute = c.get(Calendar.MINUTE);
@@ -586,7 +740,7 @@ public class OpenFitApi {
         oDatacomposer.writeBytes(msg);
         return oDatacomposer.toByteArray();
     }
-    
+
     public static byte[] getOpenWeatherClock(String location, String temp, String unit, String icon) {
         //01
         //3d000000
@@ -609,7 +763,7 @@ public class OpenFitApi {
         //0600
         //00000000
         //00000000
-        
+
         //usage 9 = 0, 90 = 1, 900 = 9, 9000 = 90
         List<OpenFitDataTypeAndString> mDataList = new ArrayList<OpenFitDataTypeAndString>();
         mDataList.add(new OpenFitDataTypeAndString(OpenFitDataType.BYTE, location));
@@ -677,7 +831,7 @@ public class OpenFitApi {
         }
         return i;
     }
-    
+
     public static int getOpenWeatherClockIcon(String icon) {
         int i = 0;
         if(icon == null) {

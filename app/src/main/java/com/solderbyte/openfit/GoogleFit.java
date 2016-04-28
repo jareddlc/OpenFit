@@ -5,7 +5,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import android.content.Context;
@@ -14,7 +13,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.Scopes;
@@ -37,6 +35,7 @@ import com.google.android.gms.fitness.request.SessionReadRequest;
 import com.google.android.gms.fitness.result.SessionReadResult;
 import com.solderbyte.openfit.util.OpenFitData;
 import com.solderbyte.openfit.util.OpenFitIntent;
+import com.solderbyte.openfit.ExerciseGPSStorage;
 
 public class GoogleFit {
     private static final String LOG_TAG = "OpenFit:GoogleFit";
@@ -59,6 +58,7 @@ public class GoogleFit {
     private static ArrayList<DataSet> sessionsExerciseAvgSpeed = null;
     private static ArrayList<DataSet> sessionsExerciseMaxSpeed = null;
     private static ArrayList<DataSet> sessionsExerciseSteps = null;
+    private static ArrayList<DataSet> sessionsExerciseGPS = null;
 
     private static ArrayList<Session> sessionsSleep = null;
 
@@ -74,6 +74,8 @@ public class GoogleFit {
     private static Date lastSleepSession = null;
     private static Date lastProfileData = null;
     private static Date lastPedometerStartTime = null;
+    private static Date lastCyclingSession = null;
+    private static Date lastHikingSession = null;
 
     private static int lastPedometerSteps = 0;
     private static float lastPedometerCals = 0;
@@ -300,6 +302,12 @@ public class GoogleFit {
                         else if(session.getActivity() == FitnessActivities.SLEEP) {
                             lastSleepSession = new Date(dp.getStartTime(TimeUnit.MILLISECONDS));
                         }
+                        else if(session.getActivity() == FitnessActivities.BIKING) {
+                            lastCyclingSession = new Date(dp.getEndTime(TimeUnit.MILLISECONDS));
+                        }
+                        else if(session.getActivity() == FitnessActivities.HIKING) {
+                            lastHikingSession = new Date(dp.getEndTime(TimeUnit.MILLISECONDS));
+                        }
                     }
                 }
             }
@@ -310,6 +318,12 @@ public class GoogleFit {
                 }
                 if(lastRunningSession != null && lastPedometerSession.getTime() < lastRunningSession.getTime()) {
                     lastPedometerSession = lastRunningSession;
+                }
+                if(lastCyclingSession != null && lastPedometerSession.getTime() < lastCyclingSession.getTime()) {
+                    lastPedometerSession = lastCyclingSession;
+                }
+                if(lastHikingSession != null && lastPedometerSession.getTime() < lastHikingSession.getTime()) {
+                    lastPedometerSession = lastHikingSession;
                 }
                 Calendar calendar = Calendar.getInstance();
                 calendar.setTime(lastPedometerSession);
@@ -333,6 +347,8 @@ public class GoogleFit {
             Log.d(LOG_TAG, "Last pedometer session from: " + lastPedometerStartTime + " to: " + lastPedometerSession + " steps: " + lastPedometerSteps + " cals: " + lastPedometerCals + " dist: " + lastPedometerDist);
             Log.d(LOG_TAG, "Last walking session: " + lastWalkingSession);
             Log.d(LOG_TAG, "Last running session: " + lastRunningSession);
+            Log.d(LOG_TAG, "Last cycling session: " + lastCyclingSession);
+            Log.d(LOG_TAG, "Last hiking session: " + lastHikingSession);
             writeData();
             return null;
         }
@@ -398,6 +414,10 @@ public class GoogleFit {
                     }
                     if(steps == 0) {
                         continue;
+                    }
+
+                    if(startDate.getTime() == endDate.getTime()) {
+                        endDate = new Date(pedometerList.get(i).getTimeStampEnd() + 1000);
                     }
 
                     Log.d(LOG_TAG, "Syncing pedometer: " + startDate + " --- " + endDate + " steps: " + steps);
@@ -521,6 +541,13 @@ public class GoogleFit {
                 .setType(DataSource.TYPE_RAW)
                 .build();
 
+                DataSource locationDataSource = new DataSource.Builder()
+                .setAppPackageName("com.solderbyte.openfit")
+                .setDataType(DataType.TYPE_LOCATION_SAMPLE)
+                .setName("Open Fit - exercise")
+                .setType(DataSource.TYPE_RAW)
+                .build();
+
                 DataSource activitySegmentDataSource = new DataSource.Builder()
                 .setAppPackageName("com.solderbyte.openfit")
                 .setDataType(DataType.TYPE_ACTIVITY_SEGMENT)
@@ -534,6 +561,7 @@ public class GoogleFit {
                 sessionsExerciseAvgHeartRate = new ArrayList<DataSet>();
                 sessionsExerciseAvgSpeed = new ArrayList<DataSet>();
                 sessionsExerciseSteps = new ArrayList<DataSet>();
+                sessionsExerciseGPS = new ArrayList<DataSet>();
                 sessionsActivitySegmentDataSets = new ArrayList<DataSet>();
 
                 for(int i = 0; i < excerciseList.size(); i++) {
@@ -596,6 +624,12 @@ public class GoogleFit {
                             long endTimeStamp = exTimeStamp;
                             st = Math.abs(Math.round(stepsPerSec * (endTimeStamp - startTimeStamp)));
 
+                            long bck_steps = steps;
+                            if(type == OpenFitData.CYCLING_EXERCISE) {
+                                st += Math.round(bck_steps / 2);
+                                steps = 0;
+                            }
+
                             float div = steps + st;
                             float newDst = div > 0 ? st * dst / div : 0;
                             float newCls = div > 0 ? st * cls / div : 0;
@@ -606,6 +640,11 @@ public class GoogleFit {
                             startTimeStamp = exTimeStampEnd;
                             endTimeStamp = lastTimeStamp;
                             st = Math.abs(Math.round(stepsPerSec * (endTimeStamp - startTimeStamp)));
+
+                            if(type == OpenFitData.CYCLING_EXERCISE) {
+                                st += Math.round(bck_steps / 2);
+                                steps = 0;
+                            }
                             div = steps + st;
                             newDst = div > 0 ? st * dst / div : 0;
                             newCls = div > 0 ? st * cls / div : 0;
@@ -621,6 +660,11 @@ public class GoogleFit {
                             long endTimeStamp = exTimeStamp;
                             int st = Math.abs(Math.round(stepsPerSec * (endTimeStamp - startTimeStamp)));
 
+                            if(type == OpenFitData.CYCLING_EXERCISE) {
+                                st += steps;
+                                steps = 0;
+                            }
+
                             float newDst = st * pedometerList.get(j).getDistance() / (steps + st);
                             float newCls = st * pedometerList.get(j).getCalories() / (steps + st);
                             PedometerData pd = new PedometerData(startTimeStamp, st, newDst, newCls);
@@ -635,7 +679,11 @@ public class GoogleFit {
 
                     pedometerList = updatedPedometer;
 
-                    Log.d(LOG_TAG, "Syncing exercise: " + startDate + " --- " + endDate + " steps: " + steps);
+                    Log.d(LOG_TAG, "Syncing exercise: " + startDate + " --- " + endDate + " steps: " + steps + " exercise_type: " + type);
+
+                    if(startDate.getTime() == endDate.getTime()) {
+                        continue;
+                    }
 
                     // create data points
                     DataSet dCalories = DataSet.create(caloriesDataSource);
@@ -653,25 +701,51 @@ public class GoogleFit {
                     pHeartRateAVG.getValue(Field.FIELD_BPM).setFloat((float) avgHeartrate);
                     dHeartRateAVG.add(pHeartRateAVG);
 
-                    DataSet dSpeedAVG = DataSet.create(avgSpeedDataSource);
-                    DataPoint pSpeedAVG = dSpeedAVG.createDataPoint().setTimeInterval(startDate.getTime(), endDate.getTime(), TimeUnit.MILLISECONDS);
-                    pSpeedAVG.getValue(Field.FIELD_SPEED).setFloat(avgSpeed);
-                    dSpeedAVG.add(pSpeedAVG);
-
                     DataSet dSteps = DataSet.create(stepsDataSource);
                     DataPoint pSteps = dSteps.createDataPoint().setTimeInterval(startDate.getTime(), endDate.getTime(), TimeUnit.MILLISECONDS);
                     pSteps.getValue(Field.FIELD_STEPS).setInt((int)steps);
                     dSteps.add(pSteps);
 
                     String act = FitnessActivities.WALKING_FITNESS;
-                    if(type == OpenFitData.RUN) {
+                    if(type == OpenFitData.RUN_EXERCISE) {
                         act = FitnessActivities.RUNNING;
+                    }
+                    if(type == OpenFitData.CYCLING_EXERCISE) {
+                        act = FitnessActivities.BIKING;
+                    }
+                    if(type == OpenFitData.HIKING_EXERCISE) {
+                        act = FitnessActivities.HIKING;
                     }
 
                     DataSet dActivitySegmentDataSet = DataSet.create(activitySegmentDataSource);
                     DataPoint pActivitySegment = dActivitySegmentDataSet.createDataPoint().setTimeInterval(startDate.getTime(), endDate.getTime(), TimeUnit.MILLISECONDS);
                     pActivitySegment.getValue(Field.FIELD_ACTIVITY).setActivity(act);
                     dActivitySegmentDataSet.add(pActivitySegment);
+
+                    DataSet dLocation = DataSet.create(locationDataSource);
+                    DataSet dSpeedAVG = DataSet.create(avgSpeedDataSource);
+                    ArrayList<GPSData> gpsData = ExerciseGPSStorage.getGpsDataListForExercise(exTimeStamp, exTimeStampEnd);
+                    for(int k = 0; k < gpsData.size(); k++) {
+                        // Log.d(LOG_TAG, "GPS DATA: totalDistance=" + gpsData.get(k).getTotalDistance() + ", lon=" + gpsData.get(k).getLon() + ", lat=" + gpsData.get(k).getLat() + ", altitude=" + gpsData.get(k).getAltitude() + ", timestamp=" + gpsData.get(k).getTimeStamp());
+                        DataPoint pLocation = dLocation.createDataPoint().setTimestamp(gpsData.get(k).getTimeStamp(), TimeUnit.MILLISECONDS);
+                        pLocation.getValue(Field.FIELD_LONGITUDE).setFloat(gpsData.get(k).getLon());
+                        pLocation.getValue(Field.FIELD_LATITUDE).setFloat(gpsData.get(k).getLat());
+                        pLocation.getValue(Field.FIELD_ACCURACY).setFloat(gpsData.get(k).getAccuracy());
+                        pLocation.getValue(Field.FIELD_ALTITUDE).setFloat(gpsData.get(k).getAltitude());
+                        dLocation.add(pLocation);
+                        DataPoint pSpeedAVG = dSpeedAVG.createDataPoint().setTimestamp(gpsData.get(k).getTimeStamp(), TimeUnit.MILLISECONDS);
+                        pSpeedAVG.getValue(Field.FIELD_SPEED).setFloat(gpsData.get(k).getSpeed());
+                        dSpeedAVG.add(pSpeedAVG);
+                    }
+
+                    if(gpsData.size() == 0) {
+                        DataPoint pSpeedAVG = dSpeedAVG.createDataPoint().setTimeInterval(startDate.getTime(), endDate.getTime(), TimeUnit.MILLISECONDS);
+                        pSpeedAVG.getValue(Field.FIELD_SPEED).setFloat(avgSpeed);
+                        dSpeedAVG.add(pSpeedAVG);
+                    }
+
+
+                    Log.d(LOG_TAG, "GPS DATA: " + dLocation.getDataPoints().size());
 
                     Session session = new Session.Builder()
                     .setName("Open Fit Exercise - " + month + " " + date + ", " + year)
@@ -686,6 +760,7 @@ public class GoogleFit {
                     sessionsExerciseAvgHeartRate.add(dHeartRateAVG);
                     sessionsExerciseAvgSpeed.add(dSpeedAVG);
                     sessionsExerciseSteps.add(dSteps);
+                    sessionsExerciseGPS.add(dLocation);
                     sessionsActivitySegmentDataSets.add(dActivitySegmentDataSet);
                     sessionsExercise.add(session);
                 }
@@ -698,17 +773,36 @@ public class GoogleFit {
                 Log.d(LOG_TAG, "Exercise data size: " + sessionsExercise.size());
 
                 for(int j = 0; j < sessionsExercise.size(); j++) {
-                    SessionInsertRequest insertRequest = new SessionInsertRequest.Builder()
-                    .setSession(sessionsExercise.get(j))
-                    .addDataSet(sessionsExerciseDistance.get(j))
-                    .addDataSet(sessionsExerciseCalorie.get(j))
-                    .addDataSet(sessionsExerciseAvgHeartRate.get(j))
-                    .addDataSet(sessionsExerciseAvgSpeed.get(j))
-                    .addDataSet(sessionsExerciseSteps.get(j))
-                    .addDataSet(sessionsActivitySegmentDataSets.get(j))
-                    .build();
+                    SessionInsertRequest insertRequest;
 
-                    com.google.android.gms.common.api.Status insertStatus = Fitness.SessionsApi.insertSession(mClient, insertRequest).await(1, TimeUnit.MINUTES);
+                    int awaitMin = 1;
+
+                    if(sessionsExerciseGPS.get(j).getDataPoints().size() > 0) {
+                        insertRequest = new SessionInsertRequest.Builder()
+                        .setSession(sessionsExercise.get(j))
+                        .addDataSet(sessionsExerciseDistance.get(j))
+                        .addDataSet(sessionsExerciseCalorie.get(j))
+                        .addDataSet(sessionsExerciseAvgHeartRate.get(j))
+                        .addDataSet(sessionsExerciseAvgSpeed.get(j))
+                        .addDataSet(sessionsExerciseSteps.get(j))
+                        .addDataSet(sessionsExerciseGPS.get(j))
+                        .addDataSet(sessionsActivitySegmentDataSets.get(j))
+                        .build();
+                        awaitMin = 10;
+                    }
+                    else {
+                        insertRequest = new SessionInsertRequest.Builder()
+                        .setSession(sessionsExercise.get(j))
+                        .addDataSet(sessionsExerciseDistance.get(j))
+                        .addDataSet(sessionsExerciseCalorie.get(j))
+                        .addDataSet(sessionsExerciseAvgHeartRate.get(j))
+                        .addDataSet(sessionsExerciseAvgSpeed.get(j))
+                        .addDataSet(sessionsExerciseSteps.get(j))
+                        .addDataSet(sessionsActivitySegmentDataSets.get(j))
+                        .build();
+                    }
+
+                    com.google.android.gms.common.api.Status insertStatus = Fitness.SessionsApi.insertSession(mClient, insertRequest).await(awaitMin, TimeUnit.MINUTES);
 
                     if(!insertStatus.isSuccess()) {
                         success = false;

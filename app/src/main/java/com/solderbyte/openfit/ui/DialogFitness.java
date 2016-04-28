@@ -151,13 +151,21 @@ public class DialogFitness extends DialogFragment {
             Drawable icon = null;
             String item = null;
 
-            if(exerciseDataList.get(i).getExerciseType() == OpenFitData.WALK) {
+            if(exerciseDataList.get(i).getExerciseType() == OpenFitData.WALK_EXERCISE) {
                 item = "Exercise: Walking";
                 icon = context.getResources().getDrawable(R.drawable.open_walk);
             }
-            else if(exerciseDataList.get(i).getExerciseType() == OpenFitData.RUN) {
+            else if(exerciseDataList.get(i).getExerciseType() == OpenFitData.RUN_EXERCISE) {
                 item = "Exercise: Running";
                 icon = context.getResources().getDrawable(R.drawable.open_run);
+            }
+            else if(exerciseDataList.get(i).getExerciseType() == OpenFitData.CYCLING_EXERCISE) {
+                item = "Exercise: Cycling";
+                icon = context.getResources().getDrawable(R.drawable.open_bike);
+            }
+            else if(exerciseDataList.get(i).getExerciseType() == OpenFitData.HIKING_EXERCISE) {
+                item = "Exercise: Hiking";
+                icon = context.getResources().getDrawable(R.drawable.open_help);
             }
             items.add(item);
 
@@ -172,6 +180,10 @@ public class DialogFitness extends DialogFragment {
             String avgSpeed = String.format(Locale.getDefault(), "%.2f", exerciseDataList.get(i).getAvgSpeed()*3.6); // 3.6 to km/h
             String maxSpeed = String.format(Locale.getDefault(), "%.2f", exerciseDataList.get(i).getMaxSpeed()*3.6); // 3.6 to km/h
             String maxHeartRate = Integer.toString(exerciseDataList.get(i).getMaxHeartRate());
+            String maxAlt = Float.toString(exerciseDataList.get(i).getMaxAltitude());
+            String minAlt = Float.toString(exerciseDataList.get(i).getMinAltitude());
+            String inclineDist = Float.toString(exerciseDataList.get(i).getInclinedDistance());
+            String declineDist = Float.toString(exerciseDataList.get(i).getDeclinedDistance());
 
             String subitem = month + " " + day + ", " + year + "\n";
             subitem += "Time: " + hour + ":" +  min + "\n";
@@ -181,7 +193,11 @@ public class DialogFitness extends DialogFragment {
             subitem += "Avg HR: " + heartRate + "bpm\n";
             subitem += "Max HR: " + maxHeartRate + "bpm\n";
             subitem += "Avg speed: " + avgSpeed + "km/h\n";
-            subitem += "Max speed: " + maxSpeed + "km/h";
+            subitem += "Max speed: " + maxSpeed + "km/h\n";
+            subitem += "Max altitude: " + maxAlt + "m\n";
+            subitem += "Min altitude: " + minAlt + "m\n";
+            subitem += "Incline distance: " + inclineDist + "m\n";
+            subitem += "Decline distance: " + declineDist + "m";
             subitems.add(subitem);
 
             icon.setBounds(0, 0, 144, 144);

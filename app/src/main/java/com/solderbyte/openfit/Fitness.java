@@ -54,7 +54,7 @@ public class Fitness {
                 return ((Integer)ex1.getExerciseType()).compareTo((Integer)ex2.getExerciseType());
             }
         }
-        Collections.sort(exerciseDataList, new cmp());
+        // Collections.sort(exerciseDataList, new cmp());
         return exerciseDataList;
     }
 
@@ -505,19 +505,20 @@ public class Fitness {
             int type = buffer.getInt();
             float avgSpeed = buffer.getFloat();
             float maxSpeed = buffer.getFloat();
-            buffer.getFloat();
-            buffer.getFloat();
+            float maxAlt = buffer.getFloat();
+            float minAlt = buffer.getFloat();
             int maxHeartrate = buffer.getInt();
-            buffer.getFloat();
-            buffer.getFloat();
-            /*float maxAlt = Float.intBitsToFloat(buffer.getInt());
-            float minAlt = Float.intBitsToFloat(buffer.getInt());
-            float inclinedDistance = Float.intBitsToFloat(buffer.getInt());
-            float declinedDistance = Float.intBitsToFloat(buffer.getInt());*/
+            float inclinedDistance = buffer.getFloat();
+            float declinedDistance = buffer.getFloat();
 
-            exerciseDataList.add(new ExerciseData(timeStamp, duration, calorie, heartrate, distance, fitnessLevel, type, avgSpeed, maxSpeed, maxHeartrate));
+            exerciseDataList.add(new ExerciseData(timeStamp, duration, calorie, heartrate, distance, fitnessLevel, type, avgSpeed, maxSpeed, maxHeartrate, maxAlt, minAlt, inclinedDistance, declinedDistance));
 
-            /*Log.d(LOG_TAG, "timeStamp: " + new Date(timeStamp));
+            Log.d(LOG_TAG, "timeStamp: " + new Date(timeStamp));
+            Log.d(LOG_TAG, "timeStampEnd: " + new Date(timeStamp + duration*1000));
+            Log.d(LOG_TAG, "type: " + type);
+
+            /*
+            Log.d(LOG_TAG, "timeStamp: " + new Date(timeStamp));
             Log.d(LOG_TAG, "duration: " + duration);
             Log.d(LOG_TAG, "calorie: " + calorie);
             Log.d(LOG_TAG, "heartrate: " + heartrate);
@@ -526,7 +527,12 @@ public class Fitness {
             Log.d(LOG_TAG, "type: " + type);
             Log.d(LOG_TAG, "avgSpeed: " + avgSpeed);
             Log.d(LOG_TAG, "maxSpeed: " + maxSpeed);
-            Log.d(LOG_TAG, "maxHeartrate: " + maxHeartrate);*/
+            Log.d(LOG_TAG, "maxHeartrate: " + maxHeartrate);
+            Log.d(LOG_TAG, "maxAlt: " + maxAlt);
+            Log.d(LOG_TAG, "minAlt: " + minAlt);
+            Log.d(LOG_TAG, "inclinedDistance: " + inclinedDistance);
+            Log.d(LOG_TAG, "declinedDistance: " + declinedDistance);
+            */
         }
     }
 

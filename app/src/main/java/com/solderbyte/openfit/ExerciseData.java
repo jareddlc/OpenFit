@@ -15,8 +15,12 @@ public class ExerciseData implements Parcelable {
     private float avgSpeed;
     private float maxSpeed;
     private int maxHeartRate;
+    private float maxAlt;
+    private float minAlt;
+    private float inclinedDistance;
+    private float declinedDistance;
 
-    public ExerciseData(long t, long d, float c, int aHR, float dist, byte f, int e, float aS, float mS, int mHR) {
+    public ExerciseData(long t, long d, float c, int aHR, float dist, byte f, int e, float aS, float mS, int mHR, float maxA, float minA, float iD, float dD) {
         timeStamp = t;
         duration = d;
         calories = c;
@@ -27,6 +31,10 @@ public class ExerciseData implements Parcelable {
         avgSpeed = aS;
         maxSpeed = mS;
         maxHeartRate = mHR;
+        maxAlt = maxA;
+        minAlt = minA;
+        inclinedDistance = iD;
+        declinedDistance = dD;
     }
 
     public ExerciseData(Parcel source) {
@@ -40,6 +48,10 @@ public class ExerciseData implements Parcelable {
         avgSpeed = source.readFloat();
         maxSpeed = source.readFloat();
         maxHeartRate = source.readInt();
+        maxAlt = source.readFloat();
+        minAlt = source.readFloat();
+        inclinedDistance = source.readFloat();
+        declinedDistance = source.readFloat();
     }
 
     @Override
@@ -59,6 +71,10 @@ public class ExerciseData implements Parcelable {
         source.writeFloat(avgSpeed);
         source.writeFloat(maxSpeed);
         source.writeInt(maxHeartRate);
+        source.writeFloat(maxAlt);
+        source.writeFloat(minAlt);
+        source.writeFloat(inclinedDistance);
+        source.writeFloat(declinedDistance);
     }
 
     public static final Parcelable.Creator<ExerciseData> CREATOR = new Parcelable.Creator<ExerciseData>() {
@@ -114,5 +130,21 @@ public class ExerciseData implements Parcelable {
 
     public long getTimeStampEnd() {
         return timeStamp + duration * 1000L;
+    }
+
+    public float getMaxAltitude() {
+        return maxAlt;
+    }
+
+    public float getMinAltitude() {
+        return minAlt;
+    }
+
+    public float getInclinedDistance() {
+        return inclinedDistance;
+    }
+
+    public float getDeclinedDistance() {
+        return declinedDistance;
     }
 }

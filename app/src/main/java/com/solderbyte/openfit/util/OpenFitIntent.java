@@ -3,6 +3,7 @@ package com.solderbyte.openfit.util;
 public class OpenFitIntent {
     public static final String INTENT_UI_ADDAPPLICATION = "com.solderbyte.openfit.ui.addapplication";
     public static final String INTENT_UI_DELAPPLICATION = "com.solderbyte.openfit.ui.delapplication";
+    public static final String INTENT_UI_REJECTMESSAGES = "com.solderbyte.openfit.ui.rejectmessages";
     public static final String INTENT_UI_BT = "com.solderbyte.openfit.ui.bt";
     public static final String INTENT_SERVICE_START = "com.solderbyte.openfit.service.start";
     public static final String INTENT_SERVICE_STOP = "com.solderbyte.openfit.service.stop";
@@ -20,6 +21,7 @@ public class OpenFitIntent {
     public static final String INTENT_SERVICE_CRONJOB = "com.solderbyte.openfit.service.cronjob";
     public static final String INTENT_NOTIFICATION = "com.solderbyte.openfit.notification";
     public static final String INTENT_ANDROID_SMS = "android.provider.Telephony.SMS_RECEIVED";
+    public static final String INTENT_REJECTMESSAGES_SAVE = "com.solderbyte.openfit.service.rejectmessages.save";
     public static final String INTENT_ANDROID_MMS = "android.provider.Telephony.WAP_PUSH_RECEIVED";
     public static final String INTENT_GOOGLE_FIT = "com.solderbyte.openfit.google.fit";
     public static final String INTENT_GOOGLE_FIT_SYNC = "com.solderbyte.openfit.google.fit.sync";
@@ -40,6 +42,7 @@ public class OpenFitIntent {
     public static final String ACTION_SCAN = "scan";
     public static final String ACTION_SET_DEVICE = "setDevice";
     public static final String ACTION_SET_ENTRIES = "setEntries";
+    public static final String ACTION_GPS = "gps";
     public static final String ACTION_CONNECT = "connect";
     public static final String ACTION_DISCONNECT = "disconnect";
     public static final String ACTION_UI_STATUS = "status";
@@ -54,8 +57,10 @@ public class OpenFitIntent {
     public static final String EXTRA_DEVICE_NAME = "deviceName";
     public static final String EXTRA_DEVICE_ADDRESS = "deviceName";
     public static final String EXTRA_PACKAGE_NAME = "packageName";
+    public static final String EXTRA_REJECT_MESSAGES = "rejectMessages";
     public static final String EXTRA_APP_NAME = "appName";
     public static final String EXTRA_SMS = "sms";
+    public static final String EXTRA_GPS = "gps";
     public static final String EXTRA_PHONE = "phone";
     public static final String EXTRA_TIME = "time";
     public static final String EXTRA_WEATHER = "weather";

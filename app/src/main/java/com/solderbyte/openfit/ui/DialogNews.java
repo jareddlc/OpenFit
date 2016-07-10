@@ -14,8 +14,6 @@ import android.widget.CheckBox;
 import com.solderbyte.openfit.R;
 
 public class DialogNews extends DialogFragment {
-    public static final String PREFS_NAME = "MyPrefsFile1";
-
     public DialogNews() {}
 
     @Override

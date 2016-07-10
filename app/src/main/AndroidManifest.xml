@@ -32,6 +32,7 @@
         <activity
             android:name="com.solderbyte.openfit.ui.OpenFitActivity"
             android:label="@string/app_name"
+            android:launchMode="singleTop"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:screenOrientation="portrait" >
             <intent-filter>

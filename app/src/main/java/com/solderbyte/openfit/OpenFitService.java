@@ -7,6 +7,7 @@ import java.util.Calendar;
 import java.util.Set;
 
 import com.android.vending.billing.IInAppBillingService;
+import com.solderbyte.openfit.ui.OpenFitActivity;
 import com.solderbyte.openfit.util.OpenFitData;
 import com.solderbyte.openfit.util.OpenFitIntent;
 
@@ -632,8 +633,8 @@ public class OpenFitService extends Service {
     public void createNotification(boolean connected) {
         Log.d(LOG_TAG, "Creating Notification: " + connected);
         Intent stopService =  new Intent(OpenFitIntent.INTENT_SERVICE_STOP);
-        //Intent startActivity = new Intent(this, OpenFitActivity.class);
-        //PendingIntent startIntent = PendingIntent.getActivity(this, 0, startActivity, PendingIntent.FLAG_NO_CREATE);
+        Intent startActivity = new Intent(this, OpenFitActivity.class);
+        PendingIntent startIntent = PendingIntent.getActivity(this, 0, startActivity, PendingIntent.FLAG_UPDATE_CURRENT);
         PendingIntent stopIntent = PendingIntent.getBroadcast(this, 0, stopService, PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationCompat.Builder nBuilder = new NotificationCompat.Builder(this);
@@ -645,7 +646,7 @@ public class OpenFitService extends Service {
         else {
             nBuilder.setContentText(getString(R.string.notification_disconnected));
         }
-        //nBuilder.setContentIntent(startIntent);
+        nBuilder.setContentIntent(startIntent);
         nBuilder.setAutoCancel(true);
         nBuilder.setOngoing(true);
         nBuilder.addAction(R.drawable.open_off_noti, getString(R.string.notification_button_close), stopIntent);

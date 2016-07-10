@@ -97,6 +97,9 @@
     <string name="preference_checkbox_exercise_gps_on">GPS Allowed For Exercise</string>
     <string name="preference_checkbox_exercise_gps_off">Allow GPS For Exercise</string>
     <string name="preference_category_apps_title">Applications</string>
+    <string name="preference_category_openfit_title">Open Fit</string>
+    <string name="preference_autostart_at_boot_title">Auto launch at startup</string>
+    <string name="preference_autostart_at_boot_summary">Automatically start OpenFit after a reboot</string>
     <string name="preference_donate_title">Donate</string>
     <string name="preference_donate_summary">Make a donation via PayPal</string>
     <string name="preference_purchase_title">Purchase Premium</string>

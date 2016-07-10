@@ -52,9 +52,12 @@
     <string name="preference_checkbox_googlefit_on">Synchro activée</string>
     <string name="preference_checkbox_googlefit_off">Synchro désactivée</string>
     <string name="preference_checkbox_exercise_gps_title">GPS</string>
-    <string name="preference_checkbox_exercise_gps_on">GPS utilisé pour les Exercices</string>
-    <string name="preference_checkbox_exercise_gps_off">Utiliser le GPS pour les Exercices</string>
+    <string name="preference_checkbox_exercise_gps_on">GPS utilisé pour les exercices</string>
+    <string name="preference_checkbox_exercise_gps_off">Utiliser le GPS pour les exercices</string>
     <string name="preference_category_apps_title">Applications</string>
+    <string name="preference_category_openfit_title">Open Fit</string>
+    <string name="preference_autostart_at_boot_title">Lancement auto au démarrage</string>
+    <string name="preference_autostart_at_boot_summary">Lancer automatiquement OpenFit après un redémarrage</string>
     <string name="preference_donate_title">Don</string>
     <string name="preference_donate_summary">Faire un don via PayPal</string>
 	<string name="preference_purchase_title">Open Fit Premium</string>

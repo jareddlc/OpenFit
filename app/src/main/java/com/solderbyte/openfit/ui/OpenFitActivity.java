@@ -15,6 +15,7 @@ import com.google.android.gms.common.api.Status;
 import com.google.android.gms.fitness.Fitness;
 import com.solderbyte.openfit.ApplicationManager;
 import com.solderbyte.openfit.Billing;
+import com.solderbyte.openfit.BuildConfig;
 import com.solderbyte.openfit.ExerciseData;
 import com.solderbyte.openfit.GoogleFit;
 import com.solderbyte.openfit.HeartRateData;
@@ -38,6 +39,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.CheckBoxPreference;
@@ -186,6 +189,8 @@ public class OpenFitActivity extends Activity {
 
     public static class OpenFitFragment extends PreferenceFragment {
         private static final String LOG_TAG = "OpenFit:OpenFitFragment";
+        private static final String PREFERENCE_LAST_VERSION_KEY = "com.solderbyte.openfit.PREFERENCE_LAST_VERSION_KEY";
+        public static final String PREFERENCE_SKIP_CHANGELOG_KEY = "com.solderbyte.openfit.PREFERENCE_SKIP_CHANGELOG";
 
         private OpenFitSavedPreferences oPrefs;
         private ProgressDialog progressDailog = null;
@@ -222,9 +227,8 @@ public class OpenFitActivity extends Activity {
             // setup UI
             this.setupUIListeners();
 
-            // load news
-            DialogNews d = new DialogNews();
-            d.show(getFragmentManager(), getString(R.string.dialog_title_news));
+            // Show the changelog dialog
+            this.showChangelog();
 
             // check notification access
             this.checkNotificationAccess();
@@ -245,6 +249,42 @@ public class OpenFitActivity extends Activity {
             this.getActivity().registerReceiver(serviceNotificationReceiver, new IntentFilter(OpenFitIntent.INTENT_SERVICE_NOTIFICATION));
             this.getActivity().registerReceiver(googleFitReceiver, new IntentFilter(OpenFitIntent.INTENT_GOOGLE_FIT));
             this.getActivity().registerReceiver(billingReceiver, new IntentFilter(OpenFitIntent.INTENT_BILLING));
+        }
+
+        /**
+         * Show the changelog dialog in case of new update
+         * Don't show it if same version and "Do not show again" has been checked
+         */
+        private void showChangelog(){
+            SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+
+
+            // Check if the changelog has to be skipped (ie "Don't show again" has been checked)
+            boolean skipChangelog = sharedPref.getBoolean(PREFERENCE_SKIP_CHANGELOG_KEY, false);
+
+            // Get versionCode numbers of the app (current and last)
+            int lastVersion = sharedPref.getInt(PREFERENCE_LAST_VERSION_KEY, 0);
+            int thisVersion = BuildConfig.VERSION_CODE;
+
+            // Reinit skipChangelog if the app has been updated since last start (or first start)
+            if(thisVersion != lastVersion){
+                SharedPreferences.Editor sharedPrefEditor = sharedPref.edit();
+
+                // Reinitialize the skipChangelog preference
+                skipChangelog = false;
+                sharedPrefEditor.putBoolean(PREFERENCE_SKIP_CHANGELOG_KEY, false);
+
+                // Set last version
+                sharedPrefEditor.putInt(PREFERENCE_LAST_VERSION_KEY, thisVersion);
+
+                sharedPrefEditor.apply();
+            }
+
+            if(!skipChangelog) {
+                // load news
+                DialogNews d = new DialogNews();
+                d.show(getFragmentManager(), getString(R.string.dialog_title_news));
+            }
         }
 
         private void checkNotificationAccess() {

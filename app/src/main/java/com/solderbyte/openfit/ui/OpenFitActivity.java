@@ -15,6 +15,7 @@ import com.google.android.gms.common.api.Status;
 import com.google.android.gms.fitness.Fitness;
 import com.solderbyte.openfit.ApplicationManager;
 import com.solderbyte.openfit.Billing;
+import com.solderbyte.openfit.BuildConfig;
 import com.solderbyte.openfit.ExerciseData;
 import com.solderbyte.openfit.GoogleFit;
 import com.solderbyte.openfit.HeartRateData;
@@ -26,6 +27,7 @@ import com.solderbyte.openfit.PedometerTotal;
 import com.solderbyte.openfit.ProfileData;
 import com.solderbyte.openfit.R;
 import com.solderbyte.openfit.SleepData;
+import com.solderbyte.openfit.StartOpenFitAtBootReceiver;
 import com.solderbyte.openfit.util.OpenFitIntent;
 
 import android.app.Activity;
@@ -38,6 +40,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.CheckBoxPreference;
@@ -52,6 +56,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class OpenFitActivity extends Activity {
@@ -186,6 +191,8 @@ public class OpenFitActivity extends Activity {
 
     public static class OpenFitFragment extends PreferenceFragment {
         private static final String LOG_TAG = "OpenFit:OpenFitFragment";
+        private static final String PREFERENCE_LAST_VERSION_KEY = "com.solderbyte.openfit.PREFERENCE_LAST_VERSION_KEY";
+        public static final String PREFERENCE_SKIP_CHANGELOG_KEY = "com.solderbyte.openfit.PREFERENCE_SKIP_CHANGELOG";
 
         private OpenFitSavedPreferences oPrefs;
         private ProgressDialog progressDailog = null;
@@ -203,6 +210,8 @@ public class OpenFitActivity extends Activity {
         private static Preference preference_scan;
         private static Preference preference_fitness;
         private static Preference preference_edit_reject_messages;
+        private static Preference preference_apps_placeholder;
+        private static CheckBoxPreference preference_autostart_at_boot;
         //private static Preference preference_donate;
         private static Preference preference_purchase;
 
@@ -222,9 +231,8 @@ public class OpenFitActivity extends Activity {
             // setup UI
             this.setupUIListeners();
 
-            // load news
-            DialogNews d = new DialogNews();
-            d.show(getFragmentManager(), getString(R.string.dialog_title_news));
+            // Show the changelog dialog
+            this.showChangelog();
 
             // check notification access
             this.checkNotificationAccess();
@@ -245,6 +253,42 @@ public class OpenFitActivity extends Activity {
             this.getActivity().registerReceiver(serviceNotificationReceiver, new IntentFilter(OpenFitIntent.INTENT_SERVICE_NOTIFICATION));
             this.getActivity().registerReceiver(googleFitReceiver, new IntentFilter(OpenFitIntent.INTENT_GOOGLE_FIT));
             this.getActivity().registerReceiver(billingReceiver, new IntentFilter(OpenFitIntent.INTENT_BILLING));
+        }
+
+        /**
+         * Show the changelog dialog in case of new update
+         * Don't show it if same version and "Do not show again" has been checked
+         */
+        private void showChangelog(){
+            SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+
+
+            // Check if the changelog has to be skipped (ie "Don't show again" has been checked)
+            boolean skipChangelog = sharedPref.getBoolean(PREFERENCE_SKIP_CHANGELOG_KEY, false);
+
+            // Get versionCode numbers of the app (current and last)
+            int lastVersion = sharedPref.getInt(PREFERENCE_LAST_VERSION_KEY, 0);
+            int thisVersion = BuildConfig.VERSION_CODE;
+
+            // Reinit skipChangelog if the app has been updated since last start (or first start)
+            if(thisVersion != lastVersion){
+                SharedPreferences.Editor sharedPrefEditor = sharedPref.edit();
+
+                // Reinitialize the skipChangelog preference
+                skipChangelog = false;
+                sharedPrefEditor.putBoolean(PREFERENCE_SKIP_CHANGELOG_KEY, false);
+
+                // Set last version
+                sharedPrefEditor.putInt(PREFERENCE_LAST_VERSION_KEY, thisVersion);
+
+                sharedPrefEditor.apply();
+            }
+
+            if(!skipChangelog) {
+                // load news
+                DialogNews d = new DialogNews();
+                d.show(getFragmentManager(), getString(R.string.dialog_title_news));
+            }
         }
 
         private void checkNotificationAccess() {
@@ -455,6 +499,8 @@ public class OpenFitActivity extends Activity {
                 }
             });
 
+            preference_apps_placeholder = getPreferenceManager().findPreference("preference_apps_placeholder");
+
             /*
             preference_donate = (Preference) getPreferenceManager().findPreference("preference_donate");
             preference_donate.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -468,6 +514,27 @@ public class OpenFitActivity extends Activity {
                 }
             });
             */
+
+            preference_autostart_at_boot = (CheckBoxPreference) getPreferenceManager().findPreference("preference_autostart_at_boot");
+            preference_autostart_at_boot.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    ComponentName receiver = new ComponentName(getActivity(), StartOpenFitAtBootReceiver.class);
+                    PackageManager pm = getActivity().getPackageManager();
+
+                    if((Boolean)newValue) {
+                        pm.setComponentEnabledSetting(receiver,
+                                PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+                                PackageManager.DONT_KILL_APP);
+                    }
+                    else {
+                        pm.setComponentEnabledSetting(receiver,
+                                PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                                PackageManager.DONT_KILL_APP);
+                    }
+                    return true;
+                }
+            });
 
             preference_purchase = (Preference) getPreferenceManager().findPreference("preference_purchase");
             preference_purchase.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
@@ -616,8 +683,7 @@ public class OpenFitActivity extends Activity {
 
                     PreferenceCategory category = (PreferenceCategory) findPreference("preference_category_apps");
                     if(listeningListPackageNames.size() <= 0) {
-                        Preference placeholder = createPlaceHolderPreference();
-                        category.addPreference(placeholder);
+                        category.addPreference(preference_apps_placeholder);
                     }
                     for(int i = 0; i < listeningListPackageNames.size(); i++) {
                         Preference app = createAppPreference(listeningListPackageNames.get(i), listeningListAppNames.get(i));
@@ -635,13 +701,6 @@ public class OpenFitActivity extends Activity {
             app.setKey(packageName);
             app.setIcon(appManager.loadIcon(packageName));
             return app;
-        }
-
-        public Preference createPlaceHolderPreference() {
-            Preference ph = new Preference(getActivity());
-            ph.setSummary(R.string.preference_applications_summary);
-            ph.setKey("preference_apps_placeholder");
-            return ph;
         }
 
         public void restoreGoogleFit() {
@@ -754,10 +813,7 @@ public class OpenFitActivity extends Activity {
                 oPrefs.saveString(packageName, appName);
                 Preference app = createAppPreference(packageName, appName);
                 PreferenceCategory category = (PreferenceCategory) findPreference("preference_category_apps");
-                Preference placeholder = category.findPreference("preference_apps_placeholder");
-                if(placeholder != null) {
-                    category.removePreference(placeholder);
-                }
+                category.removePreference(preference_apps_placeholder);
                 category.addPreference(app);
                 sendNotificationApplications();
             }
@@ -775,6 +831,10 @@ public class OpenFitActivity extends Activity {
                 PreferenceCategory category = (PreferenceCategory) findPreference("preference_category_apps");
                 Preference app = (Preference) findPreference(packageName);
                 category.removePreference(app);
+                // If no more preference in the category, restore the placeholder
+                if(category.getPreferenceCount() <= 0) {
+                    category.addPreference(preference_apps_placeholder);
+                }
                 sendNotificationApplications();
             }
         };

@@ -48,6 +48,7 @@
         \n• Fix Google Play Music crash
         \n\nGoogle Fit Sync is premium feature. Please make sure fitness data works properly before purchasing Open Fit Premium. Please read the help section for more info.
     </string>
+    <string name="dialog_do_not_show_again_news">Do not show again</string>
     <string name="dialog_close_news">Close</string>
     <string name="dialog_title_notification_access">Notification Access</string>
     <string name="dialog_message_notification_access"><b>Important:</b>
@@ -96,6 +97,9 @@
     <string name="preference_checkbox_exercise_gps_on">GPS Allowed For Exercise</string>
     <string name="preference_checkbox_exercise_gps_off">Allow GPS For Exercise</string>
     <string name="preference_category_apps_title">Applications</string>
+    <string name="preference_category_openfit_title">Open Fit</string>
+    <string name="preference_autostart_at_boot_title">Auto launch at startup</string>
+    <string name="preference_autostart_at_boot_summary">Automatically start OpenFit after a reboot</string>
     <string name="preference_donate_title">Donate</string>
     <string name="preference_donate_summary">Make a donation via PayPal</string>
     <string name="preference_purchase_title">Purchase Premium</string>

@@ -81,6 +81,13 @@
             android:summaryOff="@string/preference_checkbox_exercise_gps_off"
             android:icon="@drawable/open_location"
             android:defaultValue="false" />
+        <CheckBoxPreference
+            android:key="preference_checkbox_mediacontroller"
+            android:title="@string/preference_checkbox_mediacontroller_title"
+            android:summaryOn="@string/preference_checkbox_mediacontroller_on"
+            android:summaryOff="@string/preference_checkbox_mediacontroller_off"
+            android:icon="@drawable/open_play"
+            android:defaultValue="false" />
     </PreferenceCategory>
 
     <PreferenceCategory

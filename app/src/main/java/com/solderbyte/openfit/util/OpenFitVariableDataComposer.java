@@ -16,6 +16,10 @@ public class OpenFitVariableDataComposer {
     static final Charset DEFAULT_CHARSET = Charset.forName("UCS-2");
 
     public static byte[] convertToByteArray(String pString) {
+        if(pString == null) {
+            String p = "Error";
+            return p.getBytes(DEFAULT_CHARSET);
+        }
         return pString.getBytes(DEFAULT_CHARSET);
     }
 

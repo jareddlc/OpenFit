@@ -784,7 +784,7 @@ public class OpenFitApi {
         }
 
         int tempUnit = 1;
-        if(unit.contains("F")) {
+        if(unit != null && unit.contains("F")) {
             tempUnit = 0;
         }
 

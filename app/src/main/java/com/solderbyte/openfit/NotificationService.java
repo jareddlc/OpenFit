@@ -9,16 +9,35 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.ViewGroup;
+import android.widget.RemoteViews;
+import android.widget.TextView;
 
 public class NotificationService extends NotificationListenerService {
     private static final String LOG_TAG = "OpenFit:NotificationService";
 
     private ArrayList<String> ListPackageNames = new ArrayList<String>();
+    private PackageManager packageManager = null;
     private Context context;
+
+    // view data
+    private String NOTIFICATION_TITLE = null;
+    private String NOTIFICATION_TEXT = null;
+    private String NOTIFICATION_BIG_TEXT = null;
+
+    // applications
+    private String APP_FB_MESSENGER = "com.facebook.orca";
+    private String APP_WHATSAPP = "com.whatsapp";
+    private String APP_G_HANGOUTS = "com.google.android.talk";
+
 
     @Override
     public void onCreate() {
@@ -26,6 +45,7 @@ public class NotificationService extends NotificationListenerService {
         this.registerReceiver(serviceStopReceiver, new IntentFilter(OpenFitIntent.INTENT_SERVICE_STOP));
         this.registerReceiver(applicationsReceiver, new IntentFilter(OpenFitIntent.INTENT_SERVICE_NOTIFICATION_APPLICATIONS));
         context = getApplicationContext();
+        packageManager = this.getPackageManager();
 
         Intent msg = new Intent(OpenFitIntent.INTENT_SERVICE_NOTIFICATION);
         context.sendBroadcast(msg);
@@ -36,14 +56,17 @@ public class NotificationService extends NotificationListenerService {
     public void onNotificationPosted(StatusBarNotification sbn) {
         Log.d(LOG_TAG, "onNotificationPosted");
         String packageName = sbn.getPackageName();
+        String appName = this.getAppName(packageName);
 
         if(!ListPackageNames.contains(packageName)) {
+            Log.d(LOG_TAG, "filtered by list");
             return;
         }
 
         // API v19
         Notification notification = sbn.getNotification();
         Bundle extras = notification.extras;
+        this.getViewNotification(notification, packageName);
         //String category = notification.category; API v21
         if((notification.flags & Notification.FLAG_ONGOING_EVENT) != 0) {
             Log.d(LOG_TAG, "filtered by flags");
@@ -96,12 +119,149 @@ public class NotificationService extends NotificationListenerService {
         Log.d(LOG_TAG, "summary: " + summary);
         Log.d(LOG_TAG, "info: " + info);
         //Log.d(LOG_TAG, "category: " + category);
+        Log.d(LOG_TAG, "view title: " + NOTIFICATION_TITLE);
+        Log.d(LOG_TAG, "view big text: " + NOTIFICATION_BIG_TEXT);
+        Log.d(LOG_TAG, "view text: " + NOTIFICATION_TEXT);
+
+
+        String APP_NAME = appName;
+        String PACKAGE_NAME = packageName;
+        String NAME = null;
+        String CONTACT = null;
+        String GROUP = null;
+        String MESSAGE = null;
+        int ID = id;
+        long CREATED = time;
+
+        if(packageName.equals(APP_FB_MESSENGER)) {
+            // facebook messenger
+            // appName: Messenger
+            // packageName: com.facebook.orca
+            // name: title or view title
+            // contact: n/a
+            // message: message or view big text
+
+            if(title != null) {
+                NAME = title;
+            }
+            else {
+                NAME = NOTIFICATION_TITLE;
+            }
+            if(message != null) {
+                MESSAGE = message;
+            }
+            else if(NOTIFICATION_BIG_TEXT != null) {
+                MESSAGE = NOTIFICATION_BIG_TEXT;
+            }
+            else {
+                MESSAGE = NOTIFICATION_TEXT;
+            }
+        }
+        else if(packageName.equals(APP_G_HANGOUTS)) {
+            // google hangouts
+            // appName: Hangouts
+            // packageName: com.google.android.talk
+            // name: title or view title (name)
+            // contact: summary or view text (email)
+            // message: message or view big text
+
+            if(title != null) {
+                NAME = title;
+            }
+            else {
+                NAME = NOTIFICATION_TITLE;
+            }
+            if(summary != null) {
+                CONTACT = summary;
+            }
+            else {
+                CONTACT = NOTIFICATION_TEXT;
+            }
+            if(message != null) {
+                MESSAGE = message;
+            }
+            else {
+                MESSAGE = NOTIFICATION_BIG_TEXT;
+            }
+        }
+        else if(packageName.equals(APP_WHATSAPP)) {
+            // whatsapp
+            // appName: WhatsApp
+            // packageName: com.whatsapp
+            // name: title or view title (group: name @ group)
+            // contact: n/a
+            // message: message or view text big text
+
+            try {
+                if(message.matches(".*(\\d+).new messages.*") || NOTIFICATION_TEXT.matches(".*(\\d+).new messages.*")) {
+                    Log.d(LOG_TAG, "ignoring message");
+                    return;
+                }
+            }
+            catch(Exception e) {
+                Log.w(LOG_TAG, "regex error: " + e.getMessage());
+            }
+
+            String[] split;
+            if(title != null) {
+                // group message
+                if(title.contains("@")) {
+                    split = title.split("(.+)@(.+)");
+                    NAME = split[0];
+                    GROUP = split[1];
+                }
+                else {
+                    NAME = title;
+                }
+            }
+            else if(NOTIFICATION_TITLE != null) {
+                if(title.contains("@")) {
+                    split = NOTIFICATION_TITLE.split("(.+)@(.+)");
+                    NAME = split[0];
+                    GROUP = split[1];
+                }
+                else {
+                    NAME = NOTIFICATION_TITLE;
+                }
+            }
+            else {
+                NAME = title;
+            }
+            if(NOTIFICATION_BIG_TEXT != null) {
+                MESSAGE = NOTIFICATION_BIG_TEXT;
+            }
+            else if(NOTIFICATION_TEXT != null) {
+                MESSAGE = NOTIFICATION_TEXT;
+            }
+            else {
+                MESSAGE = message;
+            }
+        }
+        else {
+            if(title != null) {
+                NAME = title;
+            }
+            else {
+                NAME = NOTIFICATION_TITLE;
+            }
+            if(NOTIFICATION_BIG_TEXT != null) {
+                MESSAGE = NOTIFICATION_BIG_TEXT;
+            }
+            else if(message != null) {
+                MESSAGE = message;
+            }
+            else {
+                MESSAGE = NOTIFICATION_TEXT;
+            }
+        }
 
         Intent msg = new Intent(OpenFitIntent.INTENT_NOTIFICATION);
         msg.putExtra("packageName", packageName);
         msg.putExtra("ticker", ticker);
-        msg.putExtra("title", title);
-        msg.putExtra("message", message);
+        msg.putExtra("title", NAME);
+        msg.putExtra("message", MESSAGE);
+        //msg.putExtra("title", title);
+        //msg.putExtra("message", message);
         msg.putExtra("time", time);
         msg.putExtra("id", id);
         if(submessage != null) {
@@ -121,13 +281,78 @@ public class NotificationService extends NotificationListenerService {
             shortMsg = (String) sbn.getNotification().tickerText;
         }
         catch(Exception e) {
-            
+
         }
         Log.d(LOG_TAG, "Removed notification message: " + shortMsg + " from source:" + packageName);
     }
 
     public void setPackageNames(ArrayList<String> packageNames) {
         ListPackageNames = packageNames;
+    }
+
+    public String getAppName(String packageName) {
+        ApplicationInfo appInfo = null;
+        try {
+            appInfo = packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA);
+        } catch (PackageManager.NameNotFoundException e) {
+            Log.d(LOG_TAG, "Cannot get application info");
+        }
+        String appName = (String) packageManager.getApplicationLabel(appInfo);
+        return appName;
+    }
+
+    public boolean getViewNotification(Notification n, String packageName) {
+        Resources resources = null;
+        try {
+            resources = packageManager.getResourcesForApplication(packageName);
+        }
+        catch(Exception e){
+            Log.e(LOG_TAG, "Failed to get PackageManager: " + e.getMessage());
+        }
+        if(resources == null) {
+            Log.e(LOG_TAG, "No PackageManager resources");
+            return false;
+        }
+
+        int TITLE = resources.getIdentifier("android:id/title", null, null);
+        int BIG_TEXT = resources.getIdentifier("android:id/big_text", null, null);
+        int TEXT = resources.getIdentifier("android:id/text", null, null);
+
+        RemoteViews views = n.bigContentView;
+        if(views == null) {
+            views = n.contentView;
+        }
+        if(views == null) {
+            return false;
+        }
+
+        LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        ViewGroup localView = (ViewGroup) inflater.inflate(views.getLayoutId(), null);
+        views.reapply(getApplicationContext(), localView);
+
+        TextView title = (TextView) localView.findViewById(TITLE);
+        if(title != null) {
+            NOTIFICATION_TITLE = title.getText().toString();
+        }
+        else {
+            NOTIFICATION_TITLE = null;
+        }
+        TextView big = (TextView) localView.findViewById(BIG_TEXT);
+        if(big != null) {
+            NOTIFICATION_BIG_TEXT = big.getText().toString();
+        }
+        else {
+            NOTIFICATION_BIG_TEXT = null;
+        }
+        TextView text = (TextView) localView.findViewById(TEXT);
+        if(text != null) {
+            NOTIFICATION_TEXT = text.getText().toString();
+        }
+        else {
+            NOTIFICATION_TEXT = null;
+        }
+
+        return true;
     }
 
     private BroadcastReceiver serviceStopReceiver = new BroadcastReceiver() {

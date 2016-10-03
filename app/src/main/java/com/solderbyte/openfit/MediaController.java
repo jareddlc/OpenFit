@@ -7,7 +7,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioManager;
+import android.os.Build;
 import android.util.Log;
+import android.view.KeyEvent;
+
+import java.util.Calendar;
 
 public class MediaController {
     private static final String LOG_TAG = "OpenFit:MediaController";
@@ -17,6 +21,7 @@ public class MediaController {
     public static int MAX_VOLUME = 0;
     public static int ACT_VOLUME = 0;
     public static int CURRENT_PLAYER = 0; // 0 = stock, 1 = spotify
+    public static int CURRENT_METHOD = 0; // 0 = music service command, 1 = keycode
     public static AudioManager audioManager = null;
     public static Context context = null;
 
@@ -44,7 +49,7 @@ public class MediaController {
         context.registerReceiver(spotifyReceiver, spotify);
         // pandora
         context.registerReceiver(pandoraReceiver, new IntentFilter("com.pandora.android.widget.RemoteBroadcastsReceiver"));
-
+        context.registerReceiver(mediacontrollerReceiver, new IntentFilter(OpenFitIntent.INTENT_MEDIACONTROLLER_METHOD));
         context.registerReceiver(serviceStopReceiver, new IntentFilter(OpenFitIntent.INTENT_SERVICE_STOP));
     }
 
@@ -90,6 +95,21 @@ public class MediaController {
             Log.d(LOG_TAG, "pandoraReceiver");
             CURRENT_PLAYER = 2;
             processIntent(intent);
+        }
+    };
+
+    private static BroadcastReceiver mediacontrollerReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d(LOG_TAG, "mediacontrollerReceiver");
+            String msg = intent.getStringExtra(OpenFitIntent.INTENT_EXTRA_MSG);
+            if(msg.equals("true")) {
+                CURRENT_METHOD = 1;
+                Log.d(LOG_TAG, "keycode");
+            }
+            else {
+                CURRENT_METHOD = 0;
+            }
         }
     };
 
@@ -205,12 +225,18 @@ public class MediaController {
 
     public static Intent prevTrack() {
         Intent i = null;
-        if(CURRENT_PLAYER == 0) {
-            i = new Intent("com.android.music.musicservicecommand");
-            i.putExtra("command", "previous");
+        if(CURRENT_METHOD == 0) {
+            if(CURRENT_PLAYER == 0) {
+                i = new Intent("com.android.music.musicservicecommand");
+                i.putExtra("command", "previous");
+            }
+            else if(CURRENT_PLAYER == 1) {
+                i = new Intent("com.spotify.mobile.android.ui.widget.PREVIOUS");
+            }
         }
-        else if(CURRENT_PLAYER == 1) {
-            i = new Intent("com.spotify.mobile.android.ui.widget.PREVIOUS");
+        else {
+            i = new Intent();
+            sendKeycode(KeyEvent.KEYCODE_MEDIA_PREVIOUS);
         }
 
         return i;
@@ -218,12 +244,18 @@ public class MediaController {
 
     public static Intent nextTrack() {
         Intent i = null;
-        if(CURRENT_PLAYER == 0) {
-            i = new Intent("com.android.music.musicservicecommand");
-            i.putExtra("command", "next");
+        if(CURRENT_METHOD == 0) {
+            if(CURRENT_PLAYER == 0) {
+                i = new Intent("com.android.music.musicservicecommand");
+                i.putExtra("command", "next");
+            }
+            else if(CURRENT_PLAYER == 1) {
+                i = new Intent("com.spotify.mobile.android.ui.widget.NEXT");
+            }
         }
-        else if(CURRENT_PLAYER == 1) {
-            i = new Intent("com.spotify.mobile.android.ui.widget.NEXT");
+        else {
+            i = new Intent();
+            sendKeycode(KeyEvent.KEYCODE_MEDIA_NEXT);
         }
 
         return i;
@@ -231,14 +263,47 @@ public class MediaController {
 
     public static Intent playTrack() {
         Intent i = null;
-        if(CURRENT_PLAYER == 0) {
-            i = new Intent("com.android.music.musicservicecommand");
-            i.putExtra("command", "togglepause");
+        if(CURRENT_METHOD == 0) {
+            if(CURRENT_PLAYER == 0) {
+                i = new Intent("com.android.music.musicservicecommand");
+                i.putExtra("command", "togglepause");
+            }
+            else if(CURRENT_PLAYER == 1) {
+                i = new Intent("com.spotify.mobile.android.ui.widget.PLAY");
+            }
         }
-        else if(CURRENT_PLAYER == 1) {
-            i = new Intent("com.spotify.mobile.android.ui.widget.PLAY");
+        else {
+            i = new Intent();
+            sendKeycode(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE);
         }
 
         return i;
+    }
+
+    private static void sendKeycode(int keyCode) {
+        Log.d(LOG_TAG, "sendKeycode");
+        long eventTime = Calendar.getInstance().getTimeInMillis() - 1;
+
+        KeyEvent downEvent = new KeyEvent(eventTime, eventTime, KeyEvent.ACTION_DOWN, keyCode, 0);
+        sendKeyevent(downEvent);
+
+        eventTime++;
+        KeyEvent upEvent = new KeyEvent(eventTime, eventTime, KeyEvent.ACTION_UP, keyCode, 0);
+        sendKeyevent(upEvent);
+    }
+
+    private static void sendKeyevent(KeyEvent keyEvent)  {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            // use AudioManager.dispatchKeyEvent() from API 19 (KitKat)
+            // http://stackoverflow.com/questions/19890643/android-4-4-play-default-music-player
+            audioManager.dispatchMediaKeyEvent(keyEvent);
+        }
+        else {
+            // use broadcasting fake intent method
+            // http://stackoverflow.com/questions/12925896/android-emulate-send-action-media-button-intent
+            Intent i = new Intent(Intent.ACTION_MEDIA_BUTTON);
+            i.putExtra(Intent.EXTRA_KEY_EVENT, keyEvent);
+            context.sendOrderedBroadcast(i, null);
+        }
     }
 }

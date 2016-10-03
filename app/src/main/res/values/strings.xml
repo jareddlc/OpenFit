@@ -39,13 +39,11 @@
     <string name="dialog_close_fitness">Close</string>
     <string name="dialog_sync_fitness">Sync</string>
     <string name="dialog_title_news">Open Fit News</string>
-    <string name="dialog_message_news"><b>v1.9.0</b>
-        \n• Exercise sync with GPS
-        \n\t• Cycling
-        \n\t• Hiking
-        \n• Improved GPS
-        \n• Reject phone call with a message
-        \n• Fix Google Play Music crash
+    <string name="dialog_message_news"><b>v1.9.1</b>
+        \n• Improved notifications
+        \n• Alternative Media Controller
+        \n\t• Toggle if the music app does not work
+        \n• Auto launch Open Fit on reboot
         \n\nGoogle Fit Sync is premium feature. Please make sure fitness data works properly before purchasing Open Fit Premium. Please read the help section for more info.
     </string>
     <string name="dialog_do_not_show_again_news">Do not show again</string>
@@ -96,10 +94,13 @@
     <string name="preference_checkbox_exercise_gps_title">GPS</string>
     <string name="preference_checkbox_exercise_gps_on">GPS Allowed For Exercise</string>
     <string name="preference_checkbox_exercise_gps_off">Allow GPS For Exercise</string>
+    <string name="preference_checkbox_mediacontroller_title">Media Controller</string>
+    <string name="preference_checkbox_mediacontroller_on">Android keycode</string>
+    <string name="preference_checkbox_mediacontroller_off">Android music service command</string>
     <string name="preference_category_apps_title">Applications</string>
     <string name="preference_category_openfit_title">Open Fit</string>
-    <string name="preference_autostart_at_boot_title">Auto launch at startup</string>
-    <string name="preference_autostart_at_boot_summary">Automatically start OpenFit after a reboot</string>
+    <string name="preference_autostart_at_boot_title">Auto Launch</string>
+    <string name="preference_autostart_at_boot_summary">Automatically start Open Fit after a reboot</string>
     <string name="preference_donate_title">Donate</string>
     <string name="preference_donate_summary">Make a donation via PayPal</string>
     <string name="preference_purchase_title">Purchase Premium</string>

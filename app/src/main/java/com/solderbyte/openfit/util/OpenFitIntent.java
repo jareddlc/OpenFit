@@ -30,6 +30,7 @@ public class OpenFitIntent {
     public static final String INTENT_BILLING_VERIFIED = "com.solderbyte.openfit.billing.verified";
     public static final String INTENT_BILLING_NO_PURCHASE = "com.solderbyte.openfit.billing.nopurchase";
     public static final String INTENT_SERVICE_CALENDAR = "com.android.calendar";
+    public static final String INTENT_MEDIACONTROLLER_METHOD = "com.solderbyte.openfit.mediacontroller.method";
 
     public static final String INTENT_EXTRA_MSG = "message";
     public static final String INTENT_EXTRA_DATA = "data";

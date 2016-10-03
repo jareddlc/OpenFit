@@ -205,13 +205,14 @@ public class OpenFitActivity extends Activity {
         private static CheckBoxPreference preference_checkbox_sms;
         private static CheckBoxPreference preference_checkbox_time;
         private static CheckBoxPreference preference_checkbox_googlefit;
+        private static CheckBoxPreference preference_autostart_at_boot;
+        private static CheckBoxPreference preference_checkbox_mediacontroller;
         private static ListPreference preference_list_weather;
         private static ListPreference preference_list_devices;
         private static Preference preference_scan;
         private static Preference preference_fitness;
         private static Preference preference_edit_reject_messages;
         private static Preference preference_apps_placeholder;
-        private static CheckBoxPreference preference_autostart_at_boot;
         //private static Preference preference_donate;
         private static Preference preference_purchase;
 
@@ -255,10 +256,6 @@ public class OpenFitActivity extends Activity {
             this.getActivity().registerReceiver(billingReceiver, new IntentFilter(OpenFitIntent.INTENT_BILLING));
         }
 
-        /**
-         * Show the changelog dialog in case of new update
-         * Don't show it if same version and "Do not show again" has been checked
-         */
         private void showChangelog(){
             SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
 
@@ -494,6 +491,24 @@ public class OpenFitActivity extends Activity {
                     else {
                         sendIntent(OpenFitIntent.INTENT_SERVICE_BT, OpenFitIntent.ACTION_GPS, OpenFitIntent.ACTION_FALSE);
                         oPrefs.saveBoolean("preference_checkbox_exercise_gps", false);
+                        return true;
+                    }
+                }
+            });
+
+            preference_checkbox_mediacontroller = (CheckBoxPreference) getPreferenceManager().findPreference("preference_checkbox_mediacontroller");
+            preference_checkbox_mediacontroller.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    if((Boolean)newValue) {
+                        sendIntent(OpenFitIntent.INTENT_MEDIACONTROLLER_METHOD, OpenFitIntent.ACTION_TRUE);
+
+                        oPrefs.saveBoolean("preference_checkbox_mediacontroller", true);
+                        return true;
+                    }
+                    else {
+                        sendIntent(OpenFitIntent.INTENT_MEDIACONTROLLER_METHOD, OpenFitIntent.ACTION_FALSE);
+                        oPrefs.saveBoolean("preference_checkbox_mediacontroller", false);
                         return true;
                     }
                 }

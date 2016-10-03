@@ -400,6 +400,9 @@ public class Fitness {
         int index = buffer.getInt();
         long n = buffer.getInt() * 1000L;
         int n2 = buffer.getInt();
+        if(!buffer.hasRemaining()) {
+            return;
+        }
         long n3 = buffer.getInt() * 1000L;
 
         Date timeStamp = new Date(n);

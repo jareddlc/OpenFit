@@ -649,6 +649,7 @@ public class OpenFitService extends Service {
         nBuilder.setContentIntent(startIntent);
         nBuilder.setAutoCancel(true);
         nBuilder.setOngoing(true);
+        //nBuilder.setPriority(NotificationCompat.PRIORITY_MIN);
         nBuilder.addAction(R.drawable.open_off_noti, getString(R.string.notification_button_close), stopIntent);
         if(connected) {
             Intent cIntent = new Intent(OpenFitIntent.INTENT_SERVICE_BT);

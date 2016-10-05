@@ -588,6 +588,15 @@ public class OpenFitService extends Service {
         Log.d(LOG_TAG, "Starting notification service");
         Intent notificationIntent = new Intent(this, NotificationService.class);
         this.startService(notificationIntent);
+        this.toggleNotificationListenerService();
+    }
+
+    public void toggleNotificationListenerService() {
+        Log.d(LOG_TAG, "toggleNotificationListenerService");
+        // adb shell dumpsys notification
+        // force start of notification service
+        pManager.setComponentEnabledSetting(new ComponentName(this, NotificationService.class), PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+        pManager.setComponentEnabledSetting(new ComponentName(this, NotificationService.class), PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
     }
 
     public void startDailerListener(Boolean enabled) {
@@ -1121,6 +1130,7 @@ public class OpenFitService extends Service {
             unregisterReceiver(billingReceiver);
             unregisterReceiver(saveRejectMessagesReceiver);
             unbindService(mServiceConnection);
+            unbindService(billingServiceConnection);
             Cronjob.stop();
             clearNotification();
             reconnectBluetoothStop();

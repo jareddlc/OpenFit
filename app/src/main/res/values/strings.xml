@@ -17,7 +17,10 @@
     <string name="dialog_message_help"><b>Application Notifications:</b>
         \nFor applications notifications to work,
         you must turn on "Notification Access" for the Open Fit application.
-        Open the phone settings and search for \'Notification\' and it should show \'Notification Access\'.
+        Open the phone settings and search for \'Notification Access\'.
+        \n\nIf notifications do not work please try one of the following:
+        \n\t◦ Disable \'Notification Access\' and re-enable it
+        \n\t◦ Restart your phone
         \n\n<b>Connection Problems:</b>
         \nIf you cannot pair with Gear Fit from Open Fit application,
         go to bluetooth settings, and remove the Gear Fit from the list of paired devices,
@@ -39,8 +42,9 @@
     <string name="dialog_close_fitness">Close</string>
     <string name="dialog_sync_fitness">Sync</string>
     <string name="dialog_title_news">Open Fit News</string>
-    <string name="dialog_message_news"><b>v1.9.1</b>
+    <string name="dialog_message_news"><b>v1.10.0</b>
         \n• Improved notifications
+        \n\t• Force notification listener
         \n• Alternative Media Controller
         \n\t• Toggle if the music app does not work
         \n• Auto launch Open Fit on reboot

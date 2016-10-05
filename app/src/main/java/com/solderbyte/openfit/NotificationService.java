@@ -118,7 +118,6 @@ public class NotificationService extends NotificationListenerService {
         Log.d(LOG_TAG, "submessage: " + submessage);
         Log.d(LOG_TAG, "summary: " + summary);
         Log.d(LOG_TAG, "info: " + info);
-        //Log.d(LOG_TAG, "category: " + category);
         Log.d(LOG_TAG, "view title: " + NOTIFICATION_TITLE);
         Log.d(LOG_TAG, "view big text: " + NOTIFICATION_BIG_TEXT);
         Log.d(LOG_TAG, "view text: " + NOTIFICATION_TEXT);
@@ -291,6 +290,9 @@ public class NotificationService extends NotificationListenerService {
     }
 
     public String getAppName(String packageName) {
+        if(packageName == null) {
+            return null;
+        }
         ApplicationInfo appInfo = null;
         try {
             appInfo = packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA);
@@ -302,6 +304,10 @@ public class NotificationService extends NotificationListenerService {
     }
 
     public boolean getViewNotification(Notification n, String packageName) {
+        Log.d(LOG_TAG, "getViewNotification");
+        if(packageName == null) {
+            return false;
+        }
         Resources resources = null;
         try {
             resources = packageManager.getResourcesForApplication(packageName);
@@ -323,12 +329,14 @@ public class NotificationService extends NotificationListenerService {
             views = n.contentView;
         }
         if(views == null) {
+            Log.d(LOG_TAG, "No RemoteViews");
             return false;
         }
 
         LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         ViewGroup localView = (ViewGroup) inflater.inflate(views.getLayoutId(), null);
         views.reapply(getApplicationContext(), localView);
+        Log.d(LOG_TAG, "about to get views");
 
         TextView title = (TextView) localView.findViewById(TITLE);
         if(title != null) {

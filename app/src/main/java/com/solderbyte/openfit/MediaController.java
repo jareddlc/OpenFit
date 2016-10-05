@@ -121,7 +121,7 @@ public class MediaController {
             context.unregisterReceiver(samsungMusicReceiver);
             context.unregisterReceiver(spotifyReceiver);
             context.unregisterReceiver(pandoraReceiver);
-
+            context.unregisterReceiver(mediacontrollerReceiver);
             context.unregisterReceiver(serviceStopReceiver);
         }
     };

@@ -42,9 +42,10 @@
     <string name="dialog_close_fitness">Close</string>
     <string name="dialog_sync_fitness">Sync</string>
     <string name="dialog_title_news">Open Fit News</string>
-    <string name="dialog_message_news"><b>v1.10.0</b>
+    <string name="dialog_message_news"><b>v1.10.1</b>
         \n• Improved notifications
         \n\t• Force notification listener
+        \n\t• Fixed notification crash
         \n• Alternative Media Controller
         \n\t• Toggle if the music app does not work
         \n• Auto launch Open Fit on reboot

@@ -1,11 +1,14 @@
 package com.solderbyte.openfit;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.solderbyte.openfit.util.OpenFitIntent;
 
+import android.app.ActivityManager;
 import android.app.Notification;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -13,6 +16,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.os.Process;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
@@ -46,6 +50,7 @@ public class NotificationService extends NotificationListenerService {
         this.registerReceiver(applicationsReceiver, new IntentFilter(OpenFitIntent.INTENT_SERVICE_NOTIFICATION_APPLICATIONS));
         context = getApplicationContext();
         packageManager = this.getPackageManager();
+        this.checkNotificationListenerService();
 
         Intent msg = new Intent(OpenFitIntent.INTENT_SERVICE_NOTIFICATION);
         context.sendBroadcast(msg);
@@ -285,6 +290,42 @@ public class NotificationService extends NotificationListenerService {
         Log.d(LOG_TAG, "Removed notification message: " + shortMsg + " from source:" + packageName);
     }
 
+    public void checkNotificationListenerService() {
+        Log.d(LOG_TAG, "checkNotificationListenerService");
+        boolean isNotificationListenerRunning = false;
+        ComponentName thisComponent = new ComponentName(this, NotificationService.class);
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+
+        List<ActivityManager.RunningServiceInfo> runningServices = manager.getRunningServices(Integer.MAX_VALUE);
+        if(runningServices == null) {
+            Log.d(LOG_TAG, "running services is null");
+            return;
+        }
+        for(ActivityManager.RunningServiceInfo service : runningServices) {
+            if(service.service.equals(thisComponent)) {
+                Log.d(LOG_TAG, "checkNotificationListenerService service - pid: " + service.pid + ", currentPID: " + Process.myPid() + ", clientPackage: " + service.clientPackage + ", clientCount: " + service.clientCount + ", clientLabel: " + ((service.clientLabel == 0) ? "0" : "(" + getResources().getString(service.clientLabel) + ")"));
+                if(service.pid == Process.myPid() /*&& service.clientCount > 0 && !TextUtils.isEmpty(service.clientPackage)*/) {
+                    isNotificationListenerRunning = true;
+                }
+            }
+        }
+        if(isNotificationListenerRunning) {
+            Log.d(LOG_TAG, "NotificationListenerService is running");
+            return;
+        }
+        Log.d(LOG_TAG, "NotificationListenerService is not running, trying to start");
+        this.toggleNotificationListenerService();
+    }
+
+    public void toggleNotificationListenerService() {
+        Log.d(LOG_TAG, "toggleNotificationListenerService");
+        // adb shell dumpsys notification
+        // force start of notification service
+        ComponentName thisComponent = new ComponentName(this, NotificationService.class);
+        packageManager.setComponentEnabledSetting(thisComponent, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+        packageManager.setComponentEnabledSetting(thisComponent, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
+    }
+
     public void setPackageNames(ArrayList<String> packageNames) {
         ListPackageNames = packageNames;
     }
@@ -334,10 +375,17 @@ public class NotificationService extends NotificationListenerService {
         }
 
         LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        ViewGroup localView = (ViewGroup) inflater.inflate(views.getLayoutId(), null);
-        views.reapply(getApplicationContext(), localView);
-        Log.d(LOG_TAG, "about to get views");
+        ViewGroup localView = null;
+        try {
+            localView = (ViewGroup) inflater.inflate(views.getLayoutId(), null);
+            views.reapply(context, localView);
+        }
+        catch(Exception e) {
+            Log.e(LOG_TAG, "Error with local view: " + e.getMessage());
+            return false;
+        }
 
+        Log.d(LOG_TAG, "about to get views");
         TextView title = (TextView) localView.findViewById(TITLE);
         if(title != null) {
             NOTIFICATION_TITLE = title.getText().toString();

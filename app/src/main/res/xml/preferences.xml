@@ -118,6 +118,10 @@
             android:icon="@drawable/open_donate"
             android:title="@string/preference_purchase_title"
             android:summary="@string/preference_purchase_summary"/>
+        <Preference
+            android:key="preference_privacy"
+            android:icon="@drawable/open_info"
+            android:title="@string/preference_privacy_policy_title"/>
     </PreferenceCategory>
 
 </PreferenceScreen>

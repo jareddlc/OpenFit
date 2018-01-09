@@ -42,13 +42,8 @@
     <string name="dialog_close_fitness">Close</string>
     <string name="dialog_sync_fitness">Sync</string>
     <string name="dialog_title_news">Open Fit News</string>
-    <string name="dialog_message_news"><b>v1.10.1</b>
-        \n• Improved notifications
-        \n\t• Force notification listener
-        \n\t• Fixed notification crash
-        \n• Alternative Media Controller
-        \n\t• Toggle if the music app does not work
-        \n• Auto launch Open Fit on reboot
+    <string name="dialog_message_news"><b>v1.10.2</b>
+        \n• Added Privacy Policy
         \n\nGoogle Fit Sync is premium feature. Please make sure fitness data works properly before purchasing Open Fit Premium. Please read the help section for more info.
     </string>
     <string name="dialog_do_not_show_again_news">Do not show again</string>
@@ -111,6 +106,7 @@
     <string name="preference_purchase_title">Purchase Premium</string>
     <string name="preference_purchase_summary">Purchase Premium features. Please see help for more information.</string>
     <string name="preference_purchased_summary">Thank you for purchasing Open Fit Premium</string>
+    <string name="preference_privacy_policy_title">Privacy Policy</string>
     <string name="preference_applications_summary">No applications added. Click the + icon at the top menu to add an application. Make sure Notification Access is Enabled, otherwise notifcations will not work</string>
     <string name="toast_bluetooth_enable">Enabling&#8230;</string>
     <string name="toast_bluetooth_scan">Scanning&#8230;</string>

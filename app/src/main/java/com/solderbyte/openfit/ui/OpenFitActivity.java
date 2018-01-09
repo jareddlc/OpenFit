@@ -42,6 +42,7 @@ import android.content.IntentSender;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.CheckBoxPreference;
@@ -215,6 +216,7 @@ public class OpenFitActivity extends Activity {
         private static Preference preference_apps_placeholder;
         //private static Preference preference_donate;
         private static Preference preference_purchase;
+        private static Preference preference_privacy;
 
         private static boolean fitnessRequeted = false;
 
@@ -564,6 +566,17 @@ public class OpenFitActivity extends Activity {
                             Log.d(LOG_TAG, "Error: " + e.getMessage());
                         }
                     }
+                    return true;
+                }
+            });
+
+            preference_privacy = (Preference) getPreferenceManager().findPreference("preference_privacy");
+            preference_privacy.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://solderbyte.com/privacy"));
+                    startActivity(browserIntent);
+
                     return true;
                 }
             });

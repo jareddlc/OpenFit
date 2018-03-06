@@ -128,7 +128,7 @@
     <string name="toast_premium_purchased">Thank you for purchasing Open Fit Premium. Please shut down and restart Open Fit.</string>
     <string name="notification_title">Open Fit</string>
     <string name="notification_connected">Connected to Gear Fit</string>
-    <string name="notification_disconnected">Disconnected to Gear Fit</string>
+    <string name="notification_disconnected">Disconnected from Gear Fit</string>
     <string name="notification_button_connect">Connect</string>
     <string name="notification_button_disconnect">Disconnect</string>
     <string name="notification_button_close">Shut Down</string>

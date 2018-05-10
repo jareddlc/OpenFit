@@ -45,17 +45,15 @@ public class OpenFitNotificationProtocol {
         oDatacomposer.writeByte((byte)msgType);
         oDatacomposer.writeLong(msgId);
         StringBuilder oStringBuilder = new StringBuilder();
-        Iterator<OpenFitDataTypeAndString> oIterator = msgData.iterator();
 
-        while(oIterator.hasNext()) {
-            OpenFitDataTypeAndString oDataString = (OpenFitDataTypeAndString)oIterator.next();
+        for (OpenFitDataTypeAndString oDataString : msgData) {
             byte[] oByte = OpenFitVariableDataComposer.convertToByteArray(oDataString.getData());
 
-            if(oDataString.getDataType() == OpenFitDataType.BYTE) {
-                oDatacomposer.writeByte((byte)oByte.length);
+            if (oDataString.getDataType() == OpenFitDataType.BYTE) {
+                oDatacomposer.writeByte((byte) oByte.length);
             }
-            if(oDataString.getDataType() == OpenFitDataType.SHORT) {
-                oDatacomposer.writeShort((short)oByte.length);
+            if (oDataString.getDataType() == OpenFitDataType.SHORT) {
+                oDatacomposer.writeShort((short) oByte.length);
             }
             oStringBuilder.append(oByte.length).append(" ");
             oDatacomposer.writeBytes(oByte);

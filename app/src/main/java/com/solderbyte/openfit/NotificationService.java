@@ -15,6 +15,7 @@ import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Process;
 import android.service.notification.NotificationListenerService;
@@ -78,6 +79,12 @@ public class NotificationService extends NotificationListenerService {
             return;
         }
 
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            if (extras.getCharSequence(Notification.EXTRA_BIG_TEXT) != null) {
+                NOTIFICATION_BIG_TEXT = extras.getCharSequence(Notification.EXTRA_BIG_TEXT).toString();
+            }
+        }
+
         String ticker = null;
         String message = null;
         String submessage = null;
@@ -94,25 +101,22 @@ public class NotificationService extends NotificationListenerService {
         long time = sbn.getPostTime();
         int id = sbn.getId();
 
-        if(extras.getCharSequence("android.title") != null) {
-            title = extras.getString("android.title");
+        if(extras.getCharSequence(Notification.EXTRA_TITLE) != null) {
+            title = extras.getString(Notification.EXTRA_TITLE);
         }
-        if(extras.getCharSequence("android.text") != null) {
-            message = extras.getCharSequence("android.text").toString();
+        if(extras.getCharSequence(Notification.EXTRA_TEXT) != null) {
+            message = extras.getCharSequence(Notification.EXTRA_TEXT).toString();
         }
-        if(extras.getCharSequence("android.subText") != null) {
-            submessage = extras.getCharSequence("android.subText").toString();
+        if(extras.getCharSequence(Notification.EXTRA_SUB_TEXT) != null) {
+            submessage = extras.getCharSequence(Notification.EXTRA_SUB_TEXT).toString();
         }
-        if(extras.getCharSequence("android.summaryText") != null) {
-            summary = extras.getCharSequence("android.summaryText").toString();
+        if(extras.getCharSequence(Notification.EXTRA_SUMMARY_TEXT) != null) {
+            summary = extras.getCharSequence(Notification.EXTRA_SUMMARY_TEXT).toString();
         }
-        if(extras.getCharSequence("android.infoText") != null) {
-            info = extras.getCharSequence("android.infoText").toString();
+        if(extras.getCharSequence(Notification.EXTRA_INFO_TEXT) != null) {
+            info = extras.getCharSequence(Notification.EXTRA_INFO_TEXT).toString();
         }
-        if(extras.getCharSequence("android.infoText") != null) {
-            info = extras.getCharSequence("android.infoText").toString();
-        }
-
+        
         Log.d(LOG_TAG, "Captured notification message: " + message + " from source:" + packageName);
         Log.d(LOG_TAG, "ticker: " + ticker);
         Log.d(LOG_TAG, "title: " + title);
@@ -197,7 +201,10 @@ public class NotificationService extends NotificationListenerService {
             // message: message or view text big text
 
             try {
-                if(message.matches(".*(\\d+).new messages.*") || NOTIFICATION_TEXT.matches(".*(\\d+).new messages.*")) {
+                if(message.matches(
+                        ".*(\\d+).new messages.*") ||
+                        (NOTIFICATION_TEXT != null && NOTIFICATION_TEXT.matches(".*(\\d+).new messages.*"))
+                        ) {
                     Log.d(LOG_TAG, "ignoring message");
                     return;
                 }
@@ -219,7 +226,7 @@ public class NotificationService extends NotificationListenerService {
                 }
             }
             else if(NOTIFICATION_TITLE != null) {
-                if(title.contains("@")) {
+                if(NOTIFICATION_TITLE.contains("@")) {
                     split = NOTIFICATION_TITLE.split("(.+)@(.+)");
                     NAME = split[0];
                     GROUP = split[1];

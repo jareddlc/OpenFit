@@ -5,14 +5,18 @@ import java.util.Locale;
 
 import com.solderbyte.openfit.util.OpenFitIntent;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
 
@@ -48,11 +52,20 @@ public class LocationInfo {
     public static void init(Context cntxt) {
         Log.d(LOG_TAG, "Initializing Location");
         context = cntxt;
-        locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-        geocoder = new Geocoder(context, Locale.getDefault());
 
-        updateLastKnownLocation();
-        listenForLocation(true);
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                || ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED ) {
+            // Impossible to call requestPermissions from a service. It has to be done from an activity => stop the service
+            context.sendBroadcast(new Intent(OpenFitIntent.INTENT_SERVICE_STOP));
+        } else {
+            // Permission has already been granted
+
+            locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+            geocoder = new Geocoder(context, Locale.getDefault());
+
+            updateLastKnownLocation();
+            listenForLocation(true);
+        }
     }
 
     public static void resetData() {
@@ -65,15 +78,14 @@ public class LocationInfo {
     public static void updateLastKnownLocation() {
         providers = locationManager.getProviders(true);
 
-        for(String provider : providers) {
+        for (String provider : providers) {
             Location loc = locationManager.getLastKnownLocation(provider);
-            if(loc != null) {
-                if(location != null) {
-                    if(loc.getTime() < location.getTime()) {
+            if (loc != null) {
+                if (location != null) {
+                    if (loc.getTime() < location.getTime()) {
                         location = loc;
                     }
-                }
-                else {
+                } else {
                     location = loc;
                 }
             }
@@ -82,29 +94,28 @@ public class LocationInfo {
         //criteria = new Criteria();
         //locationManager.getBestProvider(criteria, true);
         //location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, true));
-        if(location != null) {
+        if (location != null) {
             latitude = location.getLatitude();
             longitude = location.getLongitude();
 
             try {
                 addresses = geocoder.getFromLocation(latitude, longitude, 1);
-                if(addresses.size() > 0) {
+                if (addresses.size() > 0) {
                     cityName = addresses.get(0).getLocality();
                     cityName = addresses.get(0).getLocality();
-                    if(cityName == null) {
+                    if (cityName == null) {
                         cityName = addresses.get(0).getSubAdminArea();
                     }
-                    if(cityName == null) {
+                    if (cityName == null) {
                         cityName = addresses.get(0).getAdminArea();
                     }
                     StateName = addresses.get(0).getAdminArea();
                     CountryName = addresses.get(0).getCountryName();
                     CountryCode = addresses.get(0).getCountryCode();
-                    Log.d(LOG_TAG, "Location: "+ cityName + ", " + CountryCode);
+                    Log.d(LOG_TAG, "Location: " + cityName + ", " + CountryCode);
                 }
-            }
-            catch (Exception e) {
-                Log.e(LOG_TAG, "Error: "+ e);
+            } catch (Exception e) {
+                Log.e(LOG_TAG, "Error: " + e);
             }
         }
     }
@@ -115,16 +126,15 @@ public class LocationInfo {
         long GPSLocationTime = 0;
         long NetLocationTime = 0;
 
-        if(locationGPS != null) {
+        if (locationGPS != null) {
             GPSLocationTime = locationGPS.getTime();
         }
-        if(locationNet != null) {
+        if (locationNet != null) {
             NetLocationTime = locationNet.getTime();
         }
-        if(GPSLocationTime - NetLocationTime < 0) {
+        if (GPSLocationTime - NetLocationTime < 0) {
             return locationGPS;
-        }
-        else {
+        } else {
             return locationNet;
         }
     }
@@ -134,13 +144,13 @@ public class LocationInfo {
             @Override
             public void onLocationChanged(Location location) {
                 // locationManager.removeUpdates(this);
-                if(location != null) {
+                if (location != null) {
                     latitude = location.getLatitude();
                     longitude = location.getLongitude();
-                    currentAltitude = (float)location.getAltitude();
+                    currentAltitude = (float) location.getAltitude();
                     currentSpeed = location.getSpeed();
 
-                    if(prevLocation != null) {
+                    if (prevLocation != null) {
                         Location loc1 = new Location("");
                         loc1.setLatitude(prevLocation.getLatitude());
                         loc1.setLongitude(prevLocation.getLongitude());
@@ -154,15 +164,15 @@ public class LocationInfo {
 
                     accuracy = location.getAccuracy();
 
-                    if(useGeocoder) {
+                    if (useGeocoder) {
                         try {
                             addresses = geocoder.getFromLocation(latitude, longitude, 1);
-                            if(addresses.size() > 0) {
+                            if (addresses.size() > 0) {
                                 cityName = addresses.get(0).getLocality();
-                                if(cityName == null) {
+                                if (cityName == null) {
                                     cityName = addresses.get(0).getSubAdminArea();
                                 }
-                                if(cityName == null) {
+                                if (cityName == null) {
                                     cityName = addresses.get(0).getAdminArea();
                                 }
                                 StateName = addresses.get(0).getAdminArea();
@@ -170,8 +180,7 @@ public class LocationInfo {
                                 CountryCode = addresses.get(0).getCountryCode();
                                 Log.d(LOG_TAG, "onLocationChanged: " + cityName + ", " + CountryCode);
                             }
-                        }
-                        catch(Exception e) {
+                        } catch (Exception e) {
                             Log.e(LOG_TAG, "Error: " + e);
                         }
                     }
@@ -183,13 +192,15 @@ public class LocationInfo {
                     context.sendBroadcast(msg);
                 }
             }
+
             @Override
-            public void onStatusChanged(String provider, int status, Bundle extras) {}
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+            }
 
             @Override
             public void onProviderDisabled(String provider) {
                 Log.d(LOG_TAG, "GPS OFF");
-                if(provider.equals(LocationManager.GPS_PROVIDER)) {
+                if (provider.equals(LocationManager.GPS_PROVIDER)) {
                     Intent msg = new Intent(OpenFitIntent.INTENT_SERVICE_LOCATION);
                     msg.putExtra("status", false);
                     context.sendBroadcast(msg);
@@ -199,7 +210,7 @@ public class LocationInfo {
             @Override
             public void onProviderEnabled(String provider) {
                 Log.d(LOG_TAG, "GPS ON");
-                if(provider.equals(LocationManager.GPS_PROVIDER)) {
+                if (provider.equals(LocationManager.GPS_PROVIDER)) {
                     Intent msg = new Intent(OpenFitIntent.INTENT_SERVICE_LOCATION);
                     msg.putExtra("status", false);
                     context.sendBroadcast(msg);

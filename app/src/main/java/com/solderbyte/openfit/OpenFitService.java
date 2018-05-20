@@ -13,6 +13,7 @@ import com.solderbyte.openfit.util.OpenFitIntent;
 
 import android.annotation.SuppressLint;
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -28,6 +29,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -56,6 +58,7 @@ public class OpenFitService extends Service {
     private static ReconnectBluetoothThread reconnectThread;
     private static FindSoundThread findSoundThread;
 
+    private static final String NOTIFICATION_CHANNEL_ID = "open_fit_notification_channel";
     private int notificationId = 28518;
     private boolean smsEnabled = false;
     private boolean phoneEnabled = false;
@@ -637,20 +640,22 @@ public class OpenFitService extends Service {
         PendingIntent startIntent = PendingIntent.getActivity(this, 0, startActivity, PendingIntent.FLAG_UPDATE_CURRENT);
         PendingIntent stopIntent = PendingIntent.getBroadcast(this, 0, stopService, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        NotificationCompat.Builder nBuilder = new NotificationCompat.Builder(this);
-        nBuilder.setSmallIcon(R.drawable.open_fit_notification);
-        nBuilder.setContentTitle(getString(R.string.notification_title));
+        NotificationCompat.Builder nBuilder = new NotificationCompat.Builder(this,  NOTIFICATION_CHANNEL_ID)
+            .setSmallIcon(R.drawable.open_fit_notification)
+            .setContentTitle(getString(R.string.notification_title))
+            .setContentIntent(startIntent)
+            .setAutoCancel(true)
+            .setOngoing(true)
+            //.setPriority(NotificationCompat.PRIORITY_MIN)
+            .addAction(R.drawable.open_off_noti, getString(R.string.notification_button_close), stopIntent);
+
         if(connected) {
             nBuilder.setContentText(getString(R.string.notification_connected));
         }
         else {
             nBuilder.setContentText(getString(R.string.notification_disconnected));
         }
-        nBuilder.setContentIntent(startIntent);
-        nBuilder.setAutoCancel(true);
-        nBuilder.setOngoing(true);
-        //nBuilder.setPriority(NotificationCompat.PRIORITY_MIN);
-        nBuilder.addAction(R.drawable.open_off_noti, getString(R.string.notification_button_close), stopIntent);
+
         if(connected) {
             Intent cIntent = new Intent(OpenFitIntent.INTENT_SERVICE_BT);
             cIntent.putExtra(OpenFitIntent.INTENT_EXTRA_MSG, OpenFitIntent.ACTION_DISCONNECT);
@@ -664,10 +669,22 @@ public class OpenFitService extends Service {
             nBuilder.addAction(R.drawable.open_btc, getString(R.string.notification_button_connect), pConnect);
         }
 
+        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, "OpenFit Notifications", NotificationManager.IMPORTANCE_DEFAULT);
+
+            // Configure the notification channel.
+//            notificationChannel.setDescription("Channel description");
+//            notificationChannel.enableLights(true);
+//            notificationChannel.setLightColor(Color.RED);
+//            notificationChannel.setVibrationPattern(new long[]{0, 1000, 500, 1000});
+//            notificationChannel.enableVibration(true);
+            notificationManager.createNotificationChannel(notificationChannel);
+        }
+
         // Sets an ID for the notification
-        NotificationManager nManager = (NotificationManager) this.getSystemService(NOTIFICATION_SERVICE);
         notification = nBuilder.build();
-        nManager.notify(notificationId, notification);
+        notificationManager.notify(notificationId, notification);
     }
 
     public void clearNotification() {

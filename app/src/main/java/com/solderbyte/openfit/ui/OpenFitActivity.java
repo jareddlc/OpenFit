@@ -1,6 +1,8 @@
 package com.solderbyte.openfit.ui;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import com.android.vending.billing.IInAppBillingService;
 import com.google.android.gms.common.ConnectionResult;
@@ -12,6 +14,7 @@ import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.common.api.Status;
+import com.google.android.gms.common.util.ArrayUtils;
 import com.google.android.gms.fitness.Fitness;
 import com.solderbyte.openfit.ApplicationManager;
 import com.solderbyte.openfit.Billing;
@@ -30,6 +33,7 @@ import com.solderbyte.openfit.SleepData;
 import com.solderbyte.openfit.StartOpenFitAtBootReceiver;
 import com.solderbyte.openfit.util.OpenFitIntent;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
@@ -52,12 +56,14 @@ import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.SwitchPreference;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.TextView;
 import android.widget.Toast;
 
 public class OpenFitActivity extends Activity {
@@ -72,6 +78,7 @@ public class OpenFitActivity extends Activity {
     private static final int REQUEST_OAUTH = 1;
     private static final int BILLING_REQ = 1001;
     private static boolean GFIT_CONNECTED = false;
+    private final static int MY_APP_PERMISSIONS_REQUEST_CONSTANT = 42;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -106,6 +113,9 @@ public class OpenFitActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        askForPermissions();
+    }
+    private void init(){
         // load applications
         appManager = new ApplicationManager();
         appManager.setContext(getBaseContext());
@@ -124,6 +134,68 @@ public class OpenFitActivity extends Activity {
 
         this.getFragmentManager().beginTransaction().replace(android.R.id.content, new OpenFitFragment()).commitAllowingStateLoss();
     }
+
+    // region Permissions
+    private void askForPermissions() {
+        //TODO: Permissions should be asked only when needed, not all together
+        String[] permissionsArray = new String[]{
+                Manifest.permission.READ_PHONE_STATE,
+                // Manifest.permission.PROCESS_INCOMING_CALLS,
+                Manifest.permission.CALL_PHONE,
+                Manifest.permission.BLUETOOTH,
+                Manifest.permission.BLUETOOTH_ADMIN,
+                Manifest.permission.READ_CONTACTS,
+                Manifest.permission.RECEIVE_SMS,
+                Manifest.permission.SEND_SMS,
+                Manifest.permission.RECEIVE_MMS,
+                Manifest.permission.RECEIVE_WAP_PUSH,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.WAKE_LOCK,
+                Manifest.permission.ACCESS_NETWORK_STATE,
+                Manifest.permission.INTERNET,
+                Manifest.permission.RECEIVE_BOOT_COMPLETED
+        };
+
+        List<String> permissionsListToRequest = new ArrayList<>();
+
+        for (String permission : permissionsArray) {
+            if (ContextCompat.checkSelfPermission(this,
+                    Manifest.permission.READ_CONTACTS)
+                    != PackageManager.PERMISSION_GRANTED) {
+
+                permissionsListToRequest.add(permission);
+            }
+        }
+
+
+        if (permissionsListToRequest.isEmpty()) {
+            init();
+        }
+        else{
+            // Some permissions are not granted: Request the permissions
+            ActivityCompat.requestPermissions(this,
+                    permissionsListToRequest.toArray(new String[permissionsListToRequest.size()]),
+                    MY_APP_PERMISSIONS_REQUEST_CONSTANT);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String permissions[], @NonNull int[] grantResults) {
+        Log.d(LOG_TAG, "permissions: "+Arrays.toString(permissions)+"   grantResults:"+Arrays.toString(grantResults));
+        switch (requestCode) {
+            case MY_APP_PERMISSIONS_REQUEST_CONSTANT: {
+                if ( ArrayUtils.contains(grantResults, PackageManager.PERMISSION_DENIED) ){
+                    finish();
+                }
+                else {
+                    init();
+                }
+            }
+        }
+    }
+    //endregion
 
     @Override
     public void onDestroy() {

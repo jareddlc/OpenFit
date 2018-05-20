@@ -1,9 +1,11 @@
 package com.solderbyte.openfit.util;
 
 import android.graphics.Bitmap;
+import android.os.Build;
+
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.nio.ByteOrder;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -13,6 +15,8 @@ public class OpenFitVariableDataComposer {
     private int mPayloadSize;
 
     static final ByteOrder BYTE_ORDER = ByteOrder.LITTLE_ENDIAN;
+
+    //TODO: Changing the encoding to "ISO-10646-UCS-2" doesn't seem to have any effect and remove the "Unknown encoding 'UCS-2'" error
     static final Charset DEFAULT_CHARSET = Charset.forName("UCS-2");
 
     public static byte[] convertToByteArray(String pString) {
@@ -20,7 +24,18 @@ public class OpenFitVariableDataComposer {
             String p = "Error";
             return p.getBytes(DEFAULT_CHARSET);
         }
-        return pString.getBytes(DEFAULT_CHARSET);
+        byte[] byteArray = pString.getBytes(DEFAULT_CHARSET);
+
+        //TODO: Understand why the bytes are reversed 2 by 2 when using Android Oreo 8.1
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+            for (int i = 0; i < byteArray.length; i += 2) {
+                byte byteArray_i = byteArray[i];
+                byteArray[i] = byteArray[i + 1];
+                byteArray[i + 1] = byteArray_i;
+            }
+        }
+
+        return byteArray;
     }
 
     public static void writeCurrentTimeInfo(OpenFitVariableDataComposer pDataComposer)  {

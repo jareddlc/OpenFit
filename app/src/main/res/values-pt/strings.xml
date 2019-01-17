@@ -11,9 +11,9 @@
     <string name="dialog_close_help">Fechar</string>
     <string name="dialog_title_fitness">Fitness</string>
     <string name="dialog_close_fitness">Fechar</string>
-    <string name="dialog_title_news">Noticias do Open Fit</string>
+    <string name="dialog_title_news">Notícias do Open Fit</string>
     <string name="dialog_close_news">Fechar</string>
-    <string name="preference_category_connectivity_title">Conctividade</string>
+    <string name="preference_category_connectivity_title">Conectividade</string>
     <string name="preference_switch_bluetooth_title">Habilitar Bluetooth</string>
     <string name="preference_scan_title">Buscar</string>
     <string name="preference_scan_dialog">Buscar Bluetooth</string>
@@ -42,7 +42,7 @@
     <string name="preference_category_apps_title">Aplicativos</string>
     <string name="preference_donate_title">Doe</string>
     <string name="preference_donate_summary">Faça uma doação via PayPal</string>
-    <string name="preference_applications_summary">Nenhum aplicativo selecionado. Clique em +  do menu no topo para adicionar um aplicativo. Tenha certeza que o Acesso a Notificações esteja habilitado, caso contrário as notificações não irá funcionar.</string>
+    <string name="preference_applications_summary">Nenhum aplicativo selecionado. Clique em +  do menu no topo para adicionar um aplicativo. Tenha certeza que o Acesso a Notificações esteja habilitado, caso contrário as notificações não irão funcionar.</string>
     <string name="toast_bluetooth_enable">Habilitando&#8230;</string>
     <string name="toast_bluetooth_scan">Buscando&#8230;</string>
     <string name="toast_bluetooth_scan_complete">Busca completa. Por favor selecione o dispositivo</string>
@@ -58,6 +58,6 @@
     <string name="notification_connected">Conectado ao Gear Fit</string>
     <string name="notification_disconnected">Desconectado do Gear Fit</string>
     <string name="notification_button_connect">Conectar</string>
-    <string name="notification_button_disconnect">Disconectar</string>
+    <string name="notification_button_disconnect">Desconectar</string>
     <string name="notification_button_close">Desligar</string>
 </resources>

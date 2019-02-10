@@ -42,10 +42,9 @@
     <string name="dialog_close_fitness">Close</string>
     <string name="dialog_sync_fitness">Sync</string>
     <string name="dialog_title_news">Open Fit News</string>
-    <string name="dialog_message_news"><b>v1.11.0</b>
-        \n• Android 8.1 issue (incorrect notification characters)
-        \n• Request permissions at runtime
-        \n• Open Fit 2.0.0 coming soon
+    <string name="dialog_message_news"><b>v1.11.1</b>
+        \n• Portuguese translation improvements
+        \n• Open Fit 2.0.0 ~50% done
         \n\nGoogle Fit Sync is premium feature. Please make sure fitness data works properly before purchasing Open Fit Premium. Please read the help section for more info.
     </string>
     <string name="dialog_do_not_show_again_news">Do not show again</string>

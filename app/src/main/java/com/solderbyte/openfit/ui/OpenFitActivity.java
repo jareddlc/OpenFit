@@ -140,6 +140,7 @@ public class OpenFitActivity extends Activity {
         //TODO: Permissions should be asked only when needed, not all together
         String[] permissionsArray = new String[]{
                 Manifest.permission.READ_PHONE_STATE,
+                Manifest.permission.READ_CALL_LOG,
                 // Manifest.permission.PROCESS_INCOMING_CALLS,
                 Manifest.permission.CALL_PHONE,
                 Manifest.permission.BLUETOOTH,

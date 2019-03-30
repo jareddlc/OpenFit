@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import android.annotation.SuppressLint;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -33,6 +34,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.util.Log;
 
+@SuppressLint("LongLogTag")
 public class BluetoothLeService extends Service {
     private static final String LOG_TAG = "OpenFit:BluetoothLeService";
 

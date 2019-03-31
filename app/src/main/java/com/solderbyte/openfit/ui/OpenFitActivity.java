@@ -1,8 +1,38 @@
 package com.solderbyte.openfit.ui;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import android.Manifest;
+import android.app.Activity;
+import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.IntentSender;
+import android.content.ServiceConnection;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.IBinder;
+import android.preference.CheckBoxPreference;
+import android.preference.ListPreference;
+import android.preference.Preference;
+import android.preference.PreferenceCategory;
+import android.preference.PreferenceFragment;
+import android.preference.SwitchPreference;
+import android.provider.Settings;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.android.vending.billing.IInAppBillingService;
 import com.google.android.gms.common.ConnectionResult;
@@ -22,7 +52,6 @@ import com.solderbyte.openfit.BuildConfig;
 import com.solderbyte.openfit.ExerciseData;
 import com.solderbyte.openfit.GoogleFit;
 import com.solderbyte.openfit.HeartRateData;
-import com.solderbyte.openfit.SleepInfo;
 import com.solderbyte.openfit.OpenFitSavedPreferences;
 import com.solderbyte.openfit.OpenFitService;
 import com.solderbyte.openfit.PedometerData;
@@ -30,41 +59,13 @@ import com.solderbyte.openfit.PedometerTotal;
 import com.solderbyte.openfit.ProfileData;
 import com.solderbyte.openfit.R;
 import com.solderbyte.openfit.SleepData;
+import com.solderbyte.openfit.SleepInfo;
 import com.solderbyte.openfit.StartOpenFitAtBootReceiver;
 import com.solderbyte.openfit.util.OpenFitIntent;
 
-import android.Manifest;
-import android.app.Activity;
-import android.app.ProgressDialog;
-import android.content.BroadcastReceiver;
-import android.content.ComponentName;
-import android.content.ContentResolver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.IntentSender;
-import android.content.ServiceConnection;
-import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.net.Uri;
-import android.os.Bundle;
-import android.os.IBinder;
-import android.preference.CheckBoxPreference;
-import android.preference.ListPreference;
-import android.preference.Preference;
-import android.preference.PreferenceCategory;
-import android.preference.PreferenceFragment;
-import android.preference.SwitchPreference;
-import android.provider.Settings;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.widget.Toast;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class OpenFitActivity extends Activity {
     private static final String LOG_TAG = "OpenFit:OpenFitActivity";
@@ -140,6 +141,7 @@ public class OpenFitActivity extends Activity {
         //TODO: Permissions should be asked only when needed, not all together
         String[] permissionsArray = new String[]{
                 Manifest.permission.READ_PHONE_STATE,
+                Manifest.permission.READ_CALL_LOG,
                 // Manifest.permission.PROCESS_INCOMING_CALLS,
                 Manifest.permission.CALL_PHONE,
                 Manifest.permission.BLUETOOTH,
@@ -268,7 +270,7 @@ public class OpenFitActivity extends Activity {
         public static final String PREFERENCE_SKIP_CHANGELOG_KEY = "com.solderbyte.openfit.PREFERENCE_SKIP_CHANGELOG";
 
         private OpenFitSavedPreferences oPrefs;
-        private ProgressDialog progressDailog = null;
+        private ProgressDialog progressDialog = null;
 
         // UI preferences
         private static SwitchPreference preference_switch_bluetooth;
@@ -290,7 +292,7 @@ public class OpenFitActivity extends Activity {
         private static Preference preference_purchase;
         private static Preference preference_privacy;
 
-        private static boolean fitnessRequeted = false;
+        private static boolean fitnessRequested = false;
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
@@ -317,7 +319,11 @@ public class OpenFitActivity extends Activity {
 
             // start service
             Intent serviceIntent = new Intent(this.getActivity(), OpenFitService.class);
-            this.getActivity().startService(serviceIntent);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                this.getActivity().startForegroundService(serviceIntent);
+            } else {
+                this.getActivity().startService(serviceIntent);
+            }
 
             // App Listener
             LocalBroadcastManager.getInstance(this.getActivity()).registerReceiver(addApplicationReceiver, new IntentFilter(OpenFitIntent.INTENT_UI_ADDAPPLICATION));
@@ -531,7 +537,7 @@ public class OpenFitActivity extends Activity {
                 public boolean onPreferenceClick(Preference preference) {
                     sendIntent(OpenFitIntent.INTENT_SERVICE_BT, OpenFitIntent.ACTION_FITNESS);
                     Toast.makeText(getActivity(), R.string.toast_bluetooth_fitness, Toast.LENGTH_SHORT).show();
-                    fitnessRequeted = true;
+                    fitnessRequested = true;
                     return true;
                 }
             });
@@ -770,10 +776,10 @@ public class OpenFitActivity extends Activity {
                         gFit.setData(pedometerList, exerciseDataList, sleepList, sleepInfoList, heartRateList, profileData);
                     }
 
-                    if(fitnessRequeted) {
+                    if(fitnessRequested) {
                         DialogFitness d = new DialogFitness(getActivity(), pedometerDailyList, pedometerList, pedometerTotal, exerciseDataList, sleepList, heartRateList, profileData);
                         d.show(getFragmentManager(), OpenFitIntent.EXTRA_FITNESS);
-                        fitnessRequeted = false;
+                        fitnessRequested = false;
                     }
                 }
                 if(message.equals(OpenFitIntent.EXTRA_APPLICATIONS)) {
@@ -888,7 +894,7 @@ public class OpenFitActivity extends Activity {
 
         @Override
         public void onDestroy() {
-            Log.d(LOG_TAG, "onDestroy prefrenceFragement");
+            Log.d(LOG_TAG, "onDestroy preferenceFragment");
             this.getActivity().unregisterReceiver(btReceiver);
             this.getActivity().unregisterReceiver(serviceStopReceiver);
             this.getActivity().unregisterReceiver(serviceNotificationReceiver);
@@ -1008,9 +1014,9 @@ public class OpenFitActivity extends Activity {
                     Log.d(LOG_TAG, "Google Fit Sync requested");
                     if(mClient.isConnected()) {
                         Toast.makeText(getActivity(), R.string.toast_google_fit_sync, Toast.LENGTH_SHORT).show();
-                        progressDailog = new ProgressDialog(getActivity());
-                        progressDailog.setMessage(getString(R.string.progress_dialog_syncing));
-                        progressDailog.show();
+                        progressDialog = new ProgressDialog(getActivity());
+                        progressDialog.setMessage(getString(R.string.progress_dialog_syncing));
+                        progressDialog.show();
                     }
                     else {
                         Log.d(LOG_TAG, "Google Fit Sync not connected");
@@ -1020,8 +1026,8 @@ public class OpenFitActivity extends Activity {
                 if(message.equals(OpenFitIntent.INTENT_GOOGLE_FIT_SYNC_STATUS)) {
                     Boolean status = intent.getBooleanExtra(OpenFitIntent.INTENT_EXTRA_DATA, false);
                     String info = intent.getStringExtra(OpenFitIntent.INTENT_EXTRA_INFO);
-                    if(progressDailog != null) {
-                        progressDailog.dismiss();
+                    if(progressDialog != null) {
+                        progressDialog.dismiss();
                     }
                     if(status) {
                         Log.d(LOG_TAG, "Google Fit Sync completed");

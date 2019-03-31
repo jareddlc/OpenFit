@@ -926,7 +926,7 @@ public class OpenFitService extends Service {
     }
 
     public void sendDialerNotification(String number) {
-        long id = (long)(System.currentTimeMillis() / 1000L);
+        long id = (System.currentTimeMillis() / 1000L);
         String sender = number;
         String name = getContactName(number);
         if(name != null) {
@@ -1021,6 +1021,10 @@ public class OpenFitService extends Service {
     }
 
     public String getContactName(String phoneNumber) {
+        if(phoneNumber == null){
+            return null;
+        }
+
         ContentResolver cr = this.getContentResolver();
         Uri uri = Uri.withAppendedPath(PhoneLookup.CONTENT_FILTER_URI, Uri.encode(phoneNumber));
         Cursor cursor = cr.query(uri, new String[] {PhoneLookup.DISPLAY_NAME}, null, null, null);
@@ -1031,7 +1035,7 @@ public class OpenFitService extends Service {
         if(cursor.moveToFirst()) {
             contactName = cursor.getString(cursor.getColumnIndex(PhoneLookup.DISPLAY_NAME));
         }
-        if(cursor != null && !cursor.isClosed()) {
+        if(!cursor.isClosed()) {
             cursor.close();
         }
         return contactName;
@@ -1189,7 +1193,7 @@ public class OpenFitService extends Service {
         public void onReceive(Context context, Intent intent) {
             String message = intent.getStringExtra("message");
             String sender = intent.getStringExtra("sender");
-            Log.d(LOG_TAG, "Recieved SMS message: " + sender + " - " + message);
+            Log.d(LOG_TAG, "Received SMS message: " + sender + " - " + message);
             sendSmsNotification(sender, message);
         }
     };
@@ -1199,7 +1203,7 @@ public class OpenFitService extends Service {
         public void onReceive(Context context, Intent intent) {
             String message = "MMS received";
             String sender = intent.getStringExtra("sender");
-            Log.d(LOG_TAG, "Recieved MMS message: "+sender+" - "+message);
+            Log.d(LOG_TAG, "Received MMS message: "+sender+" - "+message);
             sendSmsNotification(sender, message);
         }
     };
@@ -1208,7 +1212,7 @@ public class OpenFitService extends Service {
         @Override
         public void onReceive(Context context, Intent intent) {
             String sender = intent.getStringExtra("sender");
-            Log.d(LOG_TAG, "Recieved PHONE: "+sender);
+            Log.d(LOG_TAG, "Received PHONE: "+sender);
             lastPhoneNumber = sender;
             sendDialerNotification(sender);
         }
@@ -1218,7 +1222,7 @@ public class OpenFitService extends Service {
         @Override
         public void onReceive(Context context, Intent intent) {
             String sender = intent.getStringExtra("sender");
-            Log.d(LOG_TAG, "Recieved Idle: "+sender);
+            Log.d(LOG_TAG, "Received Idle: "+sender);
             sendDialerEndNotification();
         }
     };
@@ -1227,7 +1231,7 @@ public class OpenFitService extends Service {
         @Override
         public void onReceive(Context context, Intent intent) {
             String sender = intent.getStringExtra("sender");
-            Log.d(LOG_TAG, "Recieved Offhook: "+sender);
+            Log.d(LOG_TAG, "Received Offhook: "+sender);
             sendDialerEndNotification();
         }
     };
